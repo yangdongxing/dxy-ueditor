@@ -28,7 +28,7 @@
 
         //为编辑器实例添加一个路径，这个不能被注释
         UEDITOR_HOME_URL: URL
-        
+
         // 前景色选择
         , FORECOLORS : (
             'ffffff,000000,eeece1,1f497d,4f81bd,c0504d,9bbb59,8064a2,4bacc6,f79646,' +
@@ -38,7 +38,6 @@
             'a5a5a5,262626,494429,17365d,366092,953734,76923c,5f497a,31859b,e36c09,' +
             '7f7f7f,0c0c0c,1d1b10,0f243e,244061,632423,4f6128,3f3151,205867,974806,' +
             'c00000,ff0000,ffc000,ffff00,92d050,00b050,00b0f0,0070c0,002060,7030a0,').split(',')
-
 
         // 服务器统一请求接口路径
         , serverUrl: URL + "php/controller.php"
@@ -73,20 +72,20 @@
         // ]]
 
         , toolbars: [[
-            'fullscreen', 'paragraph','bold', '|',
+            'fullscreen', 'paragraph','bold', 'italic','|',
             'forecolor','removeformat','|',
-            'justifyleft', 'justifycenter', 'justifyright', '|',
+            'justifyleft','|',
             'insertorderedlist', 'insertunorderedlist', '|',
             'link', 'unlink', '|',
             'superscript', 'subscript', '|',
-            'simpleupload' , 'insertvideo', '|',
-            'spechars','searchreplace','|',
-            'inserttable', 'insertrow', 'insertcol','mergecells', 'splittocells'
+            'simpleupload' , '|',
+            'inserttable'
         ]]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准
         ,labelMap:{
            'anchor':'', 'undo':''
         }
+
 
         //语言配置项,默认是zh-cn。有需要的话也可以使用如下这样的方式来自动多语言切换，当然，前提条件是lang文件夹下存在对应的语言文件：
         //lang值也可以通过自动获取 (navigator.language||navigator.browserLanguage ||navigator.userLanguage).toLowerCase()

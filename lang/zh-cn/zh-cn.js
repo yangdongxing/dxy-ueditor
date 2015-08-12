@@ -198,7 +198,7 @@ UE.I18N['zh-cn'] = {
     'anthorMsg':"链接",
     'clearColor':'清空颜色',
     'standardColor':'标准颜色',
-    'themeColor':'主题颜色',
+    'themeColor':'选择颜色',
     'property':'属性',
     'default':'默认',
     'modify':'修改',
