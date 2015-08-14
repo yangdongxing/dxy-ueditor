@@ -74,12 +74,12 @@
 
         , toolbars: [[
             'fullscreen', 'paragraph','bold', '|',
-            'forecolor','removeformat','|',
+            'removeformat','|',
             'justifyleft', 'justifycenter', 'justifyright', '|',
             'insertorderedlist', 'insertunorderedlist', '|',
             'link', 'unlink', '|',
             'superscript', 'subscript', '|',
-            'simpleupload' , 'insertvideo', '|',
+            'simpleupload' , '|',
             'spechars','searchreplace','|',
             'inserttable', 'insertrow', 'insertcol','mergecells', 'splittocells'
         ]]

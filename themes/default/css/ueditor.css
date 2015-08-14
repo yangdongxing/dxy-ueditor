@@ -350,7 +350,7 @@ div.edui-box {
 .edui-default .edui-for-paragraph .edui-listitem-label {
     min-width: 200px;
     _width: 200px;
-    padding: 2px 5px;
+    /*padding: 2px 5px;*/
 }
 
 .edui-default .edui-for-rowspacingtop .edui-listitem-label,
@@ -672,9 +672,17 @@ div.edui-box {
     background-position: -260px -40px;
 }
 
-.edui-default  .edui-for-insertvideo .edui-icon {
+.edui-default  .edui-for-insertvideo .edui-icon,
+.edui-default  .edui-for-ccvideoinsertccvideo .edui-icon
+ {
     background-position: -900px 0;
 }
+
+.edui-default  .edui-for-onekeyreplace .edui-icon
+ {
+    background-position: -250px -50px;
+}
+
 
 .edui-default  .edui-for-time .edui-icon {
     background-position: -160px -20px;
@@ -1282,17 +1290,21 @@ div.edui-box {
 }
 
 .edui-default .edui-dialog-buttons .edui-button .edui-button-body {
-    background: url("../images/icons-all.gif") no-repeat;
+    /*background: url("../images/icons-all.gif") no-repeat;*/
     height: 24px;
     width: 96px;
     font-size: 12px;
     line-height: 24px;
     text-align: center;
     cursor: default;
+    border: 1px solid #999;
 }
 
 .edui-default .edui-dialog-buttons .edui-button .edui-state-hover .edui-button-body {
-    background: url("../images/icons-all.gif") no-repeat 0 -30px;
+    /*background: url("../images/icons-all.gif") no-repeat 0 -30px;*/
+    border:1px solid #666;
+    background-color: #666; 
+    color: #fff;
 }
 
 .edui-default .edui-dialog iframe {
@@ -1480,6 +1492,9 @@ div.edui-box {
     line-height: 27px;*/
     font-size: 14px;
     line-height: 2;
+    padding: 4px 8px;
+        display: block;
+
 }
 
 .edui-default .edui-for-paragraph .edui-listitem-label .edui-for-h1 {
@@ -1488,6 +1503,8 @@ div.edui-box {
     line-height: 36px;*/
     font-size: 14px;
     line-height: 2;
+    padding: 4px 8px;
+    display: block;
 }
 
 .edui-default .edui-for-paragraph .edui-listitem-label .edui-for-h2 {
@@ -1496,6 +1513,9 @@ div.edui-box {
     line-height: 29px;*/
     font-size: 14px;
     line-height: 2;
+    padding: 4px 8px;
+        display: block;
+
 }
 
 .edui-default .edui-for-paragraph .edui-listitem-label .edui-for-h3 {
@@ -1504,6 +1524,9 @@ div.edui-box {
     line-height: 23px;*/
     font-size: 14px;
     line-height: 2;
+    padding: 4px 8px;
+        display: block;
+
 }
 
 .edui-default .edui-for-paragraph .edui-listitem-label .edui-for-h4 {
