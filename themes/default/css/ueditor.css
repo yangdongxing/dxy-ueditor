@@ -400,7 +400,7 @@ div.edui-box {
     width: 40px !important;
     height: 46px !important;
     background: url(../images2/icons.png) 0 -4000px;
-    background: url(../images/icons.gif) 0 -4000px\9;
+    background: url(../images2/icons.gif) 0 -4000px\9;
     background-size: 1250px 800px;
 }
 
@@ -489,7 +489,7 @@ div.edui-box {
     height: 40px !important;
     width: 46px !important;
     background-image: url(../images2/icons.png);
-    background-image: url(../images/icons.gif) \9;
+    background-image: url(../images2/icons.gif) \9;
 }
 
 .edui-default .edui-toolbar .edui-button .edui-button-wrap {
@@ -959,7 +959,7 @@ div.edui-box {
 .edui-default .edui-toolbar .edui-for-forecolor .edui-splitbutton-body .edui-arrow,
 .edui-default .edui-toolbar .edui-for-forecolor .edui-menubutton-body .edui-arrow {
     background-image: url(../images2/icons.png);
-    background-image: url(../images/icons.gif) \9;
+    background-image: url(../images2/icons.gif) \9;
         background-position: right -106px;
         width: 9px;
         height:40px;
@@ -1954,7 +1954,7 @@ div.edui-box {
 .edui-default .edui-toolbar .edui-for-paragraph .edui-combox-body .edui-button-body{
 
     background-image: url(../images2/icons.png);
-    background-image: url(../images/icons.gif) \9;
+    background-image: url(../images2/icons.gif) \9;
     background-position: right -106px;
 }
 
