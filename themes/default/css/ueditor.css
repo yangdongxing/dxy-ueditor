@@ -1959,7 +1959,12 @@ div.edui-box {
 }
 
 
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 2) {
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5), 
+       only screen and (min--moz-device-pixel-ratio: 1.5), /* 注意这里的写法比较特殊 */
+       only screen and (-o-min-device-pixel-ratio: 3/2),
+       only screen and (min-device-pixel-ratio: 1.5),
+       only screen and (min-device-pixel-ratio: 2) 
+{
 
     .edui-default .edui-menuitem .edui-icon {
         background-image: url(../images2/icons@2x.png);

@@ -69,7 +69,7 @@
             'forecolor','removeformat','|',
             'justifyleft','|',
             'insertorderedlist', 'insertunorderedlist', '|',
-            'link', 'unlink', 'horizontal' ,'|',
+            'link', 'unlink', 'horizontal','blockquote' ,'|',
             'superscript', 'subscript','|',
             'simpleupload' ,'inserttable'
         ]]
