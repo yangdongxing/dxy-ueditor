@@ -545,11 +545,11 @@ div.edui-box {
     background-position:-160px -40px;
 }
 .edui-default  .edui-for-underline .edui-icon {
-    background-position: -140px 0;
+    background-position: -200px 0;
 }
 
 .edui-default  .edui-for-strikethrough .edui-icon {
-    background-position: -120px 0;
+    background-position: -400px -50px;
 }
 
 .edui-default  .edui-for-subscript .edui-icon {
@@ -837,7 +837,7 @@ div.edui-box {
 }
 
 .edui-default  .edui-for-indent .edui-icon {
-    background-position: -400px 0;
+    background-position: -450px -50px;
 }
 
 .edui-default  .edui-for-outdent .edui-icon {

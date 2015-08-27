@@ -4,13 +4,13 @@
         UE.registerUI('onekeyreplace', function (editor, uiName) {
             var btn = new UE.ui.Button({
                 name: 'onekeyreplace',
-                title: '替换内容特殊格式',
+                title: '丁香园标准格式化功能',
                 onclick: function () {
                     exeCommandReplaceButton(editor);
                 }
             });
             return btn;
-        }, 1);
+        }, 29);
 
 
         function exeCommandReplaceButton(editor) {
@@ -91,8 +91,5 @@
         }
 
 
-var exeCommandReplaceButton = function(){
-    alert('2312313')
-}
 
 })();
