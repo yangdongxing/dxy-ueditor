@@ -35,6 +35,13 @@
         // 服务器统一请求接口路径
         , serverUrl: URL + "php/controller.php"
 
+        //dxyupload 配置
+        //图片前缀+服务器返回路径=真实路径（可选）
+        //http://img.dxycdn.com/dotcom/
+        ,imageUploadPrefix : 'http://dxy.us/upload/public/'
+        ,imageUploadRequestUrl : '/admin/i/att/upload?type=column_content'
+        ,imageAllowFiles: [".png", ".jpg", ".jpeg", ".gif", ".bmp"]
+
         //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的从新定义
         // , toolbars: [[
         //     'fullscreen', 'source', '|', 'undo', 'redo', '|',
@@ -70,7 +77,7 @@
             'justifyleft','justifycenter','justifyright','indent','|',
             'insertorderedlist', 'insertunorderedlist', '|',
             'link', 'unlink', 'horizontal','blockquote' ,'|',
-            'simpleupload','inserttable','|',
+            'dxyupload','inserttable','|',
             'superscript', 'subscript','|',
             
         ]]
@@ -319,7 +326,7 @@
         //是否保持toolbar的位置不动,默认true
         //,autoFloatEnabled:true
         //浮动时工具栏距离浏览器顶部的高度，用于某些具有固定头部的页面
-        //,topOffset:30
+        ,topOffset:50
         //编辑器底部距离工具栏高度(如果参数大于等于编辑器高度，则设置无效)
         //,toolbarTopOffset:400
 

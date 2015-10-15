@@ -1,0 +1,15 @@
+{
+	"name" : "dxy-ueditor",
+	"version": "0.0.1",
+	"dependencies": {
+		"grunt": "latest",
+		"grunt-contrib-watch": "latest",
+		"grunt-contrib-concat": "latest",
+		"grunt-contrib-copy": "latest",
+		"grunt-contrib-uglify": "latest",
+		"grunt-contrib-jshint": "latest",
+		"load-grunt-tasks" : "latest",
+		"jshint-stylish": "latest"
+	},
+	"repository": {}
+}
