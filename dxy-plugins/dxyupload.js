@@ -314,7 +314,7 @@ editorui.dxyupload = function (editor) {
     var name = 'simpleupload',
         ui = new editorui.Button({
             className:'edui-for-' + name,
-            title:editor.options.labelMap[name] || editor.getLang("labelMap." + name) || '',
+            title: '图片上传',
             onclick:function () {},
             theme:editor.options.theme,
             showText:false
