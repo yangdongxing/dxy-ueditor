@@ -1,5 +1,4 @@
 /**
- * 在simpleupload的基础上进行修改，添加拖动上传功能
  * 提供dxyupload指令， 参数[File, File...] || input.files
  */
 (function(){

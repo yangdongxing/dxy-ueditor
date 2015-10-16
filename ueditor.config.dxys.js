@@ -85,6 +85,7 @@
         ,labelMap:{
            'anchor':'', 'undo':''
         }
+        ,allowDivTransToP : false
 
 
         //语言配置项,默认是zh-cn。有需要的话也可以使用如下这样的方式来自动多语言切换，当然，前提条件是lang文件夹下存在对应的语言文件：
@@ -314,7 +315,7 @@
 
         //autoHeightEnabled
         // 是否自动长高,默认true
-        ,autoHeightEnabled:false
+        ,autoHeightEnabled:true
 
         //scaleEnabled
         //是否可以拉伸长高,默认true(当开启时，自动长高失效)
