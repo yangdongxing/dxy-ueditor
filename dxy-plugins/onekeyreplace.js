@@ -1,14 +1,14 @@
 (function () {
-    baidu.editor.ui.dxyupload = function (editor) {
+    baidu.editor.ui.onekeyreplace = function (editor) {
         var btn = new UE.ui.Button({
             name: 'onekeyreplace',
             title: '丁香园标准格式化功能',
-            onclick: function () {
-                exeCommandReplaceButton(editor);
-            }
+        });
+        btn.addListener('click', function(){
+            exeCommandReplaceButton(editor);
         });
         return btn;
-    }
+    };
 
     function exeCommandReplaceButton(editor) {
         var content = editor.getData ? editor.getData() : editor.getContent();

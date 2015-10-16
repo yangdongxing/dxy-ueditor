@@ -76,7 +76,7 @@
             'forecolor','removeformat','|',
             'justifyleft','justifycenter','justifyright','indent','|',
             'insertorderedlist', 'insertunorderedlist', '|',
-            'link', 'unlink', 'horizontal','blockquote' ,'|',
+            'dxylink', 'horizontal','blockquote' ,'|',
             'dxyupload','inserttable','|',
             'superscript', 'subscript','|','onekeyreplace'
             

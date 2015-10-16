@@ -312,10 +312,9 @@
 });
 editorui.dxyupload = function (editor) {
     var name = 'simpleupload',
-        ui = new editorui.Button({
+        ui = new UE.ui.Button({
             className:'edui-for-' + name,
             title: '图片上传',
-            onclick:function () {},
             theme:editor.options.theme,
             showText:false
         });
