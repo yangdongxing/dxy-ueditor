@@ -10,8 +10,7 @@
     		elements,
     		url, text, unlink, bookmark;
     	return {
-    		show : function(link, bk){
-    			bookmark = bk;
+    		show : function(link){
     			currentLink = link;
     			var pos = domUtils.getXY(currentLink);
     			elements.style.top = pos.y + currentLink.scrollTop + (editor.getOpt('dxylink_default_top')||20) + 'px';
@@ -25,8 +24,9 @@
     				elements.style.display = 'none';
     			}
     		},
-    		init : function(ed){
+    		init : function(ed, link){
     			editor = ed;
+    			currentLink = link;
     			var template = '<div class="dxy-linkedit-box" style="display:none;position:absolute;">'+
     							'<p><label>文本：</label><input type="text" class="dxy-linkedit-text"><span class="dxy-linkedit-unlink"></span></p>'+
     							'<p><label>链接地址：</label><input type="text" class="dxy-linkedit-url"></p>'+
@@ -68,6 +68,13 @@
     				editor.selection.getRange().setEnd(currentLink).select();
     				editor.execCommand('dxylinkremove');
     			});
+    			this.show(link);
+    		},
+    		destory : function(){
+    			if(elements){
+    				domUtils.remove(elements);
+    				elements = null;
+    			}
     		}
     	};
     })();
@@ -78,9 +85,6 @@
             title: editor.getOpt('dxylink_title') || '插入链接',
         });
 
-	    editor.on('ready', function(){
-	    	LinkEditorBox.init(editor);
-	    });
 	    
         var popup = new baidu.editor.ui.Popup({
                         content: 'hehe',
@@ -97,7 +101,8 @@
 	        if (state == -1) {
 	            btn.setDisabled(true);
 	            btn.setChecked(false);
-	            LinkEditorBox.show(link);
+	            LinkEditorBox.destory();
+	            LinkEditorBox.init(editor,link);
 	        } else {
 	            if (!uiReady) {
 	                btn.setDisabled(false);
@@ -110,7 +115,7 @@
 	                	}
 	                }, true);
 	                if(!link){
-	                	LinkEditorBox.hide();
+	                	LinkEditorBox.destory();
 	                }
 	            }
 	        }
