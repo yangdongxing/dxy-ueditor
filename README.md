@@ -32,3 +32,23 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 1. [dxyupload](#dxyupload) 图片上传
 2. [onekeyreplace](#onekeyreplace) 丁香园一键格式化
 3. [dxylink](#dxylink) 插入和移除超链接
+
+## dxyupload
+图片插入上传插件，支持多图上传，支持图片拖入上传。<a name="dxyupload"></a>
+
+配置参数：
+	
+	imageUploadRequestUrl : 图片上传地址
+ 	imageAllowFiles : 允许上传的文件的后缀列表
+ 	imageUploadPrefix : 图片地址前缀
+ 	
+## dxylink
+链接插入插件。集成链接插入与移除。<a name="dxylink"></a>
+
+配置参数：
+
+	dxylink_default_top : 链接编辑弹出框y轴偏移量
+ 	dxylink_default_left: 链接编辑弹出框
+ 	dxylink_title : toolbar button 提示
+ 	dxylink_default_link_url : 链接编辑器默认链接
+ 	dxylink_default_link_text : 链接编辑器默认文本

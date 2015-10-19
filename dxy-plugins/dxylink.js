@@ -1,5 +1,12 @@
 /**
  * dxylink
+ *
+ * 可配置参数:
+ * dxylink_default_top : 链接编辑弹出框y轴偏移量
+ * dxylink_default_left: 链接编辑弹出框
+ * dxylink_title : toolbar button 提示
+ * dxylink_default_link_url : 链接编辑器默认链接
+ * dxylink_default_link_text : 链接编辑器默认文本
  */
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;

@@ -1,5 +1,9 @@
 /**
  * 提供dxyupload指令， 参数[File, File...] || input.files
+ * 可配置参数:
+ * imageUploadRequestUrl : 图片上传地址
+ * imageAllowFiles : 允许上传的文件的后缀列表
+ * imageUploadPrefix : 图片地址前缀
  */
 (function(){
     var domUtils = baidu.editor.dom.domUtils;

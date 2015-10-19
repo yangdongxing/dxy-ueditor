@@ -1,5 +1,12 @@
 /**
  * dxylink
+ *
+ * 可配置参数:
+ * dxylink_default_top : 链接编辑弹出框y轴偏移量
+ * dxylink_default_left: 链接编辑弹出框
+ * dxylink_title : toolbar button 提示
+ * dxylink_default_link_url : 链接编辑器默认链接
+ * dxylink_default_link_text : 链接编辑器默认文本
  */
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;
@@ -240,6 +247,10 @@
 
 /**
  * 提供dxyupload指令， 参数[File, File...] || input.files
+ * 可配置参数:
+ * imageUploadRequestUrl : 图片上传地址
+ * imageAllowFiles : 允许上传的文件的后缀列表
+ * imageUploadPrefix : 图片地址前缀
  */
 (function(){
     var domUtils = baidu.editor.dom.domUtils;

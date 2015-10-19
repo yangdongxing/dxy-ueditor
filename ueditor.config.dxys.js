@@ -33,7 +33,6 @@
         , FORECOLORS : ('fe7800,7c68b4,999999,333333').split(',')
 
         // 服务器统一请求接口路径
-        , serverUrl: URL + "php/controller.php"
 
         //dxyupload 配置
         //图片前缀+服务器返回路径=真实路径（可选）
