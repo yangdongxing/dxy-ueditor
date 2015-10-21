@@ -649,6 +649,7 @@ editorui.dxyupload = function (editor) {
             content = content.replace(/&rsq_temp;/ig, "’");
             editor.setContent(content);
         }
+        alert('格式化完成');
     }
 
 
@@ -696,4 +697,95 @@ editorui.dxyupload = function (editor) {
         }
 
 
+})();
+
+(function () {
+    baidu.editor.ui.copytowechat = function (editor) {
+        var btn = new UE.ui.Button({
+            name: 'copytowechat',
+            title: '复制到微信',
+        });
+
+        editor.addListener('afteruiready', function(){
+        	UE.utils.loadFile(document, {
+			     src: editor.getOpt('UEDITOR_HOME_URL') + 'third-party/zeroclipboard/ZeroClipboard.js',
+			     tag:"script",
+			     type:"text/javascript",
+			     defer:"defer"
+		 	}, function(){
+		 		ZeroClipboard.config({
+		            debug: false,
+		            swfPath: editor.getOpt('UEDITOR_HOME_URL')+ 'third-party/zeroclipboard/ZeroClipboard.swf'
+		        });
+	        	var wraper = btn.getDom('body'),
+		        	client;
+		        client = new ZeroClipboard($('#'+btn.id+' .edui-icon')[0]);       
+				client.on( "ready", function( readyEvent ) {
+				   client.on( "copy", function ( event ) {
+				   		var data = getWechatContent(editor);
+				        event.clipboardData.setData( "text/html", data||'');
+				        event.clipboardData.setData( "text/plain", data||'' );
+				        alert('已复制到粘贴板');
+				    } );
+				} );
+		 	});
+        });
+        
+        return btn;
+    };
+    function getWechatContent(editor, ignoreBlank){
+    	var root = UE.htmlparser(editor.body.innerHTML, !!ignoreBlank),
+    		i, len;
+    	for(i=0,len=editor.wechatoutputrules.length; i<len; i++){
+    		editor.wechatoutputrules[i].call(editor, root);
+    	}
+    	return root.toHtml();
+    }
+})();
+(function(){
+	UE.plugin.register('wechatoutputrule', function(){
+		var me = this;
+		if(!me.addWechatOutputRule){
+			me.wechatoutputrules = [];
+			me.addWechatOutputRule = function(rule){
+				me.wechatoutputrules.push(rule);
+			};
+		}
+		me.addWechatOutputRule(function(root){
+			root.traversal(function(node){
+				if(node.tagName === 'p'){
+					node.setStyle('font-size', '14px');
+					node.setStyle('margin-bottom', '15px');
+					node.setStyle('line-height', '1.8');
+					node.setStyle('margin-top', '5px');
+				}
+			});
+		});
+		me.addWechatOutputRule(function(root){
+			root.traversal(function(node){
+				if(node.tagName === 'h1'){
+					node.tagName = 'p';
+					node.setStyle('font-size', '28px');
+					node.setStyle('font-weight', 'bold');
+					node.setStyle('border-bottom', '1px solid #e2e2e2');
+					node.setStyle('margin-bottom', '25px');
+					node.setStyle('line-height', '1.8');
+				}else if(node.tagName === 'h2'){
+					node.tagName = 'p';
+					node.setStyle('font-size', '21px');
+					node.setStyle('font-weight', 'bold');
+					node.setStyle('border-bottom', '1px solid #e2e2e2');
+					node.setStyle('margin-bottom', '25px');
+					node.setStyle('line-height', '1.8');
+				}else if(node.tagName === 'h3'){
+					node.tagName = 'p';
+					node.setStyle('font-size', '1.17em');
+					node.setStyle('font-weight', 'bold');
+					node.setStyle('border-bottom', '1px solid #e2e2e2');
+					node.setStyle('margin-bottom', '17px');
+					node.setStyle('line-height', '1.8');
+				}
+			});
+		});
+	});
 })();

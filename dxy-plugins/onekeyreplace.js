@@ -41,6 +41,7 @@
             content = content.replace(/&rsq_temp;/ig, "’");
             editor.setContent(content);
         }
+        alert('格式化完成');
     }
 
 
