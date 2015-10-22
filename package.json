@@ -9,7 +9,8 @@
 		"grunt-contrib-uglify": "latest",
 		"grunt-contrib-jshint": "latest",
 		"load-grunt-tasks" : "latest",
-		"jshint-stylish": "latest"
+		"jshint-stylish": "latest",
+		"readline" : "latest"
 	},
 	"repository": {}
 }

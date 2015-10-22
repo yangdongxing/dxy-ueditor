@@ -1,3 +1,7 @@
+/**
+ * 复制到微信功能
+ * @required ZeroClipboard
+ */
 (function () {
     baidu.editor.ui.copytowechat = function (editor) {
         var btn = new UE.ui.Button({
@@ -36,7 +40,12 @@
     	var root = UE.htmlparser(editor.body.innerHTML, !!ignoreBlank),
     		i, len;
     	for(i=0,len=editor.wechatoutputrules.length; i<len; i++){
-    		editor.wechatoutputrules[i].call(editor, root);
+    		try{
+    			editor.wechatoutputrules[i].call(editor, root);
+    		}catch(e){
+    			console.log(e);
+    			throw e;
+    		}
     	}
     	return root.toHtml();
     }
