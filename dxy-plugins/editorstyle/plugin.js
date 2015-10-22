@@ -12,7 +12,7 @@ var editor = this;var styles = 'body{line-height: 1.8;font-size: 14px;color: #33
 'h1{font-size:28px;}'+
 'h2{font-size:21px;}'+
 'h3{font-size:17px;}'+
-'p{font-size:14px;margin-bottom:15px;margin-top:5px;line-height:1.8;} ';
+'p{font-size:14px;margin-bottom:15px;margin-top:5px;line-height:1.8;}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles);
 	}else{

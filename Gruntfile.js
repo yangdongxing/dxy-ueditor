@@ -42,7 +42,7 @@ module.exports = function (grunt) {
         }
         body = body.slice(0, body.length-2);
         body = 'var styles = ' + body + ';\n';
-        require('fs').writeFileSync('./dxy-plugins/editorstyle/style.js', header+body+footer, {
+        require('fs').writeFileSync('./dxy-plugins/editorstyle/plugin.js', header+body+footer, {
             encoding : 'utf8'
         });
     });
