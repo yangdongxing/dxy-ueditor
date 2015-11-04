@@ -38,6 +38,11 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 		          |- dialog -- *.js
 		          			|- *.css (不能是editor.css)
 		          			|- *.tpl
+		          			
+## 如何修改编辑器内的文档样式
+1. 必须运行grunt dev
+2. 通用文档基础样式请修改`/dxy-plugins/editorstyle/editor.css`。同时修改`/dest/css/dxydoctor/column-debug.css`,保证web预览的样式一致。微信导出样式已已与编辑器内样式保持一致。
+3. 插件所改变的文档样式请在`插件目录/editor.css`中修改
 
 ## 丁香园自定义插件列表
 1. [dxyupload](#dxyupload) 图片上传
