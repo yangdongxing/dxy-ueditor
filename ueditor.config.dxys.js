@@ -19,7 +19,7 @@
      * 因此，UEditor提供了针对不同页面的编辑器可单独配置的根路径，具体来说，在需要实例化编辑器的页面最顶部写上如下代码即可。当然，需要令此处的URL等于对应的配置。
      * window.UEDITOR_HOME_URL = "/xxxx/xxxx/";
      */
-    var URL = 'http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/dxy-ueditor/';
+    var URL = 'http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/ueditor/';
 
     /**
      * 配置项主体。注意，此处所有涉及到路径的配置别遗漏URL变量。
@@ -37,7 +37,7 @@
         //dxyupload 配置
         //图片前缀+服务器返回路径=真实路径（可选）
         //http://img.dxycdn.com/dotcom/
-        ,imageUploadPrefix : 'http://dxy.us/upload/public/'
+        ,imageUploadPrefix : document.domain === 'dxy.us'? 'http://dxy.us/upload/public/' : 'http://img.dxycdn.com/dotcom/'
         ,imageUploadRequestUrl : '/admin/i/att/upload?type=column_content'
         ,imageAllowFiles: [".png", ".jpg", ".jpeg", ".gif", ".bmp"]
 
@@ -77,14 +77,14 @@
             'insertorderedlist', 'insertunorderedlist', '|',
             'dxylink', 'horizontal','blockquote' ,'|',
             'dxyupload','inserttable','|',
-            'superscript', 'subscript','|','onekeyreplace', 'copytowechat','editorstyle'
+            'superscript', 'subscript','|','onekeyreplace', 'copytowechat'
             
         ]]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准
         ,labelMap:{
            'anchor':'', 'undo':''
         }
-        ,allowDivTransToP : true
+        ,allowDivTransToP : true 
 
 
         //语言配置项,默认是zh-cn。有需要的话也可以使用如下这样的方式来自动多语言切换，当然，前提条件是lang文件夹下存在对应的语言文件：
@@ -119,7 +119,7 @@
         //如果自定义，最好给p标签如下的行高，要不输入中文时，会有跳动感
         //,initialStyle:'p{line-height:1em}'//编辑器层级的基数,可以用来改变字体等
 
-        //,iframeCssUrl: URL + '/themes/iframe.css' //给编辑器内部引入一个css文件
+        ,iframeCssUrl: URL + '/themes/iframe.css?t='+new Date().getTime() //给编辑器内部引入一个css文件
 
         //indentValue
         //首行缩进距离,默认是2em

@@ -49,7 +49,7 @@
     				'display' : 'inline-block',
     				'width' : '20px',
     				'height' : '20px',
-    				'background-image' : 'url(http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/dxy-ueditor/themes/default/images2/icons@2x.png)',
+    				'background-image' : 'url(http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/ueditor/themes/default/images2/icons@2x.png)',
     				'background-size' : '1250px 800px',
     				'background-position' : '-415px -8px',
     				'margin-left': '10px'

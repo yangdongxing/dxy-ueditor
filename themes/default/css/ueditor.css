@@ -418,11 +418,11 @@ div.edui-box {
 .edui-default .edui-state-disabled .edui-menuitem-label {
     color: gray;
 }
-
+ 
 
 /*不可选中菜单按钮 */
 .edui-default .edui-toolbar .edui-combox-body .edui-button-body {
-    width: 80px;
+    width: 100px;
     font-size: 12px;
     height: 40px;
     line-height: 40px;
@@ -1614,7 +1614,7 @@ div.edui-box {
     margin-right: 1px;
     font-size: 12px;
     line-height: 14px;
-    height: 14px;
+    height: 20px;
     border: 1px solid #333;
     padding: 3px 5px;
     cursor: pointer;
@@ -1967,29 +1967,34 @@ div.edui-box {
 {
 
     .edui-default .edui-menuitem .edui-icon {
-        background-image: url(../images2/icons@2x.png);
+        background-image: url(../images2/icons@2x.png?t=110);
         background-size: 1250px 800px;
     }
 
     .edui-default .edui-toolbar .edui-button .edui-icon,
     .edui-default .edui-toolbar .edui-menubutton .edui-icon,
     .edui-default .edui-toolbar .edui-splitbutton .edui-icon {
-        background-image: url(../images2/icons@2x.png);
+        background-image: url(../images2/icons@2x.png?t=110);
         background-size: 1250px 800px;
 
     }
 
     .edui-default .edui-toolbar .edui-for-forecolor .edui-splitbutton-body .edui-arrow,
     .edui-default .edui-toolbar .edui-for-forecolor .edui-menubutton-body .edui-arrow {
-        background-image: url(../images2/icons@2x.png);
+        background-image: url(../images2/icons@2x.png?t=110);
         background-size: 1250px 800px;
 
     }
 
     .edui-default .edui-toolbar .edui-for-paragraph .edui-combox-body .edui-button-body{
-        background-image: url(../images2/icons@2x.png);
+        background-image: url(../images2/icons@2x.png?t=110);
         background-size: 1250px 800px;
 
     }
 
+}
+.edui-for-copytowechat .edui-icon{
+    background-image: url(../images2/icons@2x.png?t=110) !important;
+    background-size: 1250px 800px;
+    background-position: -500px -50px;
 }

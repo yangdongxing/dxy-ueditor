@@ -10058,6 +10058,14 @@ UE.plugins['defaultfilter'] = function () {
                             break;
                         }
                         var tmpNode, p = UE.uNode.createElement('p');
+                        /**
+                         * @author yansSun
+                         * @date Fri Oct 30 2015 10:00:50 GMT+0800 (CST)
+                         * 为兼容丁香园老编辑器编辑的内容在导入后样式的丢失
+                         */
+                        p.setAttr('style', node.getAttr('style'));
+                        p.setAttr('data-align', node.getAttr('data-align'))
+
                         while (tmpNode = node.firstChild()) {
                             if (tmpNode.type == 'text' || !UE.dom.dtd.$block[tmpNode.tagName]) {
                                 p.appendChild(tmpNode);
@@ -12109,6 +12117,13 @@ UE.plugins['removeformat'] = function(){
                     while ( current ) {
                         if ( current == bookmark.end ) {
                             break;
+                        }
+                        //@author yansSun
+                        if(current.tagName.indexOf('H')===0){
+                            var temp = document.createElement('p');
+                            temp.innerHTML = current.innerHTML;
+                            current.parentElement.replaceChild(temp, current);
+                            current = temp;
                         }
 
                         next = domUtils.getNextDomNode( current, true, filter );
@@ -29187,7 +29202,7 @@ UE.ui = baidu.editor.ui = {};
         var editor = new UE.Editor(options);
         editor.options.editor = editor;
         utils.loadFile(document, {
-            href:editor.options.themePath + editor.options.theme + "/css/ueditor.css",
+            href:editor.options.themePath + editor.options.theme + "/css/ueditor.css?t="+new Date().getTime(),
             tag:"link",
             type:"text/css",
             rel:"stylesheet"

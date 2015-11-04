@@ -28,7 +28,7 @@
 	                    range.select();
 	                    if(range.startContainer===range.endContainer && range.startOffset===range.endOffset){
 	                    	link = domUtils.createElement(document, 'a', {
-	                    		'href' : me.getOpt('dxylink_default_link_url') || '',
+	                    		'href' : me.getOpt('dxylink_default_link_url') || '/column/',
 	                    		'class' : 'dxylink',
 	                    		'style' : 'text-decoration:none'
 	                    	});
@@ -37,7 +37,7 @@
 	                    }else{
 	                    	text = me.selection.getText();
 	                    	link = domUtils.createElement(document, 'a', {
-	                    		'href' : me.getOpt('dxylink_default_link_url') || '',
+	                    		'href' : me.getOpt('dxylink_default_link_url') || '/column/',
 	                    		'class' : 'dxylink',
 	                    		'style' : 'text-decoration:none'
 	                    	});
@@ -166,7 +166,7 @@
     				'display' : 'inline-block',
     				'width' : '20px',
     				'height' : '20px',
-    				'background-image' : 'url(http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/dxy-ueditor/themes/default/images2/icons@2x.png)',
+    				'background-image' : 'url(http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/ueditor/themes/default/images2/icons@2x.png)',
     				'background-size' : '1250px 800px',
     				'background-position' : '-415px -8px',
     				'margin-left': '10px'
@@ -592,20 +592,76 @@
 
 })();
 UE.plugin.register('editorstyle', function(){
-var editor = this;var styles = 'body{line-height: 1.8;font-size: 14px;color: #333;font-family: Avenir,"Hiragino Sans GB","Noto Sans S Chinese","Microsoft Yahei","Microsoft Sans Serif","WenQuanYi Micro Hei",sans-serif;}'+
+var editor = this;
+var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Avenir,"Hiragino Sans GB","Noto Sans S Chinese","Microsoft Yahei","Microsoft Sans Serif","WenQuanYi Micro Hei",sans-serif;padding: 20px;}'+
 'img{max-width: 100%;}'+
-'h1,h2,h3,h4,h5,h6{border-bottom: 1px solid #e2e2e2;margin-bottom: 25px;font-weight: bold;line-height: 1.8;}'+
+'h4, h5, h6, hr, blockquote, dl, dt, dd, ul, ol, li, pre, form, fieldset, legend, button, input, textarea, th, td{'+
+'	margin: 0px;'+
+'	padding: 0px;'+
+'	font-family: Avenir,"Hiragino Sans GB","Noto Sans S Chinese","Microsoft Yahei","Microsoft Sans Serif","WenQuanYi Micro Hei",sans-serif;'+
+'}'+
 'hr {display: block; height: 0; border: 0; border-top: 1px solid #ccc; margin: 15px 0; padding: 0; }'+
-'p{margin-bottom: 15px;}'+
-'blockquote {'+
+'blockquote{'+
 '    border-left: 6px solid #ddd;'+
 '    padding: 5px 0 5px 10px;'+
 '    margin: 15px 0 15px 15px;'+
 '}'+
-'h1{font-size:28px;}'+
-'h2{font-size:21px;}'+
-'h3{font-size:17px;}'+
-'p{font-size:14px;margin-bottom:15px;margin-top:5px;line-height:1.8;}';
+'blockquote p {'+
+'	color: rgb(153, 153, 153);'+
+'}'+
+' '+
+'h1{'+
+'	font-size: 24px;'+
+'	font-weight: bolder;'+
+'	margin-bottom: 25px;'+
+'	line-height: 1.7;'+
+'	margin-top: 0px;'+
+'	padding: 1% 0;'+
+'    color: #333; '+
+'    border-bottom: 1px solid #e2e2e2;'+
+'    word-wrap: break-word;'+
+'}'+
+'h2{'+
+'    padding: 1% 0;'+
+'    color: #333;'+
+'    font-size: 18px;'+
+'    font-weight: bolder;'+
+'    border-bottom: 1px solid #e2e2e2;'+
+'    margin-bottom: 25px;'+
+'    margin-top: 0px;'+
+'    line-height: 1.7;'+
+'    word-wrap: break-word;'+
+'}'+
+'h3{'+
+'    font-size: 16px;'+
+'    font-weight: bolder;'+
+'    margin-bottom: 25px;'+
+'    margin-top: 0px;'+
+'    padding: 1% 0;'+
+'    line-height: 1.7;'+
+'    color: #333; '+
+'    border-bottom: 1px solid #e2e2e2;'+
+'    word-wrap: break-word;'+
+'}'+
+'ul, ol{'+
+'	list-style: disc outside none;'+
+'	margin: 15px 0 !important;'+
+'	padding: 0 0 0 40px;'+
+'	line-height: 1.7;'+
+'	font-size: 14px;'+
+'}'+
+'p{'+
+'	margin-top: 0px;'+
+'	font-size:14px;'+
+'	margin-bottom:15px;'+
+'	line-height:1.7;'+
+'	color: #444;'+
+'	word-wrap: break-word;'+
+'	font-family: Avenir;'+
+'}'+
+'li p{'+
+'	margin-bottom: 0px;'+
+'}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles);
 	}else{
@@ -619,10 +675,10 @@ var editor = this;var styles = 'body{line-height: 1.8;font-size: 14px;color: #33
 		var me = this;
 		me.addInputRule(function(root){
 			root.traversal(function(node){
-				if(node.getAttr('data-align')==='div-center'){
+				if(node.getAttr('data-align')==='div-center' || node.getAttr('data-align')==='center'){ 
 					node.setStyle('text-align', 'center');
 				}
-				if(node.getAttr('data-align')==='div-right'){
+				if(node.getAttr('data-align')==='div-right' || node.getAttr('data-align')==='right'){
 					node.setStyle('text-align', 'right');
 				}
 			});
@@ -642,8 +698,27 @@ var editor = this;var styles = 'body{line-height: 1.8;font-size: 14px;color: #33
     };
 
     function exeCommandReplaceButton(editor) {
-        var content = editor.getData ? editor.getData() : editor.getContent();
-        if (content && content.length > 0) {
+        var root = UE.htmlparser(editor.body.innerHTML),
+            flag = false,
+            dxyFlag = false;
+        root.traversal(function(node){
+            if(node.type==='text' && !flag){
+                if(node.data==='丁香园版权所有，未经许可不得转载。'){
+                    dxyFlag = true;
+                }
+                if(node.data==='参考资料：' && dxyFlag){
+                    flag = true;
+                    return;
+                }
+                node.data = fomat(node.data);
+            }
+        });
+        editor.setContent(root.toHtml());
+        alert('格式化完成');
+    }
+
+    function fomat(content){
+        if(content.length>0){
             content = preg_replace("/(\\p{Han})([a-zA-Z0-9\\p{Ps}])(?![^<]*>)/ig", "\\1 \\2", content);
             content = preg_replace("/([a-zA-Z0-9\\p{Pe}])(\\p{Han})(?![^<]*>)/ig", "\\1 \\2", content);
             content = preg_replace("/([!?‽:;,.])(\\p{Han})/ig", "\\1 \\2", content);
@@ -670,9 +745,12 @@ var editor = this;var styles = 'body{line-height: 1.8;font-size: 14px;color: #33
             content = content.replace(/(‘|\&lsquo\;)/ig, "『");
             content = content.replace(/(’|\&rsquo\;)/ig, "』");
             content = content.replace(/&rsq_temp;/ig, "’");
-            editor.setContent(content);
+            content = content.replace(/％/ig, '%');
+            content = content.replace(/／/ig, '/');
+            content = content.replace(/~/ig, '～');
+            content = content.replace(/(\d+)([-><!\+\*\/]+)/ig, "$1 $2").replace(/([-><!\+\*\/]+)(\d+)/ig, "$1 $2");
         }
-        alert('格式化完成');
+        return content;
     }
 
 

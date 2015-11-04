@@ -11,8 +11,27 @@
     };
 
     function exeCommandReplaceButton(editor) {
-        var content = editor.getData ? editor.getData() : editor.getContent();
-        if (content && content.length > 0) {
+        var root = UE.htmlparser(editor.body.innerHTML),
+            flag = false,
+            dxyFlag = false;
+        root.traversal(function(node){
+            if(node.type==='text' && !flag){
+                if(node.data==='丁香园版权所有，未经许可不得转载。'){
+                    dxyFlag = true;
+                }
+                if(node.data==='参考资料：' && dxyFlag){
+                    flag = true;
+                    return;
+                }
+                node.data = fomat(node.data);
+            }
+        });
+        editor.setContent(root.toHtml());
+        alert('格式化完成');
+    }
+
+    function fomat(content){
+        if(content.length>0){
             content = preg_replace("/(\\p{Han})([a-zA-Z0-9\\p{Ps}])(?![^<]*>)/ig", "\\1 \\2", content);
             content = preg_replace("/([a-zA-Z0-9\\p{Pe}])(\\p{Han})(?![^<]*>)/ig", "\\1 \\2", content);
             content = preg_replace("/([!?‽:;,.])(\\p{Han})/ig", "\\1 \\2", content);
@@ -39,9 +58,12 @@
             content = content.replace(/(‘|\&lsquo\;)/ig, "『");
             content = content.replace(/(’|\&rsquo\;)/ig, "』");
             content = content.replace(/&rsq_temp;/ig, "’");
-            editor.setContent(content);
+            content = content.replace(/％/ig, '%');
+            content = content.replace(/／/ig, '/');
+            content = content.replace(/~/ig, '～');
+            content = content.replace(/(\d+)([-><!\+\*\/]+)/ig, "$1 $2").replace(/([-><!\+\*\/]+)(\d+)/ig, "$1 $2");
         }
-        alert('格式化完成');
+        return content;
     }
 
 

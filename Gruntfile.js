@@ -6,19 +6,23 @@ module.exports = function (grunt) {
             all: ['Gruntfile.js', 'dxy-plugins/**/*.js']
         },
         concat: {
-            js : {
+            plugin : {
                 src : ['dxy-plugins/**/*.js'],
                 dest : 'ueditor.dxy.custom.js'
             },
             editorcss: {
                 src : ['dxy-plugins/**/editor.css'],
                 dest : 'themes/iframe.css'
-            } 
+            },
+            extend : {
+                src : ['dxy-extend/**/*.js'],
+                dest : 'ueditor.dxy.extend.js'
+            }
         },
         watch: {
             js : {
-                files : ['dxy-plugins/**/*.js', 'Gruntfile.js'],
-                tasks : ['jshint','concat:js']
+                files : ['dxy-plugins/**/*.js', 'Gruntfile.js', 'dxy-extend/**/*.js'],
+                tasks : ['jshint','concat:plugin', 'concat:extend']
             },
             editorcss : {
                 files : ['dxy-plugins/**/editor.css'],
