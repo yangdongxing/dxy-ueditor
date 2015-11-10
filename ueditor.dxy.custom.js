@@ -594,12 +594,12 @@
 })();
 UE.plugin.register('editorstyle', function(){
 var editor = this;
-var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Avenir,"Hiragino Sans GB","Noto Sans S Chinese","Microsoft Yahei","Microsoft Sans Serif","WenQuanYi Micro Hei",sans-serif;padding: 20px;}'+
+var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Avenir;padding: 20px;}'+
 'img{max-width: 100%;}'+
-'h4, h5, h6, hr, blockquote, dl, dt, dd, ul, ol, li, pre, form, fieldset, legend, button, input, textarea, th, td{'+
+'h4, h5, h6, hr, dl, dt, dd, ul, ol, li, pre, form, fieldset, legend, button, input, textarea, th, td{'+
 '	margin: 0px;'+
 '	padding: 0px;'+
-'	font-family: Avenir,"Hiragino Sans GB","Noto Sans S Chinese","Microsoft Yahei","Microsoft Sans Serif","WenQuanYi Micro Hei",sans-serif;'+
+'	font-family: Avenir;'+
 '}'+
 'hr {display: block; height: 0; border: 0; border-top: 1px solid #ccc; margin: 15px 0; padding: 0; }'+
 'blockquote{'+
@@ -664,10 +664,10 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
 '	margin-bottom: 0px;'+
 '}';
 	if(this.wechatready){
-		this.registerWechatStyle(styles);
+		this.registerWechatStyle(styles, true);
 	}else{
 		this.addListener('wechatready', function(){
-			editor.registerWechatStyle(styles);
+			editor.registerWechatStyle(styles, true);
 		});
 	}
 });
@@ -818,7 +818,7 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
 			loadCount++;
 		});
 		UE.utils.loadFile(document, {
-			src: me.getOpt('UEDITOR_HOME_URL') + 'third-party/sizzer/selector.js',
+			src: me.getOpt('UEDITOR_HOME_URL') + 'third-party/sizzer/selector.js?t=ss',
 			tag:"script",
 			type:"text/javascript",
 			defer:"defer"
@@ -832,10 +832,15 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
 			};
 		}
 		if(!me.registerWechatStyle){
-			me.registerWechatStyle = function(styles){
-				stylesheet += styles;
+			me.registerWechatStyle = function(styles, isStart){
+				if(isStart){
+					stylesheet = styles + stylesheet;
+				}else{
+					stylesheet += styles;
+				}
 			};
 		}
+
 		/**
 		 * 设置wechat导出样式
 		 */
@@ -852,6 +857,22 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
 			    	});
 				});
 			}
+		});
+
+		//段落后空行
+		me.addWechatOutputRule(function(root){
+			if(loadCount!==2){
+				throw new Error('cssparser or sizzer not loaded');
+			}
+			UE.utils.each(Y('p, h2', root), function(ele){
+				if(ele.parentNode.type==='root'){
+					ele.parentNode.insertAfter(new UE.uNode({
+	     				type:'element',
+	     				tagName:'p',
+	     				 attrs:{style:'line-height:1;font-size:17px;'}
+	     			}), ele);
+				}
+			});
 		});
 
 		me.fireEvent('wechatready');
@@ -911,3 +932,31 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
     }
     UE.getWechatContent = getWechatContent; 
 })();
+UE.plugin.register('wechatstyle', function(){
+var editor = this;
+var styles = 'h2{'+
+'	font-size: 20px;'+
+'	color : #262626;'+
+'	line-height: 1.75;'+
+'	margin-bottom: 0px;'+
+'}'+
+'p{'+
+'	font-size: 17px;'+
+'	color: #3f3f3f;'+
+'	line-height: 1.75;'+
+'	margin-bottom: 0px;'+
+'}'+
+'li p{'+
+'	margin-bottom: 10px;'+
+'}'+
+'blockquote p{'+
+'	margin-bottom: 10px'+
+'}';
+	if(this.wechatready){
+		this.registerWechatStyle(styles);
+	}else{
+		this.addListener('wechatready', function(){
+			editor.registerWechatStyle(styles);
+		});
+	}
+});

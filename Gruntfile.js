@@ -14,6 +14,10 @@ module.exports = function (grunt) {
                 src : ['dxy-plugins/**/editor.css'],
                 dest : 'themes/iframe.css'
             },
+            wechatcss : {
+                src : ['dxy-plugins/**/wechat.css'],
+                dest : 'themes/wechat.css'
+            },
             extend : {
                 src : ['dxy-extend/**/*.js'],
                 dest : 'ueditor.dxy.extend.js'
@@ -27,6 +31,10 @@ module.exports = function (grunt) {
             editorcss : {
                 files : ['dxy-plugins/**/editor.css'],
                 tasks : ['concat:editorcss', 'registerStyle']
+            },
+            wechatcss: {
+                files : ['dxy-plugins/**/wechat.css'],
+                tasks : ['concat:wechatcss', 'registerWechatStyle']
             }
         }
     });
@@ -47,6 +55,26 @@ module.exports = function (grunt) {
         body = body.slice(0, body.length-2);
         body = 'var styles = ' + body + ';\n';
         require('fs').writeFileSync('./dxy-plugins/editorstyle/plugin.js', header+body+footer, {
+            encoding : 'utf8'
+        });
+    });
+    grunt.registerTask('registerWechatStyle','registerWechatStyle', function(){
+        var file = require('fs').readFileSync('./themes/wechat.css', {
+            encoding : 'utf8'
+        });
+        var header = require('fs').readFileSync('./dxy-plugins/wechatstyle/header.tpl', {
+            encoding : 'utf8'
+        });
+        var footer = require('fs').readFileSync('./dxy-plugins/wechatstyle/footer.tpl', {
+            encoding : 'utf8'
+        });
+        var line, reg = /^.+$/img, body='';
+        while(line = reg.exec(file)){
+            body += "'" + line + "'+\n";
+        }
+        body = body.slice(0, body.length-2);
+        body = 'var styles = ' + body + ';\n';
+        require('fs').writeFileSync('./dxy-plugins/wechatstyle/plugin.js', header+body+footer, {
             encoding : 'utf8'
         });
     });
