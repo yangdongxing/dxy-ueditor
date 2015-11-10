@@ -1,3 +1,4 @@
+//link 插件
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;
     var utils = baidu.editor.utils; 
@@ -908,4 +909,5 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
     	}
     	return root.toHtml();
     }
+    UE.getWechatContent = getWechatContent; 
 })();

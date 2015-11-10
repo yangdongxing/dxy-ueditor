@@ -1998,3 +1998,15 @@ div.edui-box {
     background-size: 1250px 800px;
     background-position: -500px -50px;
 }
+.edui-for-onekeyreplace .edui-icon{
+    background-image:none!important;
+    font: 400 normal normal 14px/1 fontello;
+    text-align: center;
+    line-height: 40px;
+}
+.edui-for-onekeyreplace .edui-icon:hover{
+    color: #337ab7;
+}
+.edui-for-onekeyreplace .edui-icon:before{
+    content: '\e800';
+}

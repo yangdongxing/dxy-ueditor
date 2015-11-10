@@ -1,3 +1,4 @@
+//link 插件
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;
     var utils = baidu.editor.utils; 

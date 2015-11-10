@@ -49,4 +49,5 @@
     	}
     	return root.toHtml();
     }
+    UE.getWechatContent = getWechatContent; 
 })();
