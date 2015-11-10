@@ -59,6 +59,7 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 2. [onekeyreplace](#onekeyreplace) 丁香园一键格式化
 3. [dxylink](#dxylink) 插入和移除超链接
 4. [inputrule](#inputrule) 丁香园输入规则注册模块
+5. [wechat](#wechat) 导出到微信
 
 ## dxyupload
 图片插入上传插件，支持多图上传，支持图片拖入上传。<a name="dxyupload"></a>
@@ -79,3 +80,19 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
  	dxylink_title : toolbar button 提示
  	dxylink_default_link_url : 链接编辑器默认链接
  	dxylink_default_link_text : 链接编辑器默认文本
+ 	
+## wechat
+
+	UE.getWechatContent() //获得导出的内容
+	editor.addWechatOutputRule(function(root){...}) //对导出内容进行修改
+	editor.registerWechatStyle(styleString) //添加微信导出样式
+	
+## editorstyle
+设置编辑器内部文章样式和微信样式<br>
+`editorstyle/editor.css`设置基本通用样式<br>
+插件修改的样式应该在`pluginname/editor.css`中设置
+
+## wechatstyle
+设置微信样式<br>
+`wechatstyle/wechat.css`设置微信通用样式<br>
+插件修改的样式应该在`pluginname/wechat.css`中设置
