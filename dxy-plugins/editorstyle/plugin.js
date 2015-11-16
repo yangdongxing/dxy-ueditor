@@ -1,11 +1,10 @@
 UE.plugin.register('editorstyle', function(){
 var editor = this;
-var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Avenir;padding: 20px;}'+
+var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Avenir", "Hiragino Sans GB", "Noto Sans S Chinese", "Microsoft Yahei", "Microsoft Sans Serif", "WenQuanYi Micro Hei", "sans-serif";padding: 20px;}'+
 'img{max-width: 100%;}'+
 'h4, h5, h6, hr, dl, dt, dd, ul, ol, li, pre, form, fieldset, legend, button, input, textarea, th, td{'+
 '	margin: 0px;'+
 '	padding: 0px;'+
-'	font-family: Avenir;'+
 '}'+
 'hr {display: block; height: 0; border: 0; border-top: 1px solid #ccc; margin: 15px 0; padding: 0; }'+
 'blockquote{'+
@@ -64,7 +63,6 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: Ave
 '	line-height:1.7;'+
 '	color: #444;'+
 '	word-wrap: break-word;'+
-'	font-family: Avenir;'+
 '}'+
 'li p{'+
 '	margin-bottom: 0px;'+

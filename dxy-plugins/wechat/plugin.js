@@ -15,7 +15,7 @@
 			loadCount++;
 		});
 		UE.utils.loadFile(document, {
-			src: me.getOpt('UEDITOR_HOME_URL') + 'third-party/sizzer/selector.js?t=ss',
+			src: me.getOpt('UEDITOR_HOME_URL') + 'third-party/sizzer/selector.js?t='+new Date().getTime(),
 			tag:"script",
 			type:"text/javascript",
 			defer:"defer"
@@ -61,12 +61,18 @@
 			if(loadCount!==2){
 				throw new Error('cssparser or sizzer not loaded');
 			}
-			UE.utils.each(Y('p, h2', root), function(ele){
-				if(ele.parentNode.type==='root'){
+			UE.utils.each(Y('p, h2, ul, ol, blockquote', root), function(ele){
+				if(ele.parentNode.type==='root' || ele.parentNode.tagName==='blockquote'){
+					if(ele.innerText()==''){
+						return;
+					}
+					if(!ele.nextSibling()){
+						return;
+					}
 					ele.parentNode.insertAfter(new UE.uNode({
 	     				type:'element',
 	     				tagName:'p',
-	     				 attrs:{style:'line-height:1;font-size:17px;'}
+	     				 attrs:{style:'line-height:1.5;font-size:17px;'}
 	     			}), ele);
 				}
 			});

@@ -399,8 +399,7 @@ div.edui-box {
 .edui-default .edui-menuitem .edui-icon {
     width: 40px !important;
     height: 46px !important;
-    background: url(../images2/icons.png) 0 -4000px;
-    background: url(../images2/icons.gif) 0 -4000px\9;
+    background: none !important;
     background-size: 1250px 800px;
 }
 

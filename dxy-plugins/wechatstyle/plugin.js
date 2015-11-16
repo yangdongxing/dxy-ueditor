@@ -15,8 +15,14 @@ var styles = 'h2{'+
 'li p{'+
 '	margin-bottom: 10px;'+
 '}'+
-'blockquote p{'+
-'	margin-bottom: 10px'+
+'li:last p{'+
+'	margin-bottom: 0px;'+
+'}'+
+'ul, ol{'+
+'	margin: 0 0 !important;'+
+'}'+
+'strong{'+
+'	color : #262626;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles);

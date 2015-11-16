@@ -85,7 +85,6 @@
            'anchor':'', 'undo':''
         }
         ,allowDivTransToP : true 
-        ,tdWidth : '10px'
 
         //语言配置项,默认是zh-cn。有需要的话也可以使用如下这样的方式来自动多语言切换，当然，前提条件是lang文件夹下存在对应的语言文件：
         //lang值也可以通过自动获取 (navigator.language||navigator.browserLanguage ||navigator.userLanguage).toLowerCase()
@@ -265,9 +264,9 @@
         //]
 
         //打开右键菜单功能
-        ,enableContextMenu: false
+        // ,enableContextMenu: true
         //右键菜单的内容，可以参考plugins/contextmenu.js里边的默认菜单的例子，label留空支持国际化，否则以此配置为准
-        //,contextMenu:[
+        // ,contextMenu:[
         //    {
         //        label:'',       //显示的名称
         //        cmdName:'selectall',//执行的command命令，当点击这个右键菜单时
@@ -277,7 +276,7 @@
         //            //this.ui._dialogs['inserttableDialog'].open();
         //        }
         //    }
-        //]
+        // ]
 
         //快捷菜单
         //,shortcutMenu:["fontfamily", "fontsize", "bold", "italic", "underline", "forecolor", "backcolor", "insertorderedlist", "insertunorderedlist"]
