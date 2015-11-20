@@ -1,19 +1,4 @@
-(function(){
-	if(UE.dialog){
-		return;
-	}
-	UE.dialog = {
-		register : function(){
 
-		},
-		show : function(){
-
-		},
-		hide : function(){
-
-		}
-	};
-})();
 (function(g){
 	function assign(target){
 		for(var i=1,len=arguments.length; i<len; i++){
@@ -194,14 +179,19 @@
 			return this.toEditorView();
 		},
 		toWebView : function(){
-			throw new Error('you should provide toWebView in the config');
+			throw new Error('you must provide toWebView in the config');
 		},
 		toAppView : function(){
-			throw new Error('you should provide toAppView in the config');
+			throw new Error('you must provide toAppView in the config');
 		},
 		toEditorView : function(callback){
-			var ele = this.createWrapNode();
+			var ele = this.createWrapNode(),
+				me = this;
 			ele.style.display = 'block';
+			ele.ondblclick = function(){
+				UE.getEditor('editor-box').execCommand('replacedview', me.type);
+			};
+			ele.setAttribute('contenteditable', 'false');
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;

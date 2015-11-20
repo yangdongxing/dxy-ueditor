@@ -26,18 +26,15 @@
 				}
 			});
 		});
-		me.addInputRule(function(root){
-			root.traversal(function(node){
-				if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
-					var view = ReplacedView.getInstance(node.getAttr('data-type'));
-					if(view){
-						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
-						node.setStyle('display','block');
-						node.innerHTML(view.toEditorView().innerHTML);
-					}
-				}
-			});
-		});
+        me.on('aftersetcontent', function(){
+            $(me.body).find('.dxy-meta-replaced-view').each(function(i,e){
+                var view = ReplacedView.getInstance(e);
+                if(view){
+                    view.toEditorView();
+                    view.mount(e);
+                }
+            });
+        });
 		function addWechatOutputRule(){
 			me.addWechatOutputRule(function(root){
 				root.traversal(function(node){

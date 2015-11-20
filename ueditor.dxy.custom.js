@@ -833,14 +833,19 @@ $(document).ready(function(){
 			return this.toEditorView();
 		},
 		toWebView : function(){
-			throw new Error('you should provide toWebView in the config');
+			throw new Error('you must provide toWebView in the config');
 		},
 		toAppView : function(){
-			throw new Error('you should provide toAppView in the config');
+			throw new Error('you must provide toAppView in the config');
 		},
 		toEditorView : function(callback){
-			var ele = this.createWrapNode();
+			var ele = this.createWrapNode(),
+				me = this;
 			ele.style.display = 'block';
+			ele.ondblclick = function(){
+				UE.getEditor('editor-box').execCommand('replacedview', me.type);
+			};
+			ele.setAttribute('contenteditable', 'false');
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;
@@ -904,18 +909,15 @@ $(document).ready(function(){
 				}
 			});
 		});
-		me.addInputRule(function(root){
-			root.traversal(function(node){
-				if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
-					var view = ReplacedView.getInstance(node.getAttr('data-type'));
-					if(view){
-						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
-						node.setStyle('display','block');
-						node.innerHTML(view.toEditorView().innerHTML);
-					}
-				}
-			});
-		});
+        me.on('aftersetcontent', function(){
+            $(me.body).find('.dxy-meta-replaced-view').each(function(i,e){
+                var view = ReplacedView.getInstance(e);
+                if(view){
+                    view.toEditorView();
+                    view.mount(e);
+                }
+            });
+        });
 		function addWechatOutputRule(){
 			me.addWechatOutputRule(function(root){
 				root.traversal(function(node){
@@ -972,7 +974,6 @@ $(document).ready(function(){
     });
 
 })();
-
 
 /**
  * @required cssparser, sizzer
