@@ -60,6 +60,7 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 3. [dxylink](#dxylink) 插入和移除超链接
 4. [inputrule](#inputrule) 丁香园输入规则注册模块
 5. [wechat](#wechat) 导出到微信
+6. [replacedview](#replacedview) 插入个性化视图
 
 ## dxyupload
 图片插入上传插件，支持多图上传，支持图片拖入上传。<a name="dxyupload"></a>
@@ -82,10 +83,14 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
  	dxylink_default_link_text : 链接编辑器默认文本
  	
 ## wechat
+* UE.getWechatContent() //获得导出的内容
+* editor.addWechatOutputRule(function(root){...}, stat) //对导出内容进行修改
 
-	UE.getWechatContent() //获得导出的内容
-	editor.addWechatOutputRule(function(root){...}) //对导出内容进行修改
-	editor.registerWechatStyle(styleString) //添加微信导出样式
+		stat = 'beforeStyleSet'|'styleSet'|'afterStyleSet' default 'beforeStyleSet'
+		
+* editor.registerWechatStyle(styleString) //添加微信导出样式
+
+
 	
 ## editorstyle
 设置编辑器内部文章样式和微信样式<br>
@@ -96,3 +101,67 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 设置微信样式<br>
 `wechatstyle/wechat.css`设置微信通用样式<br>
 插件修改的样式应该在`pluginname/wechat.css`中设置
+
+## replacedview
+### 如何添加自定义内容（如插入药品信息）
+
+1. 在replacedview目录下新建目录，并在新建的目录下新建dialog目录
+2. toolbar.js 注册ui
+3. extend.js 创建并注册视图类
+	
+		ReplacedView.register(/**名字**/, {
+			//配置
+			toWechatView : function(){
+				//返回自定义内容在微信上的视图元素,所有的toXXXVie应该根据当前对象this.data中的数据进行渲染
+			},
+			toWebView : function(){
+				//返回自定义内容在web上的视图元素，因为视图可能是需要请求数据进行渲染，因此推荐返回promise对象，从而支持异步编程
+			},
+			toAppView : function(){
+				//返回自定义内容在web上的视图元素
+			},
+			toEditor : function(){
+				//返回自定义内容在编辑器上的视图元素
+			},
+			onModalShow : function(){
+				//应该在这里对弹出的modal中的内容进行修改
+			},
+			onModalConfirm : function(){
+				//应该在这里对数据进行验证，并保存到this.data中，返回false将不关闭modal
+			}
+		})
+
+4. 在dialog目录下新建modal.tpl进行弹出视图的编写,最外层元素的id应该是 dxy-{你注册视图提供的类型名}-modal
+
+### RelpacedView类
+属性：
+	
+	data : 附加的属性
+	type : 类型
+	isMounted : 是否挂载在页面上
+	ele : dom元素
+	
+类方法：
+
+	serialize(obj) : 将数据序列化成字符串
+	deSerialoze(str) : 反序列化
+	isReplacedView(node|type) : 是否是自定义视图
+	getInstance(node|type) : 返回视图对象
+	register(type, instancemethods) : 注册自定义视图
+	
+实例方法：
+
+	toJson() : 返回视图对象的元数据
+	toMetaVoew() : 返回视图对象的元视图，编辑器最终保存的自定义视图是以元视图的形成存在的。
+	toWechatView(): 返回微信视图元素
+	toWebView(): 返回web视图元素
+	toAppView(): 返回移动视图元素
+	toEditorView() : 返回编辑器视图元素
+	toAppropriateView() : 自动检测不同的平台，并返回最接近的视图
+	mount(target|range): 将当期视图替换目标元素或所选范围
+	serialize(obj) : ...
+	deSerialize(str) : ...
+	
+
+
+	

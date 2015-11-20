@@ -3,7 +3,7 @@ module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
     grunt.initConfig({
         jshint: {
-            all: ['Gruntfile.js', 'dxy-plugins/**/*.js']
+            all: ['Gruntfile.js', 'dxy-plugins/**/{toolbar,plugin}.js']
         },
         concat: {
             plugin : {
@@ -19,8 +19,12 @@ module.exports = function (grunt) {
                 dest : 'themes/wechat.css'
             },
             extend : {
-                src : ['dxy-extend/**/*.js'],
+                src : ['dxy-extend/**/*.js', 'dxy-plugins/**/extend.js'],
                 dest : 'ueditor.dxy.extend.js'
+            },
+            modal : {
+                src : ['dxy-plugins/**/modal.tpl'],
+                dest : 'dxy-plugins/modals/dxy-plugin-modals.tpl'
             }
         },
         watch: {
@@ -35,6 +39,10 @@ module.exports = function (grunt) {
             wechatcss: {
                 files : ['dxy-plugins/**/wechat.css'],
                 tasks : ['concat:wechatcss', 'registerWechatStyle']
+            },
+            modal : {
+                files : ['dxy-plugins/**/modal.tpl'],
+                tasks : ['concat:modal', 'registerModal']
             }
         }
     });
@@ -75,6 +83,26 @@ module.exports = function (grunt) {
         body = body.slice(0, body.length-2);
         body = 'var styles = ' + body + ';\n';
         require('fs').writeFileSync('./dxy-plugins/wechatstyle/plugin.js', header+body+footer, {
+            encoding : 'utf8'
+        });
+    });
+    grunt.registerTask('registerModal','registerModal', function(){
+        var file = require('fs').readFileSync('./dxy-plugins/modals/dxy-plugin-modals.tpl', {
+            encoding : 'utf8'
+        });
+        var header = require('fs').readFileSync('./dxy-plugins/modals/header.tpl', {
+            encoding : 'utf8'
+        });
+        var footer = require('fs').readFileSync('./dxy-plugins/modals/footer.tpl', {
+            encoding : 'utf8'
+        });
+        var line, reg = /^.+$/img, body='';
+        while(line = reg.exec(file)){
+            body += "'" + line + "'+\n";
+        }
+        body = body.slice(0, body.length-2);
+        body = 'var modals = ' + body + ';\n';
+        require('fs').writeFileSync('./dxy-plugins/modals/plugin.js', header+body+footer, {
             encoding : 'utf8'
         });
     });

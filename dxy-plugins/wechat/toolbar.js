@@ -39,14 +39,46 @@
     function getWechatContent(editor, ignoreBlank){
     	var root = UE.htmlparser(editor.body.innerHTML, !!ignoreBlank),
     		i, len;
-    	for(i=0,len=editor.wechatoutputrules.length; i<len; i++){
+    	for(i=0,len=editor.wechatoutputrules.beforeStyleSet.length; i<len; i++){
     		try{
-    			editor.wechatoutputrules[i].call(editor, root);
+    			editor.wechatoutputrules.beforeStyleSet[i].call(editor, root);
     		}catch(e){
     			console.log(e);
     			throw e;
     		}
     	}
+        for(i=0,len=editor.wechatoutputrules.styleSet.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.styleSet[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
+        for(i=0,len=editor.wechatoutputrules.afterStyleSet.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.afterStyleSet[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
+        for(i=0,len=editor.wechatoutputrules.structEdit.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.structEdit[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
+        for(i=0,len=editor.wechatoutputrules.afterStructEdit.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.afterStructEdit[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
     	return root.toHtml();
     }
     UE.getWechatContent = getWechatContent; 

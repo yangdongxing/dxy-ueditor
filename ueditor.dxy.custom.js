@@ -684,6 +684,34 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 		});
 	});
 })();
+UE.plugin.register('dxymodal', function(){
+var editor = this;
+var modals = '<div class="modal fade" id="dxy-drug-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-drug-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">插入药品</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'        <form>'+
+'          <div class="form-group">'+
+'            <label for="drug-name" class="control-label">药品名:</label>'+
+'            <input type="text" class="form-control" id="drug-name">'+
+'          </div>'+
+'        </form>'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>'+
+'        <button type="button" class="btn btn-primary" id="confirm-drug">确认</button>'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
+'</div>';
+$(document).ready(function(){
+	$('body').append($(modals));
+});
+});
 (function () {
     baidu.editor.ui.onekeyreplace = function (editor) {
         var btn = new UE.ui.Button({
@@ -799,6 +827,153 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 
 })();
 
+(function(g){
+	g.DrugReplacedView = ReplacedView.register('drug', {
+		toWechatView : function(){
+			return this.toEditorView();
+		},
+		toWebView : function(){
+			throw new Error('you should provide toWebView in the config');
+		},
+		toAppView : function(){
+			throw new Error('you should provide toAppView in the config');
+		},
+		toEditorView : function(callback){
+			var ele = this.createWrapNode();
+			ele.style.display = 'block';
+			var tpl = '<span>'+this.data.drug_name+'</span>';
+			ele.innerHTML = tpl;
+			this.ele = ele;
+			return ele;
+		},
+		onModalShow : function(){
+			$('#drug-name').val(this.data.drug_name||'');
+		},
+		onModalConfirm : function(){
+			var drug_name = $('#drug-name').val();
+			if(!drug_name){
+				alert('药品名不能为空');
+				return false;
+			}
+			this.data.drug_name = $('#drug-name').val();
+			return true
+		}
+	});
+})(this);
+(function(){
+	baidu.editor.ui.drug = function (editor) {
+		var name = 'drug',
+			title = '插入药品信息';
+	    var btn = new UE.ui.Button({
+	        name: name,
+	        title: title
+	    });
+
+	    btn.addListener('click', function(){
+	        editor.execCommand('replacedview', name);
+	    });
+	        
+	    return btn;
+	};
+})();
+(function(){
+    var domUtils = baidu.editor.dom.domUtils;
+    var utils = baidu.editor.utils;
+    var editorui = baidu.editor.ui;
+    var _Dialog = editorui.Dialog;
+    UE.plugin.register('replacedview', function (){
+        var me = this;
+        function showModal(type, obj){
+        	if(!obj){
+        		obj = ReplacedView.getInstance(type);
+        	}
+        	if(!obj){
+        		throw new Error('error type : '+type);
+        	}
+        	obj.showModal();
+        }
+        me.addOutputRule(function(root){
+			root.traversal(function(node){
+				if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+					var view = ReplacedView.getInstance(node.getAttr('data-type'));
+					if(view){
+						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
+						node.setStyle('display','none');
+						node.innerHTML(view.toMetaView().innerHTML);
+					}
+				}
+			});
+		});
+		me.addInputRule(function(root){
+			root.traversal(function(node){
+				if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+					var view = ReplacedView.getInstance(node.getAttr('data-type'));
+					if(view){
+						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
+						node.setStyle('display','block');
+						node.innerHTML(view.toEditorView().innerHTML);
+					}
+				}
+			});
+		});
+		function addWechatOutputRule(){
+			me.addWechatOutputRule(function(root){
+				root.traversal(function(node){
+					if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+						var view = ReplacedView.getInstance(node.getAttr('data-type'));
+						if(view){
+							view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
+							node.innerHTML(view.toWechatView().innerHTML);
+						}
+					}
+				});
+			}, 'afterStructEdit');
+		}
+		if(me.wechatready){
+			addWechatOutputRule();
+		}else{
+			me.addListener('wechatready', function(){
+				addWechatOutputRule();
+			});
+		}
+        return {
+            bindEvents:{
+                'ready': function(){
+
+                }
+            },
+            commands: {
+                'replacedview': {
+                    execCommand : function(cmd, opt){
+                    	var type = opt;
+                    	if(!type){
+                    		throw new Error('exec replacedview command require 2 arguments');
+                    	}
+                    	var range = me.selection.getRange(),
+                    		cur = range.getCommonAncestor(true),
+                    		replacedview = domUtils.findParent(cur, function(node){
+                    			return ReplacedView.isReplacedView(node);
+                    		}, true);
+                    	if(replacedview){
+                    		var obj = ReplacedView.getInstance(replacedview);
+                    		if(obj.type == type){
+                    			showModal(type,obj);
+                    		}else{
+                    			alert('请选择正确的类型');
+                    			return;
+                    		}
+                    	}else{
+                    		showModal(type)
+                    	}
+                    }
+                }
+            }
+        };
+    });
+
+})();
+
+
 /**
  * @required cssparser, sizzer
  */
@@ -824,9 +999,16 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 			loadCount++;
 		});
 		if(!me.addWechatOutputRule){
-			me.wechatoutputrules = [];
-			me.addWechatOutputRule = function(rule){
-				me.wechatoutputrules.push(rule);
+			me.wechatoutputrules = {
+				beforeStyleSet : [],
+				styleSet : [],
+				afterStyleSet : [],
+				structEdit : [],
+				afterStructEdit : []
+			};
+			me.addWechatOutputRule = function(rule, stat){
+				stat = stat || 'beforeStyleSet';
+				me.wechatoutputrules[stat].push(rule);
 			};
 		}
 		if(!me.registerWechatStyle){
@@ -855,7 +1037,7 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 			    	});
 				});
 			}
-		});
+		}, 'styleSet');
 
 		//段落后空行
 		me.addWechatOutputRule(function(root){
@@ -870,6 +1052,9 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 					if(!ele.nextSibling()){
 						return;
 					}
+					if(ele.getAttr('class')==='dxy-meta-replaced-view'){
+						return;
+					}
 					ele.parentNode.insertAfter(new UE.uNode({
 	     				type:'element',
 	     				tagName:'p',
@@ -877,7 +1062,7 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 	     			}), ele);
 				}
 			});
-		});
+		}, 'structEdit');
 
 		me.fireEvent('wechatready');
 		me.wechatready = true;
@@ -924,14 +1109,46 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
     function getWechatContent(editor, ignoreBlank){
     	var root = UE.htmlparser(editor.body.innerHTML, !!ignoreBlank),
     		i, len;
-    	for(i=0,len=editor.wechatoutputrules.length; i<len; i++){
+    	for(i=0,len=editor.wechatoutputrules.beforeStyleSet.length; i<len; i++){
     		try{
-    			editor.wechatoutputrules[i].call(editor, root);
+    			editor.wechatoutputrules.beforeStyleSet[i].call(editor, root);
     		}catch(e){
     			console.log(e);
     			throw e;
     		}
     	}
+        for(i=0,len=editor.wechatoutputrules.styleSet.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.styleSet[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
+        for(i=0,len=editor.wechatoutputrules.afterStyleSet.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.afterStyleSet[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
+        for(i=0,len=editor.wechatoutputrules.structEdit.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.structEdit[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
+        for(i=0,len=editor.wechatoutputrules.afterStructEdit.length; i<len; i++){
+            try{
+                editor.wechatoutputrules.afterStructEdit[i].call(editor, root);
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+        }
     	return root.toHtml();
     }
     UE.getWechatContent = getWechatContent; 

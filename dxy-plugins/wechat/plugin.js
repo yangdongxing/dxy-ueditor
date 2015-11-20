@@ -23,9 +23,16 @@
 			loadCount++;
 		});
 		if(!me.addWechatOutputRule){
-			me.wechatoutputrules = [];
-			me.addWechatOutputRule = function(rule){
-				me.wechatoutputrules.push(rule);
+			me.wechatoutputrules = {
+				beforeStyleSet : [],
+				styleSet : [],
+				afterStyleSet : [],
+				structEdit : [],
+				afterStructEdit : []
+			};
+			me.addWechatOutputRule = function(rule, stat){
+				stat = stat || 'beforeStyleSet';
+				me.wechatoutputrules[stat].push(rule);
 			};
 		}
 		if(!me.registerWechatStyle){
@@ -54,7 +61,7 @@
 			    	});
 				});
 			}
-		});
+		}, 'styleSet');
 
 		//段落后空行
 		me.addWechatOutputRule(function(root){
@@ -69,6 +76,9 @@
 					if(!ele.nextSibling()){
 						return;
 					}
+					if(ele.getAttr('class')==='dxy-meta-replaced-view'){
+						return;
+					}
 					ele.parentNode.insertAfter(new UE.uNode({
 	     				type:'element',
 	     				tagName:'p',
@@ -76,7 +86,7 @@
 	     			}), ele);
 				}
 			});
-		});
+		}, 'structEdit');
 
 		me.fireEvent('wechatready');
 		me.wechatready = true;
