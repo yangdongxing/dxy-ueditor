@@ -30,6 +30,7 @@
 	                    if(range.startContainer===range.endContainer && range.startOffset===range.endOffset){
 	                    	link = domUtils.createElement(document, 'a', {
 	                    		'href' : me.getOpt('dxylink_default_link_url') || '/column/',
+	                    		'_href' : me.getOpt('dxylink_default_link_url') || '/column/',
 	                    		'class' : 'dxylink',
 	                    		'style' : 'text-decoration:none'
 	                    	});
@@ -39,8 +40,10 @@
 	                    	text = me.selection.getText();
 	                    	link = domUtils.createElement(document, 'a', {
 	                    		'href' : me.getOpt('dxylink_default_link_url') || '/column/',
+	                    		'_href' : me.getOpt('dxylink_default_link_url') || '/column/',
 	                    		'class' : 'dxylink',
-	                    		'style' : 'text-decoration:none'
+	                    		'style' : 'text-decoration:none',
+	                    		'target' : '_black'
 	                    	});
 	                    	link.appendChild(document.createTextNode(text));
 	                    	range.deleteContents().collapse().insertNode(link).selectNode(link);

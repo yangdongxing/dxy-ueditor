@@ -30,6 +30,7 @@
 	                    if(range.startContainer===range.endContainer && range.startOffset===range.endOffset){
 	                    	link = domUtils.createElement(document, 'a', {
 	                    		'href' : me.getOpt('dxylink_default_link_url') || '/column/',
+	                    		'_href' : me.getOpt('dxylink_default_link_url') || '/column/',
 	                    		'class' : 'dxylink',
 	                    		'style' : 'text-decoration:none'
 	                    	});
@@ -39,8 +40,10 @@
 	                    	text = me.selection.getText();
 	                    	link = domUtils.createElement(document, 'a', {
 	                    		'href' : me.getOpt('dxylink_default_link_url') || '/column/',
+	                    		'_href' : me.getOpt('dxylink_default_link_url') || '/column/',
 	                    		'class' : 'dxylink',
-	                    		'style' : 'text-decoration:none'
+	                    		'style' : 'text-decoration:none',
+	                    		'target' : '_black'
 	                    	});
 	                    	link.appendChild(document.createTextNode(text));
 	                    	range.deleteContents().collapse().insertNode(link).selectNode(link);
@@ -118,124 +121,161 @@
 })();
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;
-    var utils = baidu.editor.utils; 
+	var utils = baidu.editor.utils; 
 	var LinkEditorBox = (function(){
-    	var currentLink = null,
-    		editor,
-    		elements,
-    		url, text, unlink, bookmark;
-    	return {
-    		show : function(link){
-    			currentLink = link;
-    			var pos = domUtils.getXY(currentLink);
-    			elements.style.top = pos.y + currentLink.scrollTop + (editor.getOpt('dxylink_default_top')||20) + 'px';
-    			elements.style.left = pos.x + currentLink.scrollLeft + (editor.getOpt('dxylink_default_left')||0)+'px';
-    			elements.style.display = 'block';
-    			url.value = currentLink.href;
-    			text.value = currentLink.textContent || currentLink.innerText;
-    		},
-    		hide : function(){
-    			if(elements){
-    				elements.style.display = 'none';
-    			}
-    		},
-    		init : function(ed, link){
-    			editor = ed;
-    			currentLink = link;
-    			var template = '<div class="dxy-linkedit-box" style="display:none;position:absolute;">'+
-    							'<p><label>文本：</label><input type="text" class="dxy-linkedit-text"><span class="dxy-linkedit-unlink"></span></p>'+
-    							'<p><label>链接地址：</label><input type="text" class="dxy-linkedit-url"></p>'+
-    					   	   '</div>';
-    			elements = baidu.editor.ui.uiUtils.createElementByHtml(template);
-    			editor.document.body.appendChild(elements);
-    			url = editor.document.getElementsByClassName('dxy-linkedit-url')[0];
-    			text = editor.document.getElementsByClassName('dxy-linkedit-text')[0];
-    			unlink = editor.document.getElementsByClassName('dxy-linkedit-unlink')[0];
-    			domUtils.setStyles(elements, {
-    				'background' : '#fff',
-    				'box-shadow' : '0 1px 4px rgba(0, 0, 0, 0.4)',
-    				'border-radius' : '2px',
-    				'padding' : '5px'
-    			});
-    			utils.each(elements.getElementsByTagName('p'), function(ele){
-    				domUtils.setStyles(ele, {
-	    				'margin' : '0px',
-	    				'margin-button': '5px'
-	    			});
-    			});
-    			domUtils.setStyles(unlink, {
-    				'display' : 'inline-block',
-    				'width' : '20px',
-    				'height' : '20px',
-    				'background-image' : 'url(http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/ueditor/themes/default/images2/icons@2x.png)',
-    				'background-size' : '1250px 800px',
-    				'background-position' : '-415px -8px',
-    				'margin-left': '10px'
-    			});
-    			domUtils.on(url, 'keyup', function(){
-    				currentLink.href = url.value;
-    			});
-    			domUtils.on(text, 'keyup', function(){
-    				currentLink.innerHTML = text.value;
-    			});
-    			domUtils.on(unlink, 'click', function(){
-    				editor.selection.getRange().setStart(currentLink,0);
-    				editor.selection.getRange().setEnd(currentLink).select();
-    				editor.execCommand('dxylinkremove');
-    			});
-    			this.show(link);
-    		},
-    		destory : function(){
-    			if(elements){
-    				domUtils.remove(elements);
-    				elements = null;
-    			}
-    		}
-    	};
-    })();
+		var currentLink = null,
+			editor,
+			elements,
+			url, text, unlink, bookmark;
+		return {
+			show : function(link){
+				currentLink = link;
+				var pos = domUtils.getXY(currentLink);
+				elements.style.top = pos.y + currentLink.scrollTop + (editor.getOpt('dxylink_default_top')||20) + 'px';
+				elements.style.left = pos.x + currentLink.scrollLeft + (editor.getOpt('dxylink_default_left')||0)+'px';
+				elements.style.display = 'block';
+				url.innerHTML = currentLink.href;
+				text.innerHTML = currentLink.textContent || currentLink.innerText;
+			},
+			hide : function(){
+				if(elements){
+					elements.style.display = 'none';
+				}
+			},
+			init : function(ed, link){
+				var me = this;
+				editor = ed;
+				currentLink = link;
+				var template = '<div class="dxy-linkedit-box" style="display:none;position:absolute;" contenteditable="false">'+
+								'<p><label>文本：</label><span class="dxy-linkedit-text" contenteditable="true" style="border:1px solid #000;min-width:190px;display:inline-block;"></span><span class="dxy-linkedit-unlink"></span></p>'+
+								'<p><label>链接地址：</label><span style="border:1px solid #000;padding:0px;display:inline-block;min-width:190px" class="dxy-linkedit-url" contenteditable="true"></span></p>'+
+							   '</div>';
+				elements = baidu.editor.ui.uiUtils.createElementByHtml(template);
+				editor.document.body.appendChild(elements);
+				url = editor.document.getElementsByClassName('dxy-linkedit-url')[0];
+				text = editor.document.getElementsByClassName('dxy-linkedit-text')[0];
+				unlink = editor.document.getElementsByClassName('dxy-linkedit-unlink')[0];
+				domUtils.setStyles(elements, {
+					'background' : '#fff',
+					'box-shadow' : '0 1px 4px rgba(0, 0, 0, 0.4)',
+					'border-radius' : '2px',
+					'padding' : '5px'
+				});
+				utils.each(elements.getElementsByTagName('p'), function(ele){
+					domUtils.setStyles(ele, {
+						'margin' : '0px 0px 5px 0px'
+					});
+				});
+				domUtils.setStyles(unlink, {
+					'display' : 'inline-block',
+					'width' : '20px',
+					'height' : '20px',
+					'background-image' : 'url(http://assets.dxycdn.com/app/dxydoctor/admin/js/lib/ueditor/themes/default/images2/icons@2x.png)',
+					'background-size' : '1250px 800px',
+					'background-position' : '-415px -8px',
+					'margin-left': '10px',
+					'float' : 'right'
+				});
+				domUtils.on(url, 'keyup', function(e){
+					currentLink.href = url.innerHTML;
+					currentLink.setAttribute('_href', url.innerHTML);
+				});
+				domUtils.on(url, 'keydown', function(e){
+					var range = editor.selection.getRange();
+					if(e.keyCode===13){
+						LinkEditorBox.destory();
+						return;
+					}else if(e.keyCode===8){
+						if(range.startOffset==range.endOffset && range.startOffset===0){
+							if(e.preventDefault){
+								 e.preventDefault();
+							}else{
+								window.event.returnValue = false;
+							}
+							return false;
+						}
+					}
+				});
+				domUtils.on(url, 'change', function(){
+					currentLink.href = url.innerHTML;
+					currentLink.setAttribute('_href', url.innerHTML);
+				});
+				domUtils.on(text, 'keyup', function(e){
+					currentLink.innerHTML = text.innerHTML;
+				});
+				domUtils.on(text, 'keydown', function(e){
+					var range = editor.selection.getRange();
+					if(e.keyCode===13){
+						LinkEditorBox.destory();
+						return;
+					}else if(e.keyCode===8){
+						if(range.startOffset==range.endOffset && range.startOffset===0){
+							if(e.preventDefault){
+								 e.preventDefault();
+							}else{
+								window.event.returnValue = false;
+							}
+							return false;
+						}
+					}                });
+				domUtils.on(unlink, 'click', function(){
+					editor.selection.getRange().setStart(currentLink,0);
+					editor.selection.getRange().setEnd(currentLink).select();
+					editor.execCommand('dxylinkremove');
+				});
+				this.show(link);
+			},
+			destory : function(){
+				if(elements){
+					domUtils.remove(elements);
+					elements = null;
+				}
+			}
+		};
+	})();
 
 	baidu.editor.ui.dxylink = function(editor){
 		var btn = new UE.ui.Button({
-            name: 'link',
-            title: editor.getOpt('dxylink_title') || '插入链接',
-        });
+			name: 'link',
+			title: editor.getOpt('dxylink_title') || '插入链接',
+		});
 
-	    
-        var popup = new baidu.editor.ui.Popup({
-                        content: 'hehe',
-                        editor: editor ,
-                        className:'edui-wordpastepop'
-                    });
-        btn.addListener('click', function(){
-        	editor.execCommand('dxylinkInsert');
-        });
-        editor.addListener('selectionchange', function (type, causeByUi, uiReady) {
-	        var state = editor.queryCommandState('dxylinkInsert'),
-	        	range = editor.selection.getRange(),
-		        link = domUtils.findParentByTagName(range.getCommonAncestor(), 'a', true);
-	        if (state == -1) {
-	            btn.setDisabled(true);
-	            btn.setChecked(false);
-	            LinkEditorBox.destory();
-	            LinkEditorBox.init(editor,link);
-	        } else {
-	            if (!uiReady) {
-	                btn.setDisabled(false);
-	                btn.setChecked(state);
-	                link = domUtils.findParent(range.getCommonAncestor(), function(node){
-	                	if(node.nodeType === 1 && node.getAttribute('class') === 'dxy-linkedit-box'){
-	                		return true;
-	                	}else{
-	                		return false;
-	                	}
-	                }, true);
-	                if(!link){
-	                	LinkEditorBox.destory();
-	                }
-	            }
-	        }
-	    });
-        return btn;
+		
+		var popup = new baidu.editor.ui.Popup({
+						content: 'hehe',
+						editor: editor ,
+						className:'edui-wordpastepop'
+					});
+		btn.addListener('click', function(){
+			editor.execCommand('dxylinkInsert');
+		});
+		editor.addListener('selectionchange', function (type, causeByUi, uiReady) {
+			var state = editor.queryCommandState('dxylinkInsert'),
+				range = editor.selection.getRange(),
+				link = domUtils.findParentByTagName(range.getCommonAncestor(), 'a', true);
+			if (state == -1) {
+				btn.setDisabled(true);
+				btn.setChecked(false);
+				LinkEditorBox.destory();
+				LinkEditorBox.init(editor,link);
+			} else {
+				if (!uiReady) {
+					btn.setDisabled(false);
+					btn.setChecked(state);
+					link = domUtils.findParent(range.getCommonAncestor(), function(node){
+						if(node.nodeType === 1 && node.getAttribute('class') === 'dxy-linkedit-box'){
+							return true;
+						}else{
+							return false;
+						}
+					}, true);
+					if(!link){
+						LinkEditorBox.destory();
+					}
+				}
+			}
+		});
+		return btn;
 	};
 
 })();
@@ -600,6 +640,25 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '	margin: 0px;'+
 '	padding: 0px;'+
 '}'+
+'table{'+
+'    width: 100%;'+
+'    table-layout: fixed;'+
+'    border-collapse: collapse;'+
+'    border-spacing: 0;'+
+'    margin: 15px 0;'+
+'}'+
+'th, td{'+
+'    height: 30px;'+
+'    border: 1px solid #ccc;'+
+'    vertical-align: top;'+
+'    padding: 2px 4px;'+
+'    text-align: left;'+
+'    box-sizing: border-box;'+
+'}'+
+'a{'+
+'    color: #7c68b4;'+
+'    text-decoration: none;'+
+'}'+
 'hr {display: block; height: 0; border: 0; border-top: 1px solid #ccc; margin: 15px 0; padding: 0; }'+
 'blockquote{'+
 '    border-left: 6px solid #ddd;'+
@@ -669,6 +728,81 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 		});
 	}
 });
+(function(g){
+	EditView.register('image', {
+		onModalShow : function(){
+			this.modal.find('#modal-image-link').val(this.ele.src);
+			this.modal.find('#modal-image-desc').val(this.ele.alt);
+			this.modal.find('#modal-image-height').val($(this.ele).height());
+			this.modal.find('#modal-image-width').val($(this.ele).width());
+		},
+		onModalConfirm : function(){
+			if(!this.modal.find('#modal-image-desc').val()){
+				alert('请填写图片描述:)');
+				return false;
+			}
+			this.ele.alt = this.modal.find('#modal-image-desc').val();
+			return true;
+		},
+		modalInit : function(){
+			
+		}
+	},{
+		isEditView : function(ele){
+			if(ele && ele.tagName==='IMG'){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	});
+})(this);
+(function(){
+    var domUtils = baidu.editor.dom.domUtils;
+    var utils = baidu.editor.utils;
+    var editorui = baidu.editor.ui;
+    var _Dialog = editorui.Dialog;
+    UE.plugin.register('editview', function (){
+        var me = this;
+        return {
+            bindEvents:{
+                'ready': function(){
+
+                }
+            },
+            commands: {
+                'editview': {
+                    execCommand : function(cmd, opt){
+                    	var type = opt;
+                    	if(!type){
+                    		throw new Error('exec editview command require 2 arguments');
+                    	}
+                    	var range = me.selection.getRange(),
+                    		cur = range.getCommonAncestor(true),
+                    		ele = domUtils.findParent(cur, function(node){
+                                if(EditView.isEditView(node) || (EditView.custom[type] && EditView.custom[type].isEditView && EditView.custom[type].isEditView(node))){
+                                    return true;
+                                }else{
+                                    return false;
+                                }
+                    		}, true);
+                    	if(ele){
+                    		var view = EditView.getInstance(ele);
+                    		if(view.type == type){
+                    			view.showModal();
+                    		}else{
+                    			alert('请选择正确的类型');
+                    			return;
+                    		}
+                    	}
+                    }
+                }
+            }
+        };
+    });
+
+})();
+
 (function(){
 	UE.plugin.register('inputrule', function(){
 		var me = this;
@@ -686,7 +820,47 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 })();
 UE.plugin.register('dxymodal', function(){
 var editor = this;
-var modals = '<div class="modal fade" id="dxy-drug-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-drug-modal">'+
+var modals = '<div class="modal fade" id="dxy-image-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-image-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">图片详情</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'        <form>'+
+'          <div class="form-group clearfix">'+
+'            <label class="col-sm-3">图片链接：</label>'+
+'            <div class="col-sm-9">'+
+'              <input type="text" class="form-control" id="modal-image-link" placeholder="请输入图片链接" readonly>'+
+'            </div>'+
+'          </div>'+
+'          <div class="form-group clearfix">'+
+'            <label class="col-sm-3">图片描述：</label>'+
+'            <div class="col-sm-9">'+
+'              <input type="text" class="form-control" id="modal-image-desc" placeholder="请输入图片描述" >'+
+'            </div>'+
+'          </div>'+
+'          <div class="form-group clearfix">'+
+'            <label class="col-sm-3">高：</label>'+
+'            <div class="col-sm-3">'+
+'              <input type="text" class="form-control" id="modal-image-height" readonly>'+
+'            </div>'+
+'            <label class="col-sm-3">宽：</label>'+
+'            <div class="col-sm-3">'+
+'              <input type="text" class="form-control" id="modal-image-width" readonly>'+
+'            </div>'+
+'          </div>'+
+'        </form>'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>'+
+'        <button class="btn btn-primary" type="button" id="confirm-image">确认修改</button>'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
+'</div>'+
+'<div class="modal fade" id="dxy-drug-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-drug-modal">'+
 '  <div class="modal-dialog" role="document">'+
 '    <div class="modal-content">'+
 '      <div class="modal-header">'+
@@ -695,15 +869,23 @@ var modals = '<div class="modal fade" id="dxy-drug-modal" tabindex="-1" role="di
 '      </div>'+
 '      <div class="modal-body">'+
 '        <form>'+
+'          <div class="form-group row">'+
+'            <label class="control-label col-md-6"><a>如何获取药品ID></a></label>'+
+'            <label class="control-label col-md-6"><a>查找药品ID></a></label>'+
+'          </div>'+
+'          <div class="input-group" style="margin-bottom:15px;">'+
+'            <input type="text" class="form-control" id="drug-id" placeholder="请输入5位药品数字ID">'+
+'            <div class="input-group-btn">'+
+'             <button class="btn btn-default" type="button" id="confirm-drug">确认提交</button>'+
+'            </div>'+
+'          </div>'+
 '          <div class="form-group">'+
-'            <label for="drug-name" class="control-label">药品名:</label>'+
-'            <input type="text" class="form-control" id="drug-name">'+
+'            <label class="control-label" id="J-drug-info"></label>'+
+'          </div>'+
+'          <div class="form-group">'+
+'           <label class="control-label" id="J-drug-not-find" style="display:none;">该药品 ID 不存在，请查验</label>'+
 '          </div>'+
 '        </form>'+
-'      </div>'+
-'      <div class="modal-footer">'+
-'        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>'+
-'        <button type="button" class="btn btn-primary" id="confirm-drug">确认</button>'+
 '      </div>'+
 '    </div>'+
 '  </div>'+
@@ -775,7 +957,7 @@ $(document).ready(function(){
             content = content.replace(/％/ig, '%');
             content = content.replace(/／/ig, '/');
             content = content.replace(/~/ig, '～');
-            content = content.replace(/(\d+)([-><!\+\*\/]+)/ig, "$1 $2").replace(/([-><!\+\*\/]+)(\d+)/ig, "$1 $2");
+            content = content.replace(/(\d+)([-+*\/]+)/ig, "$1 $2").replace(/([-+*\/]+)(\d+)/ig, "$1 $2");
         }
         return content;
     }
@@ -833,7 +1015,13 @@ $(document).ready(function(){
 			return this.toEditorView();
 		},
 		toWebView : function(){
-			throw new Error('you must provide toWebView in the config');
+			var ele = this.createWrapNode(),
+				me = this;
+			ele.style.display = 'block';
+			var tpl = '<span>'+this.data.drug_name+'</span>';
+			ele.innerHTML = tpl;
+			this.ele = ele;
+			return ele;
 		},
 		toAppView : function(){
 			throw new Error('you must provide toAppView in the config');
@@ -852,16 +1040,55 @@ $(document).ready(function(){
 			return ele;
 		},
 		onModalShow : function(){
-			$('#drug-name').val(this.data.drug_name||'');
+			$('#drug-id').val(this.data.drug_id||'');
+			$('#J-drug-info').val(this.data.drug_name||'');
+			$('#J-drug-not-find').hide();
+			this.modal.find('#drug-id').keyup();
 		},
 		onModalConfirm : function(){
-			var drug_name = $('#drug-name').val();
-			if(!drug_name){
-				alert('药品名不能为空');
+			if(this.verifyDrugId() && this.drugData && this.modal.find('#drug-id').val()==this.drugData.id){
+				this.data.drug_name = this.drugData.name;
+				this.data.drug_id = this.drugData.id;
+				return true;
+			}else{
 				return false;
 			}
-			this.data.drug_name = $('#drug-name').val();
-			return true
+		},
+		fetchDrugData : function(){
+			var p = $.Deferred();
+			setTimeout(function(){
+				var state = Math.round(Math.random());
+				if(state===0){
+					p.resolve({name: 'hehe', id: 12345, type: 0});
+				}else{
+					p.resolve({name: 'hehe', id: 12345, type:1});
+				}
+			}, 1000);
+			return p;
+		},
+		verifyDrugId : function(){
+			var val = this.modal.find('#drug-id').val();
+			return /\d{5}/.test(val);
+		},
+		modalInit : function(){
+			var me = this;
+			me.modal.find('#drug-id').on('keyup', function(){
+				if(me.verifyDrugId()){	
+					me.modal.find('#J-drug-info').text('检索数据中...');
+					me.fetchDrugData().then(function(res){
+						if(res.type===0){
+							me.modal.find('#J-drug-info').text('该药品 ID 不存在，请查验');
+						}else{
+							me.modal.find('#J-drug-info').text(res.name);
+							me.drugData = res;
+						}
+					}, function(){
+						alert('网络错误');
+					});
+				}else{
+					me.modal.find('#J-drug-info').text('请输入5位药品数字ID');
+				}
+			});
 		}
 	});
 })(this);
@@ -965,7 +1192,7 @@ $(document).ready(function(){
                     			return;
                     		}
                     	}else{
-                    		showModal(type)
+                    		showModal(type);
                     	}
                     }
                 }
@@ -1026,17 +1253,20 @@ $(document).ready(function(){
 		 * 设置wechat导出样式
 		 */
 		me.addWechatOutputRule(function(root){
+			function process(style){
+				UE.utils.each(Y(style.selector, root), function(ele){
+					UE.utils.each(style.styles, function(v, k){
+			    		ele.setStyle(k, v);
+			    	});
+				});
+			}
 			if(loadCount!==2){
 				throw new Error('cssparser or sizzer not loaded');
 			}
 			var styles = CssParser.parse(stylesheet),	
 				style;
 			while((style=styles.get())){
-				UE.utils.each(Y(style.selector, root), function(ele){
-					UE.utils.each(style.styles, function(v, k){
-			    		ele.setStyle(k, v);
-			    	});
-				});
+				process(style);
 			}
 		}, 'styleSet');
 
@@ -1047,7 +1277,7 @@ $(document).ready(function(){
 			}
 			UE.utils.each(Y('p, h2, ul, ol, blockquote', root), function(ele){
 				if(ele.parentNode.type==='root' || ele.parentNode.tagName==='blockquote'){
-					if(ele.innerText()==''){
+					if(ele.innerText()===''){
 						return;
 					}
 					if(!ele.nextSibling()){
@@ -1064,6 +1294,26 @@ $(document).ready(function(){
 				}
 			});
 		}, 'structEdit');
+
+        //修改table样式，因为微信对过滤table标签上的样式。
+		me.addWechatOutputRule(function(root){
+			UE.utils.each(Y('table', root), function(ele){
+				ele.setStyle('width', '');
+				var domUtils = baidu.editor.dom.domUtils,
+					firstParentBlock = domUtils.findParent(ele, function (node) {
+	                    return domUtils.isBlockElm(node);
+	                }, true) || me.body,
+					tableWidth = firstParentBlock.offsetWidth,
+					numCols, tdWidth;
+				UE.utils.each(Y('tr', ele),function(tr){
+					numCols = Y('td', tr).length;
+					tdWidth = Math.floor(tableWidth / numCols);
+					UE.utils.each(Y('td', tr), function(td){
+						td.setAttr('width', ''+tdWidth);
+					});
+				});
+			});
+		},'structEdit');
 
 		me.fireEvent('wechatready');
 		me.wechatready = true;

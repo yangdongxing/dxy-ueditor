@@ -1,4 +1,5 @@
 (function(g){
+	var CLASS_NAME = 'dxy-meta-replaced-view';
 	function assign(target){
 		for(var i=1,len=arguments.length; i<len; i++){
 			for(var prop in arguments[i]){
@@ -9,6 +10,93 @@
 		}
 		return target;
 	}
+
+	function EditView(ele){
+		if(!ele && !ele.nodeType){
+			throw new Error('require dom element');
+		}
+		this.ele = ele;
+	}
+	EditView.prototype = {};
+	EditView.isEditView = function(ele){
+		return ele.nodeType && ele.nodeType===1 && ele.getAttribute('data-type') && EditView.custom[ele.getAttribute('data-type')];
+	};
+	EditView.getInstance = function(ele){
+		if(!ele){
+			throw new Error('getInstance require one argument');
+		}
+		if(EditView.isEditView(ele)){
+			return new EditView.custom[node.getAttribute('data-type')](ele);
+		}else{
+			for(var view in EditView.custom){
+				if(EditView.custom.hasOwnProperty(view)){
+					if(EditView.custom[view].isEditView && EditView.custom[view].isEditView(ele)){
+						return new EditView.custom[view](ele);
+					}
+				}
+			}
+			return null;
+		}
+	};
+	EditView.custom = {};
+	EditView.register = function(type, instancemethods, classmethods){
+		function CustomEditView(ele){
+			this.type = type;
+			EditView.call(this, ele);
+		}
+		CustomEditView.prototype = assign({}, CustomEditView.prototype, instancemethods);
+		classmethods && assign(CustomEditView, classmethods);
+		CustomEditView.prototype.showModal = function(){
+			if(instancemethods.showModal){
+				instancemethods.showModal.call(this);
+				return;
+			}
+			var modal = $('#dxy-'+this.type+'-modal'),
+				confirm = $('#confirm-'+this.type),
+				me = this;
+			if(modal.length===0){
+				throw new Error('can not find modal id dxy-'+this.type+'-modal');
+			}
+			if(confirm.length===0){
+				throw new Error('can not find confirm id dxy-'+this.type);
+			}
+			me.modal = modal;
+			function onShow(){
+				if(!modal.isInited){
+					if(me.modalInit){
+						me.modalInit();
+					}
+					modal.isInited = true;
+				}
+				modal.data('view', me);
+				if(!me.onModalShow){
+					throw new Error('requrie onModalShow');
+				}
+				me.onModalShow();
+			}
+			function onHide(){
+				if(me.onModalHide){
+					me.onModalHide();
+				}
+				modal.off('show.bs.modal', onShow).off('hide.bs.modal', onHide);
+				confirm.off('click', onConfirm);
+				modal.data('view', null);
+			}
+			function onConfirm(){
+				if(!me.onModalConfirm){
+					throw new Error('requrie onModalConfirm');
+				}
+				if(me.onModalConfirm()){
+					modal.modal('hide')
+				}
+			}
+			modal.on('show.bs.modal', onShow).on('hide.bs.modal', onHide).modal();
+			confirm.on('click', onConfirm);
+		};
+		EditView.custom[type] = CustomEditView;
+		return CustomEditView;
+	};
+
 	function ReplacedView(data){
 		if(!data){
 			throw new Error('ReplacedView require one argument');
@@ -29,7 +117,7 @@
 		createWrapNode : function(){
 			var ele = document.createElement('p');
 			ele.style.display = 'none';
-			ele.className = 'dxy-meta-replaced-view';
+			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
 			return ele;
@@ -117,13 +205,35 @@
 			return null;
 		}
 	};
+	ReplacedView.renderAll = function(platform){
+		var m = '';
+		switch(platform){
+			case 'web' :
+				m = 'toWebView';
+				break;
+			case 'app' :
+				m = 'toAppView';
+				break;
+			case 'editor':
+				m = 'toEditorView';
+				break;
+			default:
+				throw new Error('not support');
+		}
+		$('.'+CLASS_NAME).each(function(i, ele){
+			var view = ReplacedView.getInstance(ele);
+			view[m]();
+			view.mount(ele);
+		});
+	};
 	ReplacedView.custom = {};
-	ReplacedView.register = function(type, instancemethods){
+	ReplacedView.register = function(type, instancemethods, classmethods){
 		function CustomReplacedView(data){
 			data.type = type;
 			ReplacedView.call(this, data);
 		}
 		CustomReplacedView.prototype = assign({}, ReplacedView.prototype, instancemethods);
+		classmethods && assign(CustomReplacedView, classmethods);
 		CustomReplacedView.prototype.showModal = function(){
 			if(instancemethods.showModal){
 				instancemethods.showModal.call(this);
@@ -132,15 +242,21 @@
 			var modal = $('#dxy-'+this.type+'-modal'),
 				confirm = $('#confirm-'+this.type),
 				me = this;
-			if(!modal){
+			if(modal.length===0){
 				throw new Error('can not find modal id dxy-'+this.type+'-modal');
 			}
-			if(!confirm){
+			if(confirm.length===0){
 				throw new Error('can not find confirm id dxy-'+this.type);
 			}
+			me.modal = modal;
 			function onShow(){
+				if(!modal.isInited){
+					if(me.modalInit){
+						me.modalInit();
+					}
+					modal.isInited = true;
+				}
 				modal.data('view', me);
-				me.modal = modal;
 				if(!me.onModalShow){
 					throw new Error('requrie onModalShow');
 				}
@@ -171,4 +287,5 @@
 		return CustomReplacedView;
 	};
 	g.ReplacedView = ReplacedView;
+	g.EditView = EditView;
 })(this);

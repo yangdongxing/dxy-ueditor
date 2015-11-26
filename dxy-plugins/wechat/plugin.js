@@ -49,17 +49,20 @@
 		 * 设置wechat导出样式
 		 */
 		me.addWechatOutputRule(function(root){
+			function process(style){
+				UE.utils.each(Y(style.selector, root), function(ele){
+					UE.utils.each(style.styles, function(v, k){
+			    		ele.setStyle(k, v);
+			    	});
+				});
+			}
 			if(loadCount!==2){
 				throw new Error('cssparser or sizzer not loaded');
 			}
 			var styles = CssParser.parse(stylesheet),	
 				style;
 			while((style=styles.get())){
-				UE.utils.each(Y(style.selector, root), function(ele){
-					UE.utils.each(style.styles, function(v, k){
-			    		ele.setStyle(k, v);
-			    	});
-				});
+				process(style);
 			}
 		}, 'styleSet');
 
@@ -70,7 +73,7 @@
 			}
 			UE.utils.each(Y('p, h2, ul, ol, blockquote', root), function(ele){
 				if(ele.parentNode.type==='root' || ele.parentNode.tagName==='blockquote'){
-					if(ele.innerText()==''){
+					if(ele.innerText()===''){
 						return;
 					}
 					if(!ele.nextSibling()){
@@ -87,6 +90,26 @@
 				}
 			});
 		}, 'structEdit');
+
+        //修改table样式，因为微信对过滤table标签上的样式。
+		me.addWechatOutputRule(function(root){
+			UE.utils.each(Y('table', root), function(ele){
+				ele.setStyle('width', '');
+				var domUtils = baidu.editor.dom.domUtils,
+					firstParentBlock = domUtils.findParent(ele, function (node) {
+	                    return domUtils.isBlockElm(node);
+	                }, true) || me.body,
+					tableWidth = firstParentBlock.offsetWidth,
+					numCols, tdWidth;
+				UE.utils.each(Y('tr', ele),function(tr){
+					numCols = Y('td', tr).length;
+					tdWidth = Math.floor(tableWidth / numCols);
+					UE.utils.each(Y('td', tr), function(td){
+						td.setAttr('width', ''+tdWidth);
+					});
+				});
+			});
+		},'structEdit');
 
 		me.fireEvent('wechatready');
 		me.wechatready = true;

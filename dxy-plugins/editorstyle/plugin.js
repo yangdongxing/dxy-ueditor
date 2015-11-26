@@ -6,6 +6,25 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '	margin: 0px;'+
 '	padding: 0px;'+
 '}'+
+'table{'+
+'    width: 100%;'+
+'    table-layout: fixed;'+
+'    border-collapse: collapse;'+
+'    border-spacing: 0;'+
+'    margin: 15px 0;'+
+'}'+
+'th, td{'+
+'    height: 30px;'+
+'    border: 1px solid #ccc;'+
+'    vertical-align: top;'+
+'    padding: 2px 4px;'+
+'    text-align: left;'+
+'    box-sizing: border-box;'+
+'}'+
+'a{'+
+'    color: #7c68b4;'+
+'    text-decoration: none;'+
+'}'+
 'hr {display: block; height: 0; border: 0; border-top: 1px solid #ccc; margin: 15px 0; padding: 0; }'+
 'blockquote{'+
 '    border-left: 6px solid #ddd;'+

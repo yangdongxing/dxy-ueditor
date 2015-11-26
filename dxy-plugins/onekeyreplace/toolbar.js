@@ -61,7 +61,7 @@
             content = content.replace(/％/ig, '%');
             content = content.replace(/／/ig, '/');
             content = content.replace(/~/ig, '～');
-            content = content.replace(/(\d+)([-><!\+\*\/]+)/ig, "$1 $2").replace(/([-><!\+\*\/]+)(\d+)/ig, "$1 $2");
+            content = content.replace(/(\d+)([-+*\/]+)/ig, "$1 $2").replace(/([-+*\/]+)(\d+)/ig, "$1 $2");
         }
         return content;
     }

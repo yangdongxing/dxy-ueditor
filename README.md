@@ -60,7 +60,8 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 3. [dxylink](#dxylink) 插入和移除超链接
 4. [inputrule](#inputrule) 丁香园输入规则注册模块
 5. [wechat](#wechat) 导出到微信
-6. [replacedview](#replacedview) 插入个性化视图
+6. [replacedview](#replacedview) 可替换视图插件
+7. [editview](#editview) 可编辑视图插件
 
 ## dxyupload
 图片插入上传插件，支持多图上传，支持图片拖入上传。<a name="dxyupload"></a>
@@ -93,13 +94,17 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 
 	
 ## editorstyle
-设置编辑器内部文章样式和微信样式<br>
-`editorstyle/editor.css`设置基本通用样式<br>
+设置编辑器内部文章样式和微信样式
+
+`editorstyle/editor.css`设置基本通用样式
+
 插件修改的样式应该在`pluginname/editor.css`中设置
 
 ## wechatstyle
-设置微信样式<br>
-`wechatstyle/wechat.css`设置微信通用样式<br>
+设置微信样式
+
+`wechatstyle/wechat.css`设置微信通用样式
+
 插件修改的样式应该在`pluginname/wechat.css`中设置
 
 ## replacedview
@@ -162,6 +167,41 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 	serialize(obj) : ...
 	deSerialize(str) : ...
 	
+## editview
 
+自定义弹出框
 
+### example
+注册
+
+		EditView.register('image', {
+		onModalShow : function(){
+			this.modal.find('#modal-image-link').val(this.ele.src);
+			this.modal.find('#modal-image-desc').val(this.ele.alt);
+			this.modal.find('#modal-image-height').val($(this.ele).height());
+			this.modal.find('#modal-image-width').val($(this.ele).width());
+		},
+		onModalConfirm : function(){
+			if(!this.modal.find('#modal-image-desc').val()){
+				alert('请填写图片描述:)');
+				return false;
+			}
+			this.ele.alt = this.modal.find('#modal-image-desc').val();
+			return true;
+		},
+		modalInit : function(){
+			
+		}
+	},{
+		isEditView : function(ele){
+			if(ele && ele.tagName==='IMG'){
+				return true;
+			}else{
+				return false;
+			}
+		}
+	});
 	
+调用
+
+	editor.execCommand('editview', type)

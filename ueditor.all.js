@@ -18924,7 +18924,9 @@ UE.plugins['video'] = function (){
                 for (var r = 0; r < rowsNum; r++) {
                     html.push('<tr' + (r == 0 ? ' class="firstRow"':'') + '>');
                     for (var c = 0; c < colsNum; c++) {
-                        html.push('<td width="' + tdWidth + '"  vAlign="' + opt.tdvalign + '" >' + (browser.ie && browser.version < 11 ? domUtils.fillChar : '<br/>') + '</td>')
+                        // html.push('<td width="' + tdWidth + '"  vAlign="' + opt.tdvalign + '" >' + (browser.ie && browser.version < 11 ? domUtils.fillChar : '<br/>') + '</td>');
+                        // @yansun 取消设置width
+                        html.push('<td vAlign="' + opt.tdvalign + '" >' + (browser.ie && browser.version < 11 ? domUtils.fillChar : '<br/>') + '</td>')
                     }
                     html.push('</tr>')
                 }
@@ -21900,6 +21902,14 @@ UE.plugins['contextmenu'] = function () {
                         if ( confirm( lang.confirmclear ) ) {
                             this.execCommand( 'cleardoc' );
                         }
+                    }
+                },
+                '-',
+                {
+                    label : '图片详情',
+                    cmdName : 'editview',
+                    exec:function () {
+                        this.execCommand('editview', 'image');
                     }
                 },
                 '-',

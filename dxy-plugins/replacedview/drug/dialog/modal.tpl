@@ -7,15 +7,23 @@
       </div>
       <div class="modal-body">
         <form>
+          <div class="form-group row">
+            <label class="control-label col-md-6"><a>如何获取药品ID></a></label>
+            <label class="control-label col-md-6"><a>查找药品ID></a></label>
+          </div>
+          <div class="input-group" style="margin-bottom:15px;">
+            <input type="text" class="form-control" id="drug-id" placeholder="请输入5位药品数字ID">
+            <div class="input-group-btn">
+             <button class="btn btn-default" type="button" id="confirm-drug">确认提交</button>
+            </div>
+          </div>
           <div class="form-group">
-            <label for="drug-name" class="control-label">药品名:</label>
-            <input type="text" class="form-control" id="drug-name">
+            <label class="control-label" id="J-drug-info"></label>
+          </div>
+          <div class="form-group">
+           <label class="control-label" id="J-drug-not-find" style="display:none;">该药品 ID 不存在，请查验</label>
           </div>
         </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-primary" id="confirm-drug">确认</button>
       </div>
     </div>
   </div>

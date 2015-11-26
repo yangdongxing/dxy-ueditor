@@ -57,7 +57,7 @@ module.exports = function (grunt) {
             encoding : 'utf8'
         });
         var line, reg = /^.+$/img, body='';
-        while(line = reg.exec(file)){
+        while((line = reg.exec(file))){
             body += "'" + line + "'+\n";
         }
         body = body.slice(0, body.length-2);
@@ -77,7 +77,7 @@ module.exports = function (grunt) {
             encoding : 'utf8'
         });
         var line, reg = /^.+$/img, body='';
-        while(line = reg.exec(file)){
+        while((line = reg.exec(file))){
             body += "'" + line + "'+\n";
         }
         body = body.slice(0, body.length-2);
@@ -97,7 +97,7 @@ module.exports = function (grunt) {
             encoding : 'utf8'
         });
         var line, reg = /^.+$/img, body='';
-        while(line = reg.exec(file)){
+        while((line = reg.exec(file))){
             body += "'" + line + "'+\n";
         }
         body = body.slice(0, body.length-2);
@@ -107,5 +107,5 @@ module.exports = function (grunt) {
         });
     });
     grunt.registerTask('dev', ['watch']);
-    grunt.registerTask('build', ['jshint','concat','registerStyle']);
+    grunt.registerTask('build', ['jshint', 'concat','registerStyle']);
 };

@@ -82,7 +82,7 @@
                     			return;
                     		}
                     	}else{
-                    		showModal(type)
+                    		showModal(type);
                     	}
                     }
                 }
