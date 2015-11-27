@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         },
         concat: {
             plugin : {
-                src : ['dxy-plugins/**/*.js'],
+                src : ['dxy-plugins/**/*.js','!dxy-plugins/**/extend.js'],
                 dest : 'ueditor.dxy.custom.js'
             },
             editorcss: {

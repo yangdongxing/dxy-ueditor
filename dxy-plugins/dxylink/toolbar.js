@@ -30,7 +30,7 @@
 								'<p><label>链接地址：</label><span style="border:1px solid #000;padding:0px;display:inline-block;min-width:190px" class="dxy-linkedit-url" contenteditable="true"></span></p>'+
 							   '</div>';
 				elements = baidu.editor.ui.uiUtils.createElementByHtml(template);
-				editor.document.body.appendChild(elements);
+				$(editor.document.body).prepend(elements);
 				url = editor.document.getElementsByClassName('dxy-linkedit-url')[0];
 				text = editor.document.getElementsByClassName('dxy-linkedit-text')[0];
 				unlink = editor.document.getElementsByClassName('dxy-linkedit-unlink')[0];
@@ -98,8 +98,7 @@
 						}
 					}                });
 				domUtils.on(unlink, 'click', function(){
-					editor.selection.getRange().setStart(currentLink,0);
-					editor.selection.getRange().setEnd(currentLink).select();
+					editor.selection.getRange().selectNodeContents(currentLink).select();
 					editor.execCommand('dxylinkremove');
 				});
 				this.show(link);

@@ -294,8 +294,10 @@
 		onModalShow : function(){
 			this.modal.find('#modal-image-link').val(this.ele.src);
 			this.modal.find('#modal-image-desc').val(this.ele.alt);
-			this.modal.find('#modal-image-height').val($(this.ele).height());
-			this.modal.find('#modal-image-width').val($(this.ele).width());
+			var image = new Image()
+		    image.src = this.ele.src;
+			this.modal.find('#modal-image-height').val(image.height);
+			this.modal.find('#modal-image-width').val(image.width);
 		},
 		onModalConfirm : function(){
 			if(!this.modal.find('#modal-image-desc').val()){
