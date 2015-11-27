@@ -117,7 +117,6 @@
 			name: 'link',
 			title: editor.getOpt('dxylink_title') || '插入链接',
 		});
-
 		
 		var popup = new baidu.editor.ui.Popup({
 						content: 'hehe',
@@ -126,6 +125,9 @@
 					});
 		btn.addListener('click', function(){
 			editor.execCommand('dxylinkInsert');
+		});
+		editor.addListener('blur', function(){
+			LinkEditorBox.destory();
 		});
 		editor.addListener('selectionchange', function (type, causeByUi, uiReady) {
 			var state = editor.queryCommandState('dxylinkInsert'),

@@ -238,7 +238,6 @@
 			name: 'link',
 			title: editor.getOpt('dxylink_title') || '插入链接',
 		});
-
 		
 		var popup = new baidu.editor.ui.Popup({
 						content: 'hehe',
@@ -247,6 +246,9 @@
 					});
 		btn.addListener('click', function(){
 			editor.execCommand('dxylinkInsert');
+		});
+		editor.addListener('blur', function(){
+			LinkEditorBox.destory();
 		});
 		editor.addListener('selectionchange', function (type, causeByUi, uiReady) {
 			var state = editor.queryCommandState('dxylinkInsert'),
@@ -979,6 +981,23 @@ $(document).ready(function(){
 
 })();
 
+(function(){
+	UE.plugin.register('outputrule', function(){
+		var me = this;
+		me.addOutputRule(function(root){
+			root.traversal(function(node){
+				//bugfix: 临时修复出乎意料出现的span样式
+				if(node.tagName === 'span' && node.getStyle('font-family')){
+					node.setStyle('font-family', '');
+				}
+				//bugfix : 临时修复未关闭链接框，导致保存链接框
+				if(node.tagName === 'div' && node.getAttr('class')==='dxy-linkedit-box'){
+					node.parentNode.removeChild(node, false);
+				}
+			});
+		});
+	});
+})();
 (function(){
 	baidu.editor.ui.drug = function (editor) {
 		var name = 'drug',
