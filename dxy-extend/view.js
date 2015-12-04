@@ -1,5 +1,17 @@
 (function(g){
 	var CLASS_NAME = 'dxy-meta-replaced-view';
+	function isPC(){  
+        	var userAgentInfo = navigator.userAgent;  
+        	var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");  
+        	var flag = true;  
+        	for (var i = 0; i < Agents.length; i++) {  
+				if (userAgentInfo.indexOf(Agents[i]) > 0){
+					flag = false;
+					break; 
+				}  
+        	}  
+        	return flag;  
+	}
 	function assign(target){
 		for(var i=1,len=arguments.length; i<len; i++){
 			for(var prop in arguments[i]){
@@ -11,22 +23,31 @@
 		return target;
 	}
 
-	function EditView(ele){
-		if(!ele && !ele.nodeType){
-			throw new Error('require dom element');
+	function EditView(ele, range){
+		if(range){
+			this.range = range;
+			if(!this.createPlainElement){
+				return;
+			}
+			this.ele = this.createPlainElement();
+			range.insertNode(this.ele);
+		}else{
+			if(!ele && !ele.nodeType){
+				throw new Error('require dom element');
+			}
+			this.ele = ele;
 		}
-		this.ele = ele;
 	}
 	EditView.prototype = {};
 	EditView.isEditView = function(ele){
 		return ele.nodeType && ele.nodeType===1 && ele.getAttribute('data-type') && EditView.custom[ele.getAttribute('data-type')];
 	};
-	EditView.getInstance = function(ele){
+	EditView.getInstance = function(ele, range){
 		if(!ele){
 			throw new Error('getInstance require one argument');
 		}
 		if(EditView.isEditView(ele)){
-			return new EditView.custom[node.getAttribute('data-type')](ele);
+			return new EditView.custom[ele.getAttribute('data-type')](ele);
 		}else{
 			for(var view in EditView.custom){
 				if(EditView.custom.hasOwnProperty(view)){
@@ -40,9 +61,9 @@
 	};
 	EditView.custom = {};
 	EditView.register = function(type, instancemethods, classmethods){
-		function CustomEditView(ele){
+		function CustomEditView(){
 			this.type = type;
-			EditView.call(this, ele);
+			EditView.apply(this, [].slice.apply(arguments));
 		}
 		CustomEditView.prototype = assign({}, CustomEditView.prototype, instancemethods);
 		classmethods && assign(CustomEditView, classmethods);
@@ -147,7 +168,25 @@
 			return ele;
 		},
 		toAppropriateView : function(){
-			throw new Error('not support');
+			if(!ReplacedView.platform){
+				if(isPC()){
+					if(window.location.href.indexOf('admin/column')!==-1){
+						ReplacedView.platform = 'editor';
+					}else{
+						ReplacedView.platform = 'pc';
+					}
+				}else{
+					ReplacedView.platform = 'mobile';
+				}
+			}
+			switch(ReplacedView.platform){
+				case 'pc' :
+					return this.toWebView();
+				case 'editor' :
+					return this.toEditorView();
+				case 'mobile' :
+					return this.toAppView();
+			}
 		},
 		mount : function(ele){
 			if(!ele){
@@ -205,24 +244,10 @@
 			return null;
 		}
 	};
-	ReplacedView.renderAll = function(platform){
-		var m = '';
-		switch(platform){
-			case 'web' :
-				m = 'toWebView';
-				break;
-			case 'app' :
-				m = 'toAppView';
-				break;
-			case 'editor':
-				m = 'toEditorView';
-				break;
-			default:
-				throw new Error('not support');
-		}
+	ReplacedView.renderAll = function(){
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
-			view[m]();
+			view.toAppropriateView();
 			view.mount(ele);
 		});
 	};

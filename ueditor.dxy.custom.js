@@ -730,6 +730,22 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 	}
 });
 (function(){
+	baidu.editor.ui.bubbletalk = function (editor) {
+		var name = 'bubbletalk',
+			title = '插入气泡对话';
+	    var btn = new UE.ui.Button({
+	        name: name,
+	        title: title
+	    });
+
+	    btn.addListener('click', function(){
+	        editor.execCommand('editview', name);
+	    });
+	        
+	    return btn;
+	};
+})();
+(function(){
     var domUtils = baidu.editor.dom.domUtils;
     var utils = baidu.editor.utils;
     var editorui = baidu.editor.ui;
@@ -745,10 +761,13 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
             commands: {
                 'editview': {
                     execCommand : function(cmd, opt){
-                    	var type = opt;
+                    	var type = opt, view;
                     	if(!type){
                     		throw new Error('exec editview command require 2 arguments');
                     	}
+                        if(!EditView.custom[type]){
+                            throw new Error(type+' not support');
+                        }
                     	var range = me.selection.getRange(),
                     		cur = range.getCommonAncestor(true),
                     		ele = domUtils.findParent(cur, function(node){
@@ -759,14 +778,24 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
                                 }
                     		}, true);
                     	if(ele){
-                    		var view = EditView.getInstance(ele);
+                    		view = EditView.getInstance(ele);
                     		if(view.type == type){
                     			view.showModal();
                     		}else{
                     			alert('请选择正确的类型');
                     			return;
                     		}
-                    	}
+                    	}else{
+                            if(EditView.custom[type] && EditView.custom[type].isEmptySupport){
+                                view = new EditView.custom[type](ele, range);
+                                if(view.type == type){
+                                    view.showModal();
+                                }else{
+                                    alert('请选择正确的类型');
+                                    return;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -786,13 +815,35 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 				if(node.getAttr('data-align')==='div-right' || node.getAttr('data-align')==='right'){
 					node.setStyle('text-align', 'right');
 				}
+				if(node.tagName === 'span' && node.getStyle('font-family')){
+					node.setStyle('font-family', '');
+				}
 			});
 		});
 	});
 })();
 UE.plugin.register('dxymodal', function(){
 var editor = this;
-var modals = '<div class="modal fade" id="dxy-image-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-image-modal">'+
+var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-bubbletalk-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">插入气泡对话</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'        <div contenteditable="true" style="width:100%;height:400px;border:1px solid #eee;overflow-y:scroll;" id="dxy-bubbletalk-content">'+
+'          '+
+'        </div>'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>'+
+'        <button class="btn btn-primary" type="button" id="confirm-bubbletalk">确认修改</button>'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
+'</div>'+
+'<div class="modal fade" id="dxy-image-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-image-modal">'+
 '  <div class="modal-dialog" role="document">'+
 '    <div class="modal-content">'+
 '      <div class="modal-header">'+
@@ -804,7 +855,7 @@ var modals = '<div class="modal fade" id="dxy-image-modal" tabindex="-1" role="d
 '          <div class="form-group clearfix">'+
 '            <label class="col-sm-3">图片链接：</label>'+
 '            <div class="col-sm-9">'+
-'              <input type="text" class="form-control" id="modal-image-link" placeholder="请输入图片链接" readonly>'+
+'              <input type="text" class="form-control" id="modal-image-link" placeholder="请输入图片链接">'+
 '            </div>'+
 '          </div>'+
 '          <div class="form-group clearfix">'+
@@ -1046,7 +1097,7 @@ $(document).ready(function(){
             $(me.body).find('.dxy-meta-replaced-view').each(function(i,e){
                 var view = ReplacedView.getInstance(e);
                 if(view){
-                    view.toEditorView();
+                    view.toAppropriateView();
                     view.mount(e);
                 }
             });

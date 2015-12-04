@@ -9,6 +9,9 @@
 				if(node.getAttr('data-align')==='div-right' || node.getAttr('data-align')==='right'){
 					node.setStyle('text-align', 'right');
 				}
+				if(node.tagName === 'span' && node.getStyle('font-family')){
+					node.setStyle('font-family', '');
+				}
 			});
 		});
 	});

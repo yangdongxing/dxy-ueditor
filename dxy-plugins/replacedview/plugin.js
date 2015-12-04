@@ -30,7 +30,7 @@
             $(me.body).find('.dxy-meta-replaced-view').each(function(i,e){
                 var view = ReplacedView.getInstance(e);
                 if(view){
-                    view.toEditorView();
+                    view.toAppropriateView();
                     view.mount(e);
                 }
             });

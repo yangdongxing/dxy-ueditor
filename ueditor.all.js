@@ -21906,12 +21906,12 @@ UE.plugins['contextmenu'] = function () {
                 },
                 '-',
                 {
-                    label : '图片详情',
+                    label : '图片详情', 
                     cmdName : 'editview',
                     exec:function () {
                         this.execCommand('editview', 'image');
                     }
-                },
+                }, 
                 '-',
                 {
                     label:lang.unlink,

@@ -77,7 +77,7 @@
             'insertorderedlist', 'insertunorderedlist', '|',
             'dxylink', 'horizontal','blockquote' ,'|',
             'dxyupload','inserttable','|',
-            'superscript', 'subscript','|','onekeyreplace', 'copytowechat'
+            'superscript', 'subscript','|','onekeyreplace', 'copytowechat', 'drug'
             
         ]]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准
@@ -139,7 +139,7 @@
         // ,fullscreen : false //是否开启初始化时即全屏，默认关闭
 
         ,imagePopup:false      //图片操作的浮层开关，默认打开
-        ,imageScaleEnabled:false  //坑：官方未提供说明，不允许图片缩放编辑，避免很多未知的BUG
+        ,imageScaleEnatruebled:false  //坑：官方未提供说明，不允许图片缩放编辑，避免很多未知的BUG
 
         //,autoSyncData:true //自动同步编辑器要提交的数据
         //,emotionLocalization:false //是否开启表情本地化，默认关闭。若要开启请确保emotion文件夹下包含官网提供的images表情文件夹
@@ -148,6 +148,9 @@
         ,retainOnlyLabelPasted: true
 
         ,pasteplain:true  //是否默认为纯文本粘贴。false为不使用纯文本粘贴，true为使用纯文本粘贴
+        // ,filterRules : {
+        //     '-' : 'script style object iframe embed input select'
+        // }
         //纯文本粘贴模式下的过滤规则
         // 'filterTxtRules' : function(){
         //    function transP(node){

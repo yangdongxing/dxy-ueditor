@@ -10,7 +10,7 @@
           <div class="form-group clearfix">
             <label class="col-sm-3">图片链接：</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" id="modal-image-link" placeholder="请输入图片链接" readonly>
+              <input type="text" class="form-control" id="modal-image-link" placeholder="请输入图片链接">
             </div>
           </div>
           <div class="form-group clearfix">

@@ -14,10 +14,13 @@
             commands: {
                 'editview': {
                     execCommand : function(cmd, opt){
-                    	var type = opt;
+                    	var type = opt, view;
                     	if(!type){
                     		throw new Error('exec editview command require 2 arguments');
                     	}
+                        if(!EditView.custom[type]){
+                            throw new Error(type+' not support');
+                        }
                     	var range = me.selection.getRange(),
                     		cur = range.getCommonAncestor(true),
                     		ele = domUtils.findParent(cur, function(node){
@@ -28,14 +31,24 @@
                                 }
                     		}, true);
                     	if(ele){
-                    		var view = EditView.getInstance(ele);
+                    		view = EditView.getInstance(ele);
                     		if(view.type == type){
                     			view.showModal();
                     		}else{
                     			alert('请选择正确的类型');
                     			return;
                     		}
-                    	}
+                    	}else{
+                            if(EditView.custom[type] && EditView.custom[type].isEmptySupport){
+                                view = new EditView.custom[type](ele, range);
+                                if(view.type == type){
+                                    view.showModal();
+                                }else{
+                                    alert('请选择正确的类型');
+                                    return;
+                                }
+                            }
+                        }
                     }
                 }
             }
