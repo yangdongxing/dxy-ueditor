@@ -2009,3 +2009,13 @@ div.edui-box {
 .edui-for-onekeyreplace .edui-icon:before{
     content: '\e800';
 }
+
+.limit-counter{
+    position: absolute;
+    top : 8px;
+    right: 22px;
+}
+
+.limit-length{
+    padding-right: 45px;
+}

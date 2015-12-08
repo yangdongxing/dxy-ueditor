@@ -344,7 +344,8 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '          <div class="form-group clearfix">'+
 '            <label class="col-sm-3">投票名称：</label>'+
 '            <div class="col-sm-9">'+
-'              <input type="text" class="form-control"  placeholder="" name="vote_name" value="<%=vote_name%>">'+
+'              <input type="text" class="form-control limit-length"  data-max="45"  data-target="vote-name-limit" placeholder="" name="vote_name" value="<%=vote_name%>">'+
+'              <em id="vote-name-limit" class="limit-counter"><%=vote_name.length%>/45</em>'+
 '            </div>'+
 '          </div>'+
 '          <p class="text-muted form-group clearfix">'+
@@ -380,7 +381,8 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '		          <div class="form-group clearfix">'+
 '		            <label class="col-sm-3">标题：</label>'+
 '		            <div class="col-sm-9">'+
-'		              <input type="text" class="form-control"  placeholder="" name="vote_title" value="<%=vote_title%>">'+
+'		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit" data-max="35" placeholder="" name="vote_title" value="<%=vote_title%>">'+
+'		              <em id="vote-title-limit" class="limit-counter"><%=vote_name.length%>/35</em>'+
 '		            </div>'+
 '		          </div>'+
 '		          <div class="form-group clearfix">'+
@@ -397,7 +399,8 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '						<div class="form-group clearfix">'+
 '				            <label class="col-sm-3">选项<%=(i+1)%>：</label>'+
 '				            <div class="col-sm-7">'+
-'				              <input type="text" class="form-control" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">'+
+'				              <input type="text" data-max="35" data-target="vote-option-limit-<%=i%>" class="form-control limit-length" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">'+
+'				              <em id="vote-option-limit-<%=i%>" class="limit-counter"><%=opt.value?opt.value.length:0%>/35</em>'+
 '				            </div>'+
 '				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>'+
 '				        </div>'+
@@ -611,16 +614,16 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 		events: {
 			'click #J-add-option' : 'addOption',
 			'click .J-remove-option' : 'removeOption',
+			'keyup input' : 'valueChange',
 			'blur input' : 'valueChange',
-			'change input' : 'valueChange'
+			'change input' : 'valueChange',
+			'keyup .limit-length' : 'limitLength'
 		},
 		initialize : function(view){
 			var me = this;
 			this.setElement($('#dxy-vote-modal .modal-body')[0]);
 			this.model =  new VoteModel(view.data);
-			this.model.on('change', function(){
-				me.render();
-			});
+			this.model.on('change', this.render, this);
 			this.render();
 		},
 		render: function() {
@@ -669,31 +672,44 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 			if(k.indexOf('vote_option')!==-1){
 				i = +k.split('_').pop();
 				data.vote_options[i].value = v;
+				this.model.set('vote_options', data.vote_options);
 			}else{
 				data[k] = v;
+				this.model.set(k, v);
 			}
+		},
+		limitLength : function(e){
+			var $ele = $(e.target),
+				max = $ele.data('max'),
+				$target = $('#'+$ele.data('target'));
+			if(+$ele.val().length > +max){
+				$target.addClass('text-danger');
+			}else{
+				$target.removeClass('text-danger');
+			}
+			$target.text($ele.val().length+'/'+max);
 		},
 		verify : function(){
 			var tag = true;
-			_.each(this.model.attributes, function(v, k){
+			_.every(this.model.attributes, function(v, k){
 				if(!v){
 					switch(k){
 						case 'vote_name' : 
 							alert('投票名称不能为空');
 							tag = false;
-							return;
+							break;
 						case 'vote_options':
 							alert('选项不能为空');
 							tag = false;
-							return;
+							break;
 						case 'vote_title' : 
 							alert('投票标题不能为空');
 							tag = false;
-							return;
+							break;
 						case 'vote_endtime':
 							alert('投票截止时间不能为空');
 							tag = false;
-							return;
+							break;
 					}
 				}
 				switch(k){
@@ -701,24 +717,42 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 						if(v.length<2){
 							alert('投票选项不能低于2项');
 							tag = false;
-							return;
+							break;
 						}
-						_.each(v, function(vv){
-							if(!vv){
+						tag = _.every(v, function(vv){
+							if(!vv.value){
 								alert('投票选项不能为空');
 								tag = false;
-								return;
+								return false;
 							}
-						})
+							if(vv.value.length>35){
+								alert('投票选项不能超过35个字符');
+								tag = false;
+								return false;
+							}
+							return true;
+						});
 						break;
 					case 'vote_endtime':
 						if(new Date(v)<new Date()){
 							alert('投票截止日期已过期');
 							tag = false;
-							return;
+						}
+						break;
+					case 'vote_name':
+						if(v.length>45){
+							alert('投票名称不能超过45个字符');
+							tag = false;
+						}
+						break;
+					case 'vote_title':
+						if(v.length>35){
+							alert('投票标题不能超过35个字符');
+							tag = false;
 						}
 						break;
 				}
+				return tag;
 			});
 			return tag;
 		}

@@ -26,7 +26,8 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '          <div class="form-group clearfix">'+
 '            <label class="col-sm-3">投票名称：</label>'+
 '            <div class="col-sm-9">'+
-'              <input type="text" class="form-control"  placeholder="" name="vote_name" value="<%=vote_name%>">'+
+'              <input type="text" class="form-control limit-length"  data-max="45"  data-target="vote-name-limit" placeholder="" name="vote_name" value="<%=vote_name%>">'+
+'              <em id="vote-name-limit" class="limit-counter"><%=vote_name.length%>/45</em>'+
 '            </div>'+
 '          </div>'+
 '          <p class="text-muted form-group clearfix">'+
@@ -62,7 +63,8 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '		          <div class="form-group clearfix">'+
 '		            <label class="col-sm-3">标题：</label>'+
 '		            <div class="col-sm-9">'+
-'		              <input type="text" class="form-control"  placeholder="" name="vote_title" value="<%=vote_title%>">'+
+'		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit" data-max="35" placeholder="" name="vote_title" value="<%=vote_title%>">'+
+'		              <em id="vote-title-limit" class="limit-counter"><%=vote_name.length%>/35</em>'+
 '		            </div>'+
 '		          </div>'+
 '		          <div class="form-group clearfix">'+
@@ -79,7 +81,8 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '						<div class="form-group clearfix">'+
 '				            <label class="col-sm-3">选项<%=(i+1)%>：</label>'+
 '				            <div class="col-sm-7">'+
-'				              <input type="text" class="form-control" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">'+
+'				              <input type="text" data-max="35" data-target="vote-option-limit-<%=i%>" class="form-control limit-length" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">'+
+'				              <em id="vote-option-limit-<%=i%>" class="limit-counter"><%=opt.value?opt.value.length:0%>/35</em>'+
 '				            </div>'+
 '				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>'+
 '				        </div>'+
