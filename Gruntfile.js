@@ -19,7 +19,7 @@ module.exports = function (grunt) {
                 dest : 'themes/wechat.css'
             },
             extend : {
-                src : ['dxy-extend/**/*.js', 'dxy-plugins/**/extend.js'],
+                src : ['dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
                 dest : 'ueditor.dxy.extend.js'
             },
             modal : {
@@ -43,8 +43,22 @@ module.exports = function (grunt) {
             modal : {
                 files : ['dxy-plugins/**/modal.tpl'],
                 tasks : ['concat:modal', 'registerModal']
+            },
+            replacedview : {
+                files : ['dxy-plugins/**/*.view'],
+                tasks : ['require_html']
             }
-        }
+        },
+        require_html: {
+            options: {
+                
+            },
+            replacedview: {
+                files: {
+                  'dxy-extend/template.js': ['dxy-plugins/**/*.view']
+                }
+            },
+          }
     });
     grunt.registerTask('registerStyle','registerStyle', function(){
         var file = require('fs').readFileSync('./themes/iframe.css', {

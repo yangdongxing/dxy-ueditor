@@ -167,7 +167,7 @@
 			this.ele = ele;
 			return ele;
 		},
-		toAppropriateView : function(){
+		toAppropriateView : function(ele){
 			if(!ReplacedView.platform){
 				if(isPC()){
 					if(window.location.href.indexOf('admin/column')!==-1){
@@ -181,11 +181,11 @@
 			}
 			switch(ReplacedView.platform){
 				case 'pc' :
-					return this.toWebView();
+					return this.toWebView(ele);
 				case 'editor' :
-					return this.toEditorView();
+					return this.toEditorView(ele);
 				case 'mobile' :
-					return this.toAppView();
+					return this.toAppView(ele);
 			}
 		},
 		mount : function(ele){
@@ -247,8 +247,10 @@
 	ReplacedView.renderAll = function(){
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
-			view.toAppropriateView();
-			view.mount(ele);
+			view.toAppropriateView(ele).then(function(){
+				view.ele.style.display = 'block';
+				view.mount(ele);
+			});
 		});
 	};
 	ReplacedView.custom = {};

@@ -167,7 +167,7 @@
 			this.ele = ele;
 			return ele;
 		},
-		toAppropriateView : function(){
+		toAppropriateView : function(ele){
 			if(!ReplacedView.platform){
 				if(isPC()){
 					if(window.location.href.indexOf('admin/column')!==-1){
@@ -181,11 +181,11 @@
 			}
 			switch(ReplacedView.platform){
 				case 'pc' :
-					return this.toWebView();
+					return this.toWebView(ele);
 				case 'editor' :
-					return this.toEditorView();
+					return this.toEditorView(ele);
 				case 'mobile' :
-					return this.toAppView();
+					return this.toAppView(ele);
 			}
 		},
 		mount : function(ele){
@@ -247,8 +247,10 @@
 	ReplacedView.renderAll = function(){
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
-			view.toAppropriateView();
-			view.mount(ele);
+			view.toAppropriateView(ele).then(function(){
+				view.ele.style.display = 'block';
+				view.mount(ele);
+			});
 		});
 	};
 	ReplacedView.custom = {};
@@ -314,6 +316,106 @@
 	g.ReplacedView = ReplacedView;
 	g.EditView = EditView;
 })(this);
+define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<div class=\'m-drug-view-wraper\'>'+
+'	<div>'+
+'		<img src=\'\'>'+
+'	</div>'+
+'	<div class=\'m-drug-view-body\'>'+
+'		<h4><%=drug_name%></h4>'+
+'		<p><%=drug_company%></p>'+
+'	</div>'+
+'	<div class="m-drug-view-footer">'+
+'		<%if(drug_tags){%>'+
+'		<%_.each(drug_tags, function(tag){%>'+
+'		<span class="tag"><%=tag%></span>'+
+'		<%})%>'+
+'		<%}%>'+
+'		<span class=\'right-arrow\'>></span>'+
+'	</div>'+
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
+'  <ul class="nav nav-tabs" role="tablist">'+
+'    <li role="presentation" class="active"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">新投票</a></li>'+
+'    <li role="presentation"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票</a></li>'+
+'  </ul>'+
+'  <div class="tab-content">'+
+'    <div role="tabpanel" class="tab-pane active" id="add-vote">'+
+'		<form style="margin-top:20px;">'+
+'          <div class="form-group clearfix">'+
+'            <label class="col-sm-3">投票名称：</label>'+
+'            <div class="col-sm-9">'+
+'              <input type="text" class="form-control"  placeholder="" name="vote_name" value="<%=vote_name%>">'+
+'            </div>'+
+'          </div>'+
+'          <p class="text-muted form-group clearfix">'+
+'          	<span class="col-sm-3"></span><span class="col-sm-9">投票名称只用于管理，不显示在下发的投票内容中</span></p>'+
+'          <div class="form-group clearfix">'+
+'            <label class="col-sm-3">截止时间：</label>'+
+'            <div class="col-sm-9">'+
+'              <input type="text" class="form-control" placeholder="" name="vote_endtime" value="<%=vote_endtime%>">'+
+'            </div>'+
+'          </div>'+
+'          <div class="form-group clearfix">'+
+'            <label class="col-sm-3">投票权限：</label>'+
+'            <div class="col-sm-9">'+
+'              <input type="radio" placeholder="" id="vote_permission_1" name="vote_permission" <%if(vote_permission===\'1\'){print(\'checked\')}%> value="1">'+
+'              <label for="vote_permission_1">所有人</label>'+
+'              <input type="radio" placeholder="" name="vote_permission" id="vote_permission_2" <%if(vote_permission===\'2\'){print(\'checked\')}%> value="2">'+
+'              <label for="vote_permission_2">已登陆</label>'+
+'            </div>'+
+'          </div>'+
+'        </form>'+
+'        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">'+
+'		  <div class="panel panel-default">'+
+'		    <div class="panel-heading" role="tab" id="headingOne">'+
+'		      <h4 class="panel-title">'+
+'		        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1" class="btn-block">'+
+'		         问题一'+
+'		        </a>'+
+'		      </h4>'+
+'		    </div>'+
+'		    <div id="collapse-1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">'+
+'		      <div class="panel-body">'+
+'		      	<form style="margin-top:20px;">'+
+'		          <div class="form-group clearfix">'+
+'		            <label class="col-sm-3">标题：</label>'+
+'		            <div class="col-sm-9">'+
+'		              <input type="text" class="form-control"  placeholder="" name="vote_title" value="<%=vote_title%>">'+
+'		            </div>'+
+'		          </div>'+
+'		          <div class="form-group clearfix">'+
+'		            <label class="col-sm-3"></label>'+
+'		            <div class="col-sm-9">'+
+'		              <input type="radio" id="vote_type_1" placeholder="" name="vote_type"  <%if(vote_type===\'1\'){print(\'checked\')}%> value="1">'+
+'		              <label for=\'vote_type_1\'>单选</label>'+
+'		              <input type="radio" id="vote_type_2" placeholder="" name="vote_type" <%if(vote_type===\'2\'){print(\'checked\')}%> value="2">'+
+'		              <label for="vote_type_2">多选</label>'+
+'		            </div>'+
+'		          </div>'+
+'		          <div class="vote-options">'+
+'		          	<%_.each(vote_options,function(opt,i){%>'+
+'						<div class="form-group clearfix">'+
+'				            <label class="col-sm-3">选项<%=(i+1)%>：</label>'+
+'				            <div class="col-sm-7">'+
+'				              <input type="text" class="form-control" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">'+
+'				            </div>'+
+'				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>'+
+'				        </div>'+
+'		          	<%})%>'+
+'			       </div>'+
+'			       <hr>'+
+'			       <a href="javascript:;" id="J-add-option">添加选项</a>'+
+'		        </form>'+
+'		      </div>'+
+'		    </div>'+
+'		  </div>'+
+'		</div>'+
+''+
+'    </div>'+
+'    <div role="tabpanel" class="tab-pane" id="vote-list">vote list</div>'+
+'  </div>'+
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '';return tpl;});
 (function(g){
 	EditView.register('bubbletalk', {
 		onModalShow : function(){
@@ -385,26 +487,59 @@
 		}
 	});
 })(this);
-(function(g){
-	g.DrugReplacedView = ReplacedView.register('drug', {
+(function(){
+	var AppView = Backbone.View.extend({
+		events: {
+
+		},
+		initialize : function(view){
+			this.view = view;
+			this.el = view.ele;
+			this.render();
+		},
+		render: function() {
+			var me = this;
+			require(['dxy-plugins/replacedview/drug/mobile.view'], function(v){
+				var t = _.template(v);
+				me.el.innerHTML = t({
+				  	drug_name : '倍德汀 （聚维酮碘溶液)',
+				  	drug_tags : ['医保'],
+				  	drug_company : '史达德药业 （北京）有限公司'
+				});
+				me.trigger('render');
+			});
+		  	return this;
+		}
+	});
+	window.DrugReplacedView = ReplacedView.register('drug', {
 		toWechatView : function(){
 			return this.toEditorView();
 		},
 		toWebView : function(){
 			var ele = this.createWrapNode(),
-				me = this;
+				me = this,
+				dtd = $.Deferred();
 			ele.style.display = 'block';
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;
-			return ele;
+			setTimeout(function(){
+				dtd.resolve();
+			},0);
+			return dtd;
 		},
 		toAppView : function(){
-			throw new Error('you must provide toAppView in the config');
+			var dtd = $.Deferred(),
+				view = new AppView(this);
+			view.on('render', function(){
+				dtd.resolve();
+			});
+			return dtd;
 		},
 		toEditorView : function(callback){
 			var ele = this.createWrapNode(),
-				me = this;
+				me = this,
+				dtd = $.Deferred();
 			ele.style.display = 'block';
 			ele.ondblclick = function(){
 				UE.getEditor('editor-box').execCommand('replacedview', me.type);
@@ -413,7 +548,10 @@
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;
-			return ele;
+			setTimeout(function(){
+				dtd.resolve();
+			}, 0);
+			return dtd;
 		},
 		onModalShow : function(){
 			$('#drug-id').val(this.data.drug_id||'');
@@ -467,4 +605,190 @@
 			});
 		}
 	});
-})(this);
+})();
+(function(){
+	var VoteView = Backbone.View.extend({
+		events: {
+			'click #J-add-option' : 'addOption',
+			'click .J-remove-option' : 'removeOption',
+			'blur input' : 'valueChange',
+			'change input' : 'valueChange'
+		},
+		initialize : function(view){
+			var me = this;
+			this.setElement($('#dxy-vote-modal .modal-body')[0]);
+			this.model =  new VoteModel(view.data);
+			this.model.on('change', function(){
+				me.render();
+			});
+			this.render();
+		},
+		render: function() {
+		  	var me = this;
+			require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(v){
+				var t;
+				if(VoteView.template){
+					t = VoteView.template;
+				}else{
+					t = _.template(v);
+				}
+				me.el.innerHTML = t(_.clone(me.model.attributes));
+				$(me.el).find('[name=vote_endtime]').datetimepicker({
+					defaultDate: 0,
+			        changeYear: true,
+			        changeMonth: true,
+			        numberOfMonths: 1,
+			        dateFormat : 'yy-mm-dd',
+				});
+				me.delegateEvents(me.events);
+				me.trigger('render');
+			});
+			return me;
+		},
+		fetchVotes : function(){
+
+		},
+		addVote : function(){
+
+		},
+		deleteVote : function(){
+
+		},
+		addOption : function(){
+			this.model.addOption();
+		},
+		removeOption : function(e){
+			this.model.removeOption($(e.target).data('id'));
+		},
+		valueChange : function(e){
+			var t = $(e.target),
+				v = t.val(),
+				k = t.attr('name'),
+				i,
+				data = this.model.attributes;
+			if(k.indexOf('vote_option')!==-1){
+				i = +k.split('_').pop();
+				data.vote_options[i].value = v;
+			}else{
+				data[k] = v;
+			}
+		},
+		verify : function(){
+			var tag = true;
+			_.each(this.model.attributes, function(v, k){
+				if(!v){
+					switch(k){
+						case 'vote_name' : 
+							alert('投票名称不能为空');
+							tag = false;
+							return;
+						case 'vote_options':
+							alert('选项不能为空');
+							tag = false;
+							return;
+						case 'vote_title' : 
+							alert('投票标题不能为空');
+							tag = false;
+							return;
+						case 'vote_endtime':
+							alert('投票截止时间不能为空');
+							tag = false;
+							return;
+					}
+				}
+				switch(k){
+					case 'vote_options':
+						if(v.length<2){
+							alert('投票选项不能低于2项');
+							tag = false;
+							return;
+						}
+						_.each(v, function(vv){
+							if(!vv){
+								alert('投票选项不能为空');
+								tag = false;
+								return;
+							}
+						})
+						break;
+					case 'vote_endtime':
+						if(new Date(v)<new Date()){
+							alert('投票截止日期已过期');
+							tag = false;
+							return;
+						}
+						break;
+				}
+			});
+			return tag;
+		}
+	});
+
+	var VoteModel = Backbone.Model.extend({
+		defaults : {
+			vote_name : '',
+			vote_title : '',
+			vote_options : [{},{},{}],
+			vote_type : '1',
+			vote_permission : '1',
+			vote_endtime : ''
+		},
+		addQuestion : function(){
+
+		},
+		addOption : function(){
+			var options = _.clone(this.get('vote_options'));
+			options.push({id: options.length});
+			this.set('vote_options', options);
+		},
+		removeOption : function(i){
+			var options = _.clone(this.get('vote_options'));
+			if(options.length<=2){
+				alert('问题至少包含 2 个选项');
+				return;
+			}
+			options.splice(i, 1);
+			this.set('vote_options', options);
+		}
+
+	});
+	window.DrugReplacedView = ReplacedView.register('vote', {
+		toWechatView : function(){
+		},
+		toWebView : function(){
+		},
+		toAppView : function(){
+		},
+		toEditorView : function(){
+			var ele = this.createWrapNode(),
+				me = this,
+				dtd = $.Deferred();
+			ele.style.display = 'block';
+			ele.ondblclick = function(){
+				UE.getEditor('editor-box').execCommand('replacedview', me.type);
+			};
+			ele.setAttribute('contenteditable', 'false');
+			var tpl = '<span>'+JSON.stringify(this.data)+'</span>';
+			ele.innerHTML = tpl;
+			this.ele = ele;
+			setTimeout(function(){
+				dtd.resolve();
+			}, 0);
+			return dtd;
+		},
+		onModalShow : function(){
+			this.vote =  new VoteView(this);
+		},
+		onModalConfirm : function(){
+			if(this.vote.verify()){
+				this.data = _.clone(this.vote.model.attributes);
+				return true;
+			}else{
+				return false;
+			}
+		},
+		modalInit : function(){
+			
+		}
+	});
+})();

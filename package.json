@@ -10,7 +10,8 @@
 		"grunt-contrib-jshint": "latest",
 		"load-grunt-tasks" : "latest",
 		"jshint-stylish": "latest",
-		"readline" : "latest"
+		"readline" : "latest",
+		"grunt-require-html" : "latest"
 	},
 	"repository": {}
 }

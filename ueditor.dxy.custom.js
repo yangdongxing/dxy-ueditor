@@ -912,6 +912,21 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '      </div>'+
 '    </div>'+
 '  </div>'+
+'</div>'+
+'<div class="modal fade" id="dxy-vote-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-vote-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">发起投票</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button class="btn btn-primary" type="button" id="confirm-vote">确定</button>'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
 '</div>';
 $(document).ready(function(){
 	$('body').append($(modals));
@@ -1159,6 +1174,22 @@ $(document).ready(function(){
 
 })();
 
+(function(){
+	baidu.editor.ui.vote = function (editor) {
+		var name = 'vote',
+			title = '插入投票';
+	    var btn = new UE.ui.Button({
+	        name: name,
+	        title: title
+	    });
+
+	    btn.addListener('click', function(){
+	        editor.execCommand('replacedview', name);
+	    });
+	        
+	    return btn;
+	};
+})();
 /**
  * @required cssparser, sizzer
  */

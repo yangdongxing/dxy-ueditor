@@ -1,23 +1,56 @@
-(function(g){
-	g.DrugReplacedView = ReplacedView.register('drug', {
+(function(){
+	var AppView = Backbone.View.extend({
+		events: {
+
+		},
+		initialize : function(view){
+			this.view = view;
+			this.el = view.ele;
+			this.render();
+		},
+		render: function() {
+			var me = this;
+			require(['dxy-plugins/replacedview/drug/mobile.view'], function(v){
+				var t = _.template(v);
+				me.el.innerHTML = t({
+				  	drug_name : '倍德汀 （聚维酮碘溶液)',
+				  	drug_tags : ['医保'],
+				  	drug_company : '史达德药业 （北京）有限公司'
+				});
+				me.trigger('render');
+			});
+		  	return this;
+		}
+	});
+	window.DrugReplacedView = ReplacedView.register('drug', {
 		toWechatView : function(){
 			return this.toEditorView();
 		},
 		toWebView : function(){
 			var ele = this.createWrapNode(),
-				me = this;
+				me = this,
+				dtd = $.Deferred();
 			ele.style.display = 'block';
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;
-			return ele;
+			setTimeout(function(){
+				dtd.resolve();
+			},0);
+			return dtd;
 		},
 		toAppView : function(){
-			throw new Error('you must provide toAppView in the config');
+			var dtd = $.Deferred(),
+				view = new AppView(this);
+			view.on('render', function(){
+				dtd.resolve();
+			});
+			return dtd;
 		},
 		toEditorView : function(callback){
 			var ele = this.createWrapNode(),
-				me = this;
+				me = this,
+				dtd = $.Deferred();
 			ele.style.display = 'block';
 			ele.ondblclick = function(){
 				UE.getEditor('editor-box').execCommand('replacedview', me.type);
@@ -26,7 +59,10 @@
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;
-			return ele;
+			setTimeout(function(){
+				dtd.resolve();
+			}, 0);
+			return dtd;
 		},
 		onModalShow : function(){
 			$('#drug-id').val(this.data.drug_id||'');
@@ -80,4 +116,4 @@
 			});
 		}
 	});
-})(this);
+})();

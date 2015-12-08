@@ -108,6 +108,8 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 插件修改的样式应该在`pluginname/wechat.css`中设置
 
 ## replacedview
+### 已有组件
+`drug` `vote`
 ### 如何添加自定义内容（如插入药品信息）
 
 1. 在replacedview目录下新建目录，并在新建的目录下新建dialog目录
@@ -136,7 +138,9 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 			}
 		})
 
-4. 在dialog目录下新建modal.tpl进行弹出视图的编写,最外层元素的id应该是 dxy-{你注册视图提供的类型名}-modal
+4. 在dialog目录下新建modal.tpl进行弹出视图的编写,最外层元素的id应该是 `dxy-{你注册视图提供的类型名}-modal`, 必须提供id为 `confirm-{你注册视图提供的类型名}`的元素，自动绑定`onModalConfirm`
+5. 由于页面已经引入了underscore和backbone库，推荐使用backbone来创建动态界面，使用underscore模板渲染界面。（例子见`replacedview/vote`）
+6. 任何以`.view`命名的模板，将会自动包装成require模块，模块名为路径名。
 
 ### RelpacedView类
 属性：

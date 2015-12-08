@@ -1,0 +1,17 @@
+<div class='m-drug-view-wraper'>
+	<div>
+		<img src=''>
+	</div>
+	<div class='m-drug-view-body'>
+		<h4><%=drug_name%></h4>
+		<p><%=drug_company%></p>
+	</div>
+	<div class="m-drug-view-footer">
+		<%if(drug_tags){%>
+		<%_.each(drug_tags, function(tag){%>
+		<span class="tag"><%=tag%></span>
+		<%})%>
+		<%}%>
+		<span class='right-arrow'>></span>
+	</div>
+</div>
