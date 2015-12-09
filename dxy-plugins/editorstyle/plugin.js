@@ -85,6 +85,17 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '}'+
 'li p{'+
 '	margin-bottom: 0px;'+
+'}'+
+'.dxy-meta-replaced-view{'+
+'    border: 1px solid #ddd;'+
+'    padding: 20px;'+
+'    cursor: pointer;'+
+'}'+
+'.editor-vote-wraper p span{'+
+'    padding: 3px 6px;'+
+'    background: #c5c5c5;'+
+'    color: #fff;'+
+'    border-radius: 10px;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles, true);

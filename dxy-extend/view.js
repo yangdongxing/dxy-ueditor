@@ -135,12 +135,18 @@
 		this.toMetaView();
 	};
 	ReplacedView.prototype = {
-		createWrapNode : function(){
+		createWrapNode : function(plain){
+			var me = this;
 			var ele = document.createElement('p');
-			ele.style.display = 'none';
+			ele.style.display = 'block';
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
+			if(!plain){
+				ele.ondblclick = function(){
+					UE.getEditor('editor-box').execCommand('replacedview', me.type);
+				};
+			}
 			return ele;
 		},
 		toJson : function(){
@@ -164,6 +170,7 @@
 		toMetaView : function(c){
 			this.view = 'meta';
 			var ele = this.createWrapNode();
+			ele.style.display = 'none';
 			this.ele = ele;
 			return ele;
 		},
@@ -189,6 +196,20 @@
 			}
 		},
 		mount : function(ele){
+			function find(ancestors){
+				if(!ancestors){
+					return null;
+				}
+				if(ancestors.getAttribute){
+					if(ancestors.getAttribute('class') && ancestors.getAttribute('class').indexOf('dxy-meta-replaced-view')!==-1){
+						return ancestors;
+					}else{
+						return find(ancestors.parentNode);
+					}
+				}else{
+					return find(ancestors.parentNode);
+				}
+			}
 			if(!ele){
 				throw new Error('mount requrie one argument');
 			}
@@ -196,7 +217,13 @@
 				ele.parentNode.replaceChild(this.ele, ele);
 			}else{
 				if(ele.cloneRange){
-					ele.enlarge(true).deleteContents().insertNode(this.ele);
+					var ancestors = ele.getCommonAncestor(true);
+					var e = find(ancestors)
+					if(e){
+						this.mount(e);
+					}else{
+						ele.enlarge(true).deleteContents().insertNode(this.ele);
+					}
 				}else{
 					throw new Error('mount argument should element or range');
 				}
@@ -303,8 +330,9 @@
 				}
 				if(me.onModalConfirm()){
 					modal.modal('hide')
-					me.toEditorView();
-					me.mount(UE.getEditor('editor-box').selection.getRange());
+					me.toEditorView().then(function(){
+						me.mount(UE.getEditor('editor-box').selection.getRange());
+					});
 				}
 			}
 			modal.on('show.bs.modal', onShow).on('hide.bs.modal', onHide).modal();

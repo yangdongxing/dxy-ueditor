@@ -30,7 +30,6 @@
 			var ele = this.createWrapNode(),
 				me = this,
 				dtd = $.Deferred();
-			ele.style.display = 'block';
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;
 			this.ele = ele;
@@ -51,10 +50,6 @@
 			var ele = this.createWrapNode(),
 				me = this,
 				dtd = $.Deferred();
-			ele.style.display = 'block';
-			ele.ondblclick = function(){
-				UE.getEditor('editor-box').execCommand('replacedview', me.type);
-			};
 			ele.setAttribute('contenteditable', 'false');
 			var tpl = '<span>'+this.data.drug_name+'</span>';
 			ele.innerHTML = tpl;

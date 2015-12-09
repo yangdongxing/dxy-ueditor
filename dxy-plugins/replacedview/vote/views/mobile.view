@@ -1,0 +1,83 @@
+<%if(+vote_type===1){%>
+	<%if(new Date()<new Date(vote_endtime)){%>
+	<div class="editor-vote-wraper vote-single <%if(!user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">
+		<div class="vote-body">
+			<h4><%=vote_title%></h4>
+			<ul>
+				<%_.each(vote_options,function(opt,i){ %> 
+					<li data-id="<%=i%>"  class="<%if(opt.checked){print('checked')}%>">
+						<%if(user_voted){%>
+						<p>
+							<%=opt.value%>
+						</p>
+						<div style="height:10px;">
+							<p class="vote-state-bar">
+								<span style="width:<%if(vote_total){print(opt.total/vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
+							</p>
+							<span class="vote-state"><%if(vote_total){print(opt.total/vote_total*100)}else{print('0')}%>%</span>
+						</div>
+						<%}else{%>
+						<div class="<%if(opt.checked){print('active')}%>">
+							<span class="img">
+								<img src="">
+							</span>
+							<%if(opt.img){%>
+							<img src="<%=opt.img%>">
+							<%}%>
+							<span><%=opt.value%></span>
+						</div>
+						<%}%>
+					</li>
+				<%})%>
+			</ul>
+			<a href="javascript:;" class="user-vote">
+				<%if(user_voted){print('已投票')}else{print('我要投票')}%>
+			</a>
+		</div>
+	</div>
+	<%}else{%>
+		end
+	<%}%>
+<%}else{%>
+	<%if(new Date()<new Date(vote_endtime)){%>
+	<div class="editor-vote-wraper vote-multiple <%if(!user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">
+		<div class="vote-body">
+			<h4><%=vote_title%></h4>
+			<ul>
+				<%_.each(vote_options,function(opt,i){ %> 
+					<li data-id="<%=i%>"  class="<%if(opt.checked){print('checked')}%>">
+						<%if(user_voted){%>
+						<p>
+							<%=opt.value%>
+						</p>
+						<div style="height:10px;">
+							<p class="vote-state-bar">
+								<span style="width:<%if(vote_total){print(opt.total/vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
+							</p>
+							<span class="vote-state"><%if(vote_total){print(opt.total/vote_total*100)}else{print('0')}%>%</span>
+						</div>
+						<%}else{%>
+						<div class="<%if(opt.checked){print('active')}%>">
+							<span class="img">
+								<img src="">
+							</span>
+							<%if(opt.img){%>
+							<img src="<%=opt.img%>">
+							<%}%>
+							<span><%=opt.value%></span>
+						</div>
+						<%}%>
+					</li>
+				<%})%>
+			</ul>
+			<a href="javascript:;" class="user-vote">
+				<%if(user_voted){print('已投票')}else{print('我要投票')}%>
+			</a>
+		</div>
+	</div>
+	<%}else{%>
+		end
+	<%}%>
+<%}%>

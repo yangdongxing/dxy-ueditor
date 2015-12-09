@@ -44,15 +44,15 @@
 		      <div class="panel-body">
 		      	<form style="margin-top:20px;">
 		          <div class="form-group clearfix">
-		            <label class="col-sm-3">标题：</label>
-		            <div class="col-sm-9">
+		            <label class="col-sm-2">标题：</label>
+		            <div class="col-sm-10">
 		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit" data-max="35" placeholder="" name="vote_title" value="<%=vote_title%>">
 		              <em id="vote-title-limit" class="limit-counter"><%=vote_name.length%>/35</em>
 		            </div>
 		          </div>
 		          <div class="form-group clearfix">
-		            <label class="col-sm-3"></label>
-		            <div class="col-sm-9">
+		            <label class="col-sm-2"></label>
+		            <div class="col-sm-10">
 		              <input type="radio" id="vote_type_1" placeholder="" name="vote_type"  <%if(vote_type==='1'){print('checked')}%> value="1">
 		              <label for='vote_type_1'>单选</label>
 		              <input type="radio" id="vote_type_2" placeholder="" name="vote_type" <%if(vote_type==='2'){print('checked')}%> value="2">
@@ -62,13 +62,24 @@
 		          <div class="vote-options">
 		          	<%_.each(vote_options,function(opt,i){%>
 						<div class="form-group clearfix">
-				            <label class="col-sm-3">选项<%=(i+1)%>：</label>
-				            <div class="col-sm-7">
+				            <label class="col-sm-2">选项<%=(i+1)%>：</label>
+				            <div class="col-sm-6">
 				              <input type="text" data-max="35" data-target="vote-option-limit-<%=i%>" class="form-control limit-length" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">
 				              <em id="vote-option-limit-<%=i%>" class="limit-counter"><%=opt.value?opt.value.length:0%>/35</em>
 				            </div>
+				            <div class="col-sm-2 btn btn-default">
+				            	上传图片
+				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=i%>" class="vote-option-img">
+				            </div>
 				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>
 				        </div>
+				        <%if(opt.img){%>
+				        <div class="form-group clearfix">
+				        	<div class="col-sm-12">
+				        		<img src="<%=opt.img%>" style="width:40px;height:40px;">
+				        	</div>
+				        </div>
+				        <%}%>
 		          	<%})%>
 			       </div>
 			       <hr>

@@ -6,7 +6,8 @@
 			'keyup input' : 'valueChange',
 			'blur input' : 'valueChange',
 			'change input' : 'valueChange',
-			'keyup .limit-length' : 'limitLength'
+			'keyup .limit-length' : 'limitLength',
+			'change .vote-option-img' : 'uploadImg'
 		},
 		initialize : function(view){
 			var me = this;
@@ -17,24 +18,18 @@
 		},
 		render: function() {
 		  	var me = this;
-			require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(v){
-				var t;
-				if(VoteView.template){
-					t = VoteView.template;
-				}else{
-					t = _.template(v);
-				}
-				me.el.innerHTML = t(_.clone(me.model.attributes));
-				$(me.el).find('[name=vote_endtime]').datetimepicker({
+		  	require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(tpl){
+		  		me.el.innerHTML = _.template(tpl)(me.model.attributes);
+		  		$(me.el).find('[name=vote_endtime]').datetimepicker({
 					defaultDate: 0,
-			        changeYear: true,
-			        changeMonth: true,
-			        numberOfMonths: 1,
-			        dateFormat : 'yy-mm-dd',
+				  	changeYear: true,
+				  	changeMonth: true,
+				  	numberOfMonths: 1,
+				  	dateFormat : 'yy-mm-dd',
 				});
 				me.delegateEvents(me.events);
 				me.trigger('render');
-			});
+		  	});
 			return me;
 		},
 		fetchVotes : function(){
@@ -50,10 +45,10 @@
 			this.model.addOption();
 		},
 		removeOption : function(e){
-			this.model.removeOption($(e.target).data('id'));
+			this.model.removeOption($(e.currentTarget).data('id'));
 		},
 		valueChange : function(e){
-			var t = $(e.target),
+			var t = $(e.currentTarget),
 				v = t.val(),
 				k = t.attr('name'),
 				i,
@@ -68,7 +63,7 @@
 			}
 		},
 		limitLength : function(e){
-			var $ele = $(e.target),
+			var $ele = $(e.currentTarget),
 				max = $ele.data('max'),
 				$target = $('#'+$ele.data('target'));
 			if(+$ele.val().length > +max){
@@ -77,6 +72,15 @@
 				$target.removeClass('text-danger');
 			}
 			$target.text($ele.val().length+'/'+max);
+		},
+		uploadImg : function(e){
+			var $target = $(e.currentTarget),
+				id = $target.data('id');
+			$.post('http://dxy.us/attachments/upload', {}).success(function(){
+
+			}).error(function(){
+
+			});
 		},
 		verify : function(){
 			var tag = true;
@@ -149,19 +153,38 @@
 
 	var VoteModel = Backbone.Model.extend({
 		defaults : {
+			vote_total : 0,
 			vote_name : '',
 			vote_title : '',
-			vote_options : [{},{},{}],
+			vote_options : [{
+				value : '',
+				checked : false,
+				total : 0
+			},{
+				value : '',
+				checked : false,
+				total : 0
+			},{
+				value : '',
+				checked : false,
+				total : 0
+			}],
 			vote_type : '1',
 			vote_permission : '1',
-			vote_endtime : ''
+			vote_endtime : '',
+			user_voted : false
 		},
 		addQuestion : function(){
 
 		},
 		addOption : function(){
 			var options = _.clone(this.get('vote_options'));
-			options.push({id: options.length});
+			options.push({
+				id: options.length,
+				value : '',
+				checked : false,
+				total : 0
+			});
 			this.set('vote_options', options);
 		},
 		removeOption : function(i){
@@ -175,28 +198,122 @@
 		}
 
 	});
-	window.DrugReplacedView = ReplacedView.register('vote', {
+	var VoteAppView = Backbone.View.extend({
+		initialize : function(view){
+			this.view = view;
+			this.model = new VoteModel(view.data);
+			this.model.on('change', this.render, this);
+			this.render();
+		},
+		render : function(){
+			var me = this;
+			require(['dxy-plugins/replacedview/vote/views/mobile.view'], function(tpl){
+		  		me.el.innerHTML = _.template(tpl)(me.model.attributes);
+				me.delegateEvents(me.events);
+				me.trigger('render');
+		  	});
+			return me;
+		},
+		events : {
+			'click .vote-multiple.user_not_voted li' : 'multipleCheck',
+			'click .vote-single.user_not_voted li' : 'singleCheck',
+			'click .user_not_voted .user-vote' : 'userVote'
+		},
+		multipleCheck : function(e){
+			var target = $(e.currentTarget),
+				id = target.data('id'),
+				options = _.clone(this.model.get('vote_options'));
+			options[+id].checked = !options[+id].checked;
+			this.model.set('vote_options', options);
+			this.model.trigger('change');
+		},
+		singleCheck : function(e){
+			var target = $(e.currentTarget),
+				id = target.data('id'),
+				options = _.clone(this.model.get('vote_options'));
+			_.each(options, function(opt, i){
+				if(i===+id){
+					opt.checked = true;
+				}else{
+					opt.checked = false;
+				}
+			});
+			this.model.set('vote_options', options);
+			this.model.trigger('change');
+		},
+		userVote : function(){
+			var tag = false;
+			_.each(this.model.get('vote_options'), function(opt, i){
+				if(opt.checked){
+					tag = true;
+				}
+				if(!opt.total){
+					opt.total = 0;
+				}
+			});
+			if(!tag){
+				this.showAlertBox({
+					title : '请至少选择一个选项后再投票',
+					button_title : '好吧'
+				});
+			}else{
+				_.each(this.model.get('vote_options'), function(opt, i){
+					if(opt.checked){
+						tag = true;
+						opt.total++;
+					}
+				});
+				this.model.set({
+					user_voted : true,
+					vote_total : this.model.get('vote_total')+1
+				});
+				this.model.trigger('change');
+			}
+		},
+		removeAlertBox : function(){
+			$('.msg-mark, .editor-alert-box').remove();
+		},
+		showAlertBox : function(opt){
+			var me = this;
+			this.removeAlertBox();
+			$('<div class="msg-mark"></div>').appendTo($('body'));
+			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
+				$(_.template(tpl)(opt)).appendTo($('body'));
+				$('.editor-alert-box a').click(function(){
+					me.removeAlertBox();
+				});
+			});
+		}
+	});
+
+	window.VoteReplacedView = ReplacedView.register('vote', {
 		toWechatView : function(){
 		},
 		toWebView : function(){
+			return this.toAppView();
 		},
 		toAppView : function(){
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
+				view = new VoteAppView(this);
+			view.on('render', function(){
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
+			});
+			return dtd;
 		},
 		toEditorView : function(){
 			var ele = this.createWrapNode(),
 				me = this,
 				dtd = $.Deferred();
-			ele.style.display = 'block';
-			ele.ondblclick = function(){
-				UE.getEditor('editor-box').execCommand('replacedview', me.type);
-			};
 			ele.setAttribute('contenteditable', 'false');
-			var tpl = '<span>'+JSON.stringify(this.data)+'</span>';
-			ele.innerHTML = tpl;
-			this.ele = ele;
-			setTimeout(function(){
-				dtd.resolve();
-			}, 0);
+			require(['dxy-plugins/replacedview/vote/views/editor.view'], function(tpl){
+		  		ele.innerHTML = _.template(tpl)(me.data);
+		  		me.ele = ele;
+		  		dtd.resolve(ele);
+		  	});
 			return dtd;
 		},
 		onModalShow : function(){

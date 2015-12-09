@@ -720,6 +720,17 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '}'+
 'li p{'+
 '	margin-bottom: 0px;'+
+'}'+
+'.dxy-meta-replaced-view{'+
+'    border: 1px solid #ddd;'+
+'    padding: 20px;'+
+'    cursor: pointer;'+
+'}'+
+'.editor-vote-wraper p span{'+
+'    padding: 3px 6px;'+
+'    background: #c5c5c5;'+
+'    color: #fff;'+
+'    border-radius: 10px;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles, true);
@@ -1112,8 +1123,9 @@ $(document).ready(function(){
             $(me.body).find('.dxy-meta-replaced-view').each(function(i,e){
                 var view = ReplacedView.getInstance(e);
                 if(view){
-                    view.toAppropriateView();
-                    view.mount(e);
+                    view.toAppropriateView().then(function(){
+                        view.mount(e);
+                    });
                 }
             });
         });
@@ -1124,7 +1136,12 @@ $(document).ready(function(){
 						var view = ReplacedView.getInstance(node.getAttr('data-type'));
 						if(view){
 							view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
-							node.innerHTML(view.toWechatView().innerHTML);
+                            view.toWechatView();
+                            if(!view.ele.innerHTML){
+                                node.parentNode.removeChild(node);
+                            }else{
+                                node.innerHTML(view.ele.innerHTML);
+                            }
 						}
 					}
 				});

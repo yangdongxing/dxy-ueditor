@@ -1,0 +1,4 @@
+<div class="editor-alert-box">
+	<p><%=title%></p>
+	<a href="javascript:;"><%=button_title%></a>
+</div>
