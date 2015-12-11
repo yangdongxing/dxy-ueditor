@@ -47,7 +47,7 @@
 		            <label class="col-sm-2">标题：</label>
 		            <div class="col-sm-10">
 		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit" data-max="35" placeholder="" name="vote_title" value="<%=vote_title%>">
-		              <em id="vote-title-limit" class="limit-counter"><%=vote_name.length%>/35</em>
+		              <em id="vote-title-limit" class="limit-counter"><%=vote_title.length%>/35</em>
 		            </div>
 		          </div>
 		          <div class="form-group clearfix">
@@ -69,7 +69,7 @@
 				            </div>
 				            <div class="col-sm-2 btn btn-default">
 				            	上传图片
-				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=i%>" class="vote-option-img">
+				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=i%>" class="vote-option-img" name="vote_img_<%=i%>">
 				            </div>
 				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>
 				        </div>

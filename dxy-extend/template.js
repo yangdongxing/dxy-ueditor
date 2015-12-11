@@ -15,96 +15,7 @@ define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<div c
 '		<span class=\'right-arrow\'>></span>'+
 '	</div>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/dialog.view", function(){var tpl = '<div>'+
-'  <ul class="nav nav-tabs" role="tablist">'+
-'    <li role="presentation" class="active"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">新投票</a></li>'+
-'    <li role="presentation"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票</a></li>'+
-'  </ul>'+
-'  <div class="tab-content">'+
-'    <div role="tabpanel" class="tab-pane active" id="add-vote">'+
-'		<form style="margin-top:20px;">'+
-'          <div class="form-group clearfix">'+
-'            <label class="col-sm-3">投票名称：</label>'+
-'            <div class="col-sm-9">'+
-'              <input type="text" class="form-control"  placeholder="" name="vote_name">'+
-'            </div>'+
-'          </div>'+
-'          <div class="form-group clearfix">'+
-'            <label class="col-sm-3">截止时间：</label>'+
-'            <div class="col-sm-9">'+
-'              <input type="text" class="form-control" placeholder="" name="vote_endtime">'+
-'            </div>'+
-'          </div>'+
-'          <div class="form-group clearfix">'+
-'            <label class="col-sm-3">投票权限：</label>'+
-'            <div class="col-sm-9">'+
-'              <input type="radio" placeholder="" name="vote_permission" checked>'+
-'              <label>所有人</label>'+
-'              <input type="radio" placeholder="" name="vote_permission">'+
-'              <label>已登陆</label>'+
-'            </div>'+
-'          </div>'+
-'        </form>'+
-'        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">'+
-'		  <div class="panel panel-default">'+
-'		    <div class="panel-heading" role="tab" id="headingOne">'+
-'		      <h4 class="panel-title">'+
-'		        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1" class="btn-block">'+
-'		         问题一'+
-'		        </a>'+
-'		      </h4>'+
-'		    </div>'+
-'		    <div id="collapse-1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">'+
-'		      <div class="panel-body">'+
-'		      	<form style="margin-top:20px;">'+
-'		          <div class="form-group clearfix">'+
-'		            <label class="col-sm-3">标题：</label>'+
-'		            <div class="col-sm-9">'+
-'		              <input type="text" class="form-control"  placeholder="" name="vote_title">'+
-'		            </div>'+
-'		          </div>'+
-'		          <div class="form-group clearfix">'+
-'		            <label class="col-sm-3"></label>'+
-'		            <div class="col-sm-9">'+
-'		              <input type="radio" placeholder="" name="vote_type" checked>'+
-'		              <label>单选</label>'+
-'		              <input type="radio" placeholder="" name="vote_type">'+
-'		              <label>多选</label>'+
-'		            </div>'+
-'		          </div>'+
-'		          <div class="vote-options">'+
-'			          <div class="form-group clearfix">'+
-'			            <label class="col-sm-3">选项一：</label>'+
-'			            <div class="col-sm-9">'+
-'			              <input type="text" class="form-control" placeholder="" name="vote_option_1">'+
-'			            </div>'+
-'			          </div>'+
-'			          <div class="form-group clearfix">'+
-'			            <label class="col-sm-3">选项二：</label>'+
-'			            <div class="col-sm-9">'+
-'			              <input type="text" class="form-control" placeholder="" name="vote_option_2">'+
-'			            </div>'+
-'			          </div>'+
-'			          <div class="form-group clearfix">'+
-'			            <label class="col-sm-3">选项三：</label>'+
-'			            <div class="col-sm-9">'+
-'			              <input type="text" class="form-control" placeholder="" name="vote_option_3">'+
-'			            </div>'+
-'			          </div>'+
-'			       </div>'+
-'			       <hr>'+
-'			       <a href="javascript:;" id="J-add-vote">添加选项</a>'+
-'		        </form>'+
-'		      </div>'+
-'		    </div>'+
-'		  </div>'+
-'		</div>'+
-''+
-'    </div>'+
-'    <div role="tabpanel" class="tab-pane" id="vote-list">vote list</div>'+
-'  </div>'+
-'</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box">'+
+define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box <%if(cls){print(cls)}%>">'+
 '	<p><%=title%></p>'+
 '	<a href="javascript:;"><%=button_title%></a>'+
 '</div>';return tpl;});
@@ -157,7 +68,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '		            <label class="col-sm-2">标题：</label>'+
 '		            <div class="col-sm-10">'+
 '		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit" data-max="35" placeholder="" name="vote_title" value="<%=vote_title%>">'+
-'		              <em id="vote-title-limit" class="limit-counter"><%=vote_name.length%>/35</em>'+
+'		              <em id="vote-title-limit" class="limit-counter"><%=vote_title.length%>/35</em>'+
 '		            </div>'+
 '		          </div>'+
 '		          <div class="form-group clearfix">'+
@@ -179,7 +90,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '				            </div>'+
 '				            <div class="col-sm-2 btn btn-default">'+
 '				            	上传图片'+
-'				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=i%>" class="vote-option-img">'+
+'				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=i%>" class="vote-option-img" name="vote_img_<%=i%>">'+
 '				            </div>'+
 '				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>'+
 '				        </div>'+
@@ -223,8 +134,8 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '	<%if(new Date()<new Date(vote_endtime)){%>'+
 '	<div class="editor-vote-wraper vote-single <%if(!user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">'+
+'		<h4><%=vote_title%></h4>'+
 '		<div class="vote-body">'+
-'			<h4><%=vote_title%></h4>'+
 '			<ul>'+
 '				<%_.each(vote_options,function(opt,i){ %> '+
 '					<li data-id="<%=i%>"  class="<%if(opt.checked){print(\'checked\')}%>">'+
@@ -240,11 +151,10 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '						</div>'+
 '						<%}else{%>'+
 '						<div class="<%if(opt.checked){print(\'active\')}%>">'+
-'							<span class="img">'+
-'								<img src="">'+
-'							</span>'+
 '							<%if(opt.img){%>'+
-'							<img src="<%=opt.img%>">'+
+'							<span class="img">'+
+'								<img src="<%=opt.img%>">'+
+'							</span>'+
 '							<%}%>'+
 '							<span><%=opt.value%></span>'+
 '						</div>'+
@@ -264,8 +174,8 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '	<%if(new Date()<new Date(vote_endtime)){%>'+
 '	<div class="editor-vote-wraper vote-multiple <%if(!user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">'+
+'		<h4><%=vote_title%></h4>'+
 '		<div class="vote-body">'+
-'			<h4><%=vote_title%></h4>'+
 '			<ul>'+
 '				<%_.each(vote_options,function(opt,i){ %> '+
 '					<li data-id="<%=i%>"  class="<%if(opt.checked){print(\'checked\')}%>">'+
@@ -281,11 +191,10 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '						</div>'+
 '						<%}else{%>'+
 '						<div class="<%if(opt.checked){print(\'active\')}%>">'+
-'							<span class="img">'+
-'								<img src="">'+
-'							</span>'+
 '							<%if(opt.img){%>'+
-'							<img src="<%=opt.img%>">'+
+'							<span class="img">'+
+'								<img src="<%=opt.img%>">'+
+'							</span>'+
 '							<%}%>'+
 '							<span><%=opt.value%></span>'+
 '						</div>'+

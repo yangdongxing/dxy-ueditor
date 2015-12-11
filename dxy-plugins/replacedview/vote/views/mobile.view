@@ -2,8 +2,8 @@
 	<%if(new Date()<new Date(vote_endtime)){%>
 	<div class="editor-vote-wraper vote-single <%if(!user_voted){print('user_not_voted')}else{print('user_voted')}%>">
 		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">
+		<h4><%=vote_title%></h4>
 		<div class="vote-body">
-			<h4><%=vote_title%></h4>
 			<ul>
 				<%_.each(vote_options,function(opt,i){ %> 
 					<li data-id="<%=i%>"  class="<%if(opt.checked){print('checked')}%>">
@@ -19,11 +19,10 @@
 						</div>
 						<%}else{%>
 						<div class="<%if(opt.checked){print('active')}%>">
-							<span class="img">
-								<img src="">
-							</span>
 							<%if(opt.img){%>
-							<img src="<%=opt.img%>">
+							<span class="img">
+								<img src="<%=opt.img%>">
+							</span>
 							<%}%>
 							<span><%=opt.value%></span>
 						</div>
@@ -43,8 +42,8 @@
 	<%if(new Date()<new Date(vote_endtime)){%>
 	<div class="editor-vote-wraper vote-multiple <%if(!user_voted){print('user_not_voted')}else{print('user_voted')}%>">
 		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">
+		<h4><%=vote_title%></h4>
 		<div class="vote-body">
-			<h4><%=vote_title%></h4>
 			<ul>
 				<%_.each(vote_options,function(opt,i){ %> 
 					<li data-id="<%=i%>"  class="<%if(opt.checked){print('checked')}%>">
@@ -60,11 +59,10 @@
 						</div>
 						<%}else{%>
 						<div class="<%if(opt.checked){print('active')}%>">
-							<span class="img">
-								<img src="">
-							</span>
 							<%if(opt.img){%>
-							<img src="<%=opt.img%>">
+							<span class="img">
+								<img src="<%=opt.img%>">
+							</span>
 							<%}%>
 							<span><%=opt.value%></span>
 						</div>

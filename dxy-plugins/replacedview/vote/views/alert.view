@@ -1,4 +1,4 @@
-<div class="editor-alert-box">
+<div class="editor-alert-box <%if(cls){print(cls)}%>">
 	<p><%=title%></p>
 	<a href="javascript:;"><%=button_title%></a>
 </div>

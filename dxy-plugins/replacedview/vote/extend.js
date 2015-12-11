@@ -1,13 +1,30 @@
 (function(){
+	var IMG_PREFIX = 'http://img.dxycdn.com/dotcom/';
+	var UPLOAD_ACTION = 'http://dxy.com/admin/i/att/upload?type=column_content';
+	var IS_PC = isPC();
+	function isPC(){  
+        	var userAgentInfo = navigator.userAgent;  
+        	var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");  
+        	var flag = true;  
+        	for (var i = 0; i < Agents.length; i++) {  
+				if (userAgentInfo.indexOf(Agents[i]) > 0){
+					flag = false;
+					break; 
+				}  
+        	}  
+        	return flag;  
+	}
+	if(document.domain === 'dxy.us'){
+		IMG_PREFIX = 'http://dxy.us/upload/public/';
+		UPLOAD_ACTION = "http://dxy.us/admin/i/att/upload?type=column_content"
+	}
 	var VoteView = Backbone.View.extend({
 		events: {
 			'click #J-add-option' : 'addOption',
 			'click .J-remove-option' : 'removeOption',
 			'keyup input' : 'valueChange',
-			'blur input' : 'valueChange',
 			'change input' : 'valueChange',
-			'keyup .limit-length' : 'limitLength',
-			'change .vote-option-img' : 'uploadImg'
+			'keyup .limit-length' : 'limitLength'
 		},
 		initialize : function(view){
 			var me = this;
@@ -32,6 +49,27 @@
 		  	});
 			return me;
 		},
+		uploadImage : function(ele){
+			function send(formData, success, error){
+                var xhr = new XMLHttpRequest(); 
+                xhr.open("post", UPLOAD_ACTION , true); 
+                xhr.onload = success;
+                xhr.onerror = error;
+                xhr.send(formData);
+            }
+            if(!ele.files){
+            	return;
+            }
+			var dtd = $.Deferred();
+			var formData = new FormData();
+            formData.append('attachment', ele.files[0]);
+            send(formData, function(res){
+            	dtd.resolve(res);
+            }, function(res){
+            	dtd.reject(res);
+            });
+            return dtd;
+		},
 		fetchVotes : function(){
 
 		},
@@ -52,11 +90,23 @@
 				v = t.val(),
 				k = t.attr('name'),
 				i,
-				data = this.model.attributes;
+				data = this.model.attributes,
+				me =this;
 			if(k.indexOf('vote_option')!==-1){
 				i = +k.split('_').pop();
 				data.vote_options[i].value = v;
 				this.model.set('vote_options', data.vote_options);
+			}else if(k.indexOf('vote_img')!==-1){
+				i = +k.split('_').pop();
+				this.uploadImage(t[0]).then(function(e){
+					var res = JSON.parse(e.currentTarget.responseText);
+					data.vote_options[i].img = IMG_PREFIX + res.data.items[0].path;
+					me.model.set('vote_options', data.vote_options);
+					me.model.trigger('change');
+				},function(e){
+					var res = JSON.parse(e.currentTarget.responseText);
+					alert('上传失败：'+res);
+				});
 			}else{
 				data[k] = v;
 				this.model.set(k, v);
@@ -72,15 +122,6 @@
 				$target.removeClass('text-danger');
 			}
 			$target.text($ele.val().length+'/'+max);
-		},
-		uploadImg : function(e){
-			var $target = $(e.currentTarget),
-				id = $target.data('id');
-			$.post('http://dxy.us/attachments/upload', {}).success(function(){
-
-			}).error(function(){
-
-			});
 		},
 		verify : function(){
 			var tag = true;
@@ -159,15 +200,18 @@
 			vote_options : [{
 				value : '',
 				checked : false,
-				total : 0
+				total : 0,
+				img: ''
 			},{
 				value : '',
 				checked : false,
-				total : 0
+				total : 0,
+				img : ''
 			},{
 				value : '',
 				checked : false,
-				total : 0
+				total : 0,
+				img : ''
 			}],
 			vote_type : '1',
 			vote_permission : '1',
@@ -177,13 +221,21 @@
 		addQuestion : function(){
 
 		},
+		constructor : function(data){
+			var me = this;
+			_.each(data.vote_options, function(opt, i, arr){
+				arr[i] = $.extend(true, {}, me.defaults.vote_options[0], opt);
+			});
+			Backbone.Model.call(this, $.extend(true, {}, this.defaults, data));
+		},
 		addOption : function(){
 			var options = _.clone(this.get('vote_options'));
 			options.push({
 				id: options.length,
 				value : '',
 				checked : false,
-				total : 0
+				total : 0,
+				img : ''
 			});
 			this.set('vote_options', options);
 		},
@@ -247,15 +299,21 @@
 				if(opt.checked){
 					tag = true;
 				}
-				if(!opt.total){
-					opt.total = 0;
-				}
 			});
 			if(!tag){
-				this.showAlertBox({
-					title : '请至少选择一个选项后再投票',
-					button_title : '好吧'
-				});
+				if(IS_PC){
+					this.showWebAlertBox({
+						title : '请至少选择一个选项后再投票',
+						button_title : '好吧',
+						cls : 'web-alert'
+					});
+				}else{
+					this.showAlertBox({
+						title : '请至少选择一个选项后再投票',
+						button_title : '好吧',
+						cls : ''
+					});
+				}
 			}else{
 				_.each(this.model.get('vote_options'), function(opt, i){
 					if(opt.checked){
@@ -279,6 +337,16 @@
 			$('<div class="msg-mark"></div>').appendTo($('body'));
 			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
 				$(_.template(tpl)(opt)).appendTo($('body'));
+				$('.editor-alert-box a').click(function(){
+					me.removeAlertBox();
+				});
+			});
+		},
+		showWebAlertBox : function(opt){
+			var me = this;
+			this.removeAlertBox();
+			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
+				$(_.template(tpl)(opt)).appendTo($('.editor-vote-wraper',me.el));
 				$('.editor-alert-box a').click(function(){
 					me.removeAlertBox();
 				});

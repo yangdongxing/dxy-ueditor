@@ -143,7 +143,11 @@
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
 			if(!plain){
-				ele.ondblclick = function(){
+				ele.ondblclick = function(e){
+					e = e || window.event;
+					var editor = UE.getEditor('editor-box'),
+						range = editor.selection.getRange();
+					range.selectNode(e.target).select();
 					UE.getEditor('editor-box').execCommand('replacedview', me.type);
 				};
 			}
