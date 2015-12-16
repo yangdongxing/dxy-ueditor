@@ -644,6 +644,17 @@ define('VoteModel', function(){
 		}
 	});
 
+	var VoteUserMarkModel = VoteMarkModel.extend({
+		function(method, model, options){
+			switch(method){
+				case 'read':
+					options.url = API_HOST + 'view/i/functionmarker/single?obj_id='+this.get('obj_id')+'&type='+this.get('type');
+					break;
+			}
+			return Backbone.sync(method, model, options);
+		}
+	});
+
 	return {
 		NodeModel : NodeModel,
 		NodesModel : NodesModel,
@@ -655,6 +666,7 @@ define('VoteModel', function(){
 		VoteGroupsModel : VoteGroupsModel,
 		VoteGroupLinkModel : VoteGroupLinkModel,
 		VoteGroupLinksModel : VoteGroupLinksModel,
-		VoteMarkModel : VoteMarkModel
+		VoteMarkModel : VoteMarkModel,
+		VoteUserMarkModel : VoteUserMarkModel
 	};
 });

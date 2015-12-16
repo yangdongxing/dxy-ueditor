@@ -34,39 +34,39 @@
 			'click .J-add-vote-from-votelist' : 'insertGroup'
 		},
 		initialize : function(view){
-		var me = this;
-		require(['VoteModel'], function(m){
-			me.setElement($('#dxy-vote-modal .modal-body')[0]);
-			if(!view.data.group_id){
-				var mark = new m.VoteMarkModel({});
-				me.model = mark;
-				me.model.on('change', this.render, this);
-				me.render();
-			}else{
-					var mark = new m.VoteMarkModel({obj_id:view.data.group_id,type:10});
-					mark.fetch({
-						success:function(model, res){
-							if(res.error){
-								view.modal.modal('hide');
-								alert(res.error.message);
-								return;
-							}
-							window.mark = mark;
-							me.model = mark;
-							me.model.on('change', function(){
+			var me = this;
+			me.view = view;
+			require(['VoteModel'], function(m){
+				me.setElement($('#dxy-vote-modal .modal-body')[0]);
+				if(!view.data.group_id){
+					var mark = new m.VoteMarkModel({});
+					me.model = mark;
+					me.model.on('change', this.render, this);
+					me.render();
+				}else{
+						var mark = new m.VoteMarkModel({obj_id:view.data.group_id,type:10});
+						mark.fetch({
+							success:function(model, res){
+								if(res.error){
+									view.modal.modal('hide');
+									alert(res.error.message);
+									return;
+								}
+								me.model = mark;
+								me.model.on('change', function(){
+									me.render();
+									console.log(me);
+									window.m = me.model;
+								});
 								me.render();
-								console.log(me);
-								window.m = me.model;
-							});
-							me.render();
-						},
-						error : function(model,res){
-							alert(res.error.message);
-							view.modal.modal('hide');
-						}
-					});
-			}
-		});
+							},
+							error : function(model,res){
+								alert(res.error.message);
+								view.modal.modal('hide');
+							}
+						});
+				}
+			});
 		},
 		fetchData : function(group_id){
 			var dtd = $.Deferred();
@@ -392,16 +392,33 @@
 	});
 	var VoteAppView = Backbone.View.extend({
 		initialize : function(view){
-			this.view = view;
-			this.model = new VoteModel(view.data);
-			this.model.on('change', this.render, this);
-			this.render();
+			var me = this;
+			me.view = view;
+			require(['VoteModel'], function(m){
+				if(!view.data.group_id){
+					return;
+				}else{
+					var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
+					mark.fetch({
+						success:function(model, res){
+							if(res.error){
+								return;
+							}
+							console.log(mark);
+							me.model = mark;
+							me.render();
+						},
+						error : function(model,res){
+							return;
+						}
+					});
+				}
+			});
 		},
 		render : function(){
 			var me = this;
 			require(['dxy-plugins/replacedview/vote/views/mobile.view'], function(tpl){
-		  		me.el.innerHTML = _.template(tpl)(me.model.attributes);
-				me.delegateEvents(me.events);
+		  		me.el.innerHTML = _.template(tpl)({votes: me.model.get('group').attach.models, group: me.model.get('group')});
 				me.trigger('render');
 		  	});
 			return me;
@@ -516,13 +533,22 @@
 			var ele = this.createWrapNode(),
 				me = this,
 				dtd = $.Deferred();
-			ele.innerHTML = 'vote';
-			me.ele = ele;
 			ele.setAttribute('contenteditable', 'false');
-			require(['dxy-plugins/replacedview/vote/views/editor.view'], function(tpl){
-		  		// ele.innerHTML = _.template(tpl)(me.data);
-		  		// me.ele = ele;
-		  		dtd.resolve(ele);
+			require(['dxy-plugins/replacedview/vote/views/editor.view', 'VoteModel'], function(tpl, m){
+				var group = new m.VoteGroupModel({id: me.data.group_id});
+				group.fetch().success(function(res){
+					if(res.error){
+						alert(res.error.message);
+						console.log(res);
+						return;
+					}
+					ele.innerHTML = _.template(tpl)(group.attributes);
+					me.ele = ele;
+					dtd.resolve(ele);
+				}).error(function(res){
+					console.log(res);
+					alert(res.error.message);
+				});
 		  	});
 			return dtd;
 		},

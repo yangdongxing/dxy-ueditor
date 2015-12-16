@@ -1,15 +1,8 @@
 <div class="editor-vote-wraper">
 	<p>
-		<span class="tag"><%if(+vote_type===1){print('单选投票')}else{print('多选投票')}%></span>
-		<span class="tag"><%=vote_endtime%></span>
-		<span class="tag"><%if(+vote_permission===1){print('所有人')}else{print('已登录')}%></span>
+		<span class="tag">投票</span>
+		<span class="tag"><%=id%></span>
+		<span class="tag"><%=e_time%></span>
 	</p>
-	<h4><%=vote_title%></h4>
-	<ul>
-		<%_.each(vote_options,function(opt){ %> 
-			<li>
-				<%=opt.value%>
-			</li>
-		<%})%>
-	</ul>
+	<h4><%=title%></h4>
 </div>

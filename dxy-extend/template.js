@@ -169,97 +169,90 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-wraper">'+
 '	<p>'+
-'		<span class="tag"><%if(+vote_type===1){print(\'单选投票\')}else{print(\'多选投票\')}%></span>'+
-'		<span class="tag"><%=vote_endtime%></span>'+
-'		<span class="tag"><%if(+vote_permission===1){print(\'所有人\')}else{print(\'已登录\')}%></span>'+
+'		<span class="tag">投票</span>'+
+'		<span class="tag"><%=id%></span>'+
+'		<span class="tag"><%=e_time%></span>'+
 '	</p>'+
-'	<h4><%=vote_title%></h4>'+
-'	<ul>'+
-'		<%_.each(vote_options,function(opt){ %> '+
-'			<li>'+
-'				<%=opt.value%>'+
-'			</li>'+
-'		<%})%>'+
-'	</ul>'+
+'	<h4><%=title%></h4>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(+vote_type===1){%>'+
-'	<%if(new Date()<new Date(vote_endtime)){%>'+
-'	<div class="editor-vote-wraper vote-single <%if(!user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(new Date()<new Date(group.get(\'e_time\'))){%>'+
+'<%_.each(votes, function(vote, i){%>'+
+'<%if(+vote.attach.get(\'type\')===1){%>'+
+'	<div class="editor-vote-wraper vote-single <%if(!vote.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">'+
-'		<h4><%=vote_title%></h4>'+
 '		<div class="vote-body">'+
+'			<h4><%=vote.attach.get(\'title\')%></h4>'+
 '			<ul>'+
-'				<%_.each(vote_options,function(opt,i){ %> '+
+'				<%_.each(vote.attach.attach.models,function(opt,i){ %> '+
 '					<li data-id="<%=i%>"  class="<%if(opt.checked){print(\'checked\')}%>">'+
-'						<%if(user_voted){%>'+
+'						<%if(vote.user_voted){%>'+
 '						<p>'+
-'							<%=opt.value%>'+
+'							<%=opt.attach.get(\'value\')%>'+
 '						</p>'+
 '						<div style="height:10px;">'+
 '							<p class="vote-state-bar">'+
-'								<span style="width:<%if(vote_total){print(opt.total/vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
+'								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
 '							</p>'+
-'							<span class="vote-state"><%if(vote_total){print(opt.total/vote_total*100)}else{print(\'0\')}%>%</span>'+
+'							<span class="vote-state"><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%</span>'+
 '						</div>'+
 '						<%}else{%>'+
 '						<div class="<%if(opt.checked){print(\'active\')}%>">'+
-'							<%if(opt.img){%>'+
+'							<%if(opt.attach.get(\'img\')){%>'+
 '							<span class="img">'+
-'								<img src="<%=opt.img%>">'+
+'								<img src="<%=opt.attach.get(\'img\')%>">'+
 '							</span>'+
 '							<%}%>'+
-'							<span><%=opt.value%></span>'+
+'							<span><%=opt.attach.get(\'value\')%></span>'+
 '						</div>'+
 '						<%}%>'+
 '					</li>'+
 '				<%})%>'+
 '			</ul>'+
 '			<a href="javascript:;" class="user-vote">'+
-'				<%if(user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'				<%if(vote.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
 '			</a>'+
 '		</div>'+
 '	</div>'+
-'	<%}else{%>'+
-'		end'+
-'	<%}%>'+
 '<%}else{%>'+
-'	<%if(new Date()<new Date(vote_endtime)){%>'+
-'	<div class="editor-vote-wraper vote-multiple <%if(!user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'	<div class="editor-vote-wraper vote-multiple <%if(!vote.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">'+
-'		<h4><%=vote_title%></h4>'+
 '		<div class="vote-body">'+
+'			<h4><%=vote.attach.get(\'title\')%></h4>'+
 '			<ul>'+
-'				<%_.each(vote_options,function(opt,i){ %> '+
+'				<%_.each(vote.attach.attach.models,function(opt,i){ %> '+
 '					<li data-id="<%=i%>"  class="<%if(opt.checked){print(\'checked\')}%>">'+
-'						<%if(user_voted){%>'+
+'						<%if(vote.user_voted){%>'+
 '						<p>'+
-'							<%=opt.value%>'+
+'							<%=opt.attach.get(\'value\')%>'+
 '						</p>'+
 '						<div style="height:10px;">'+
 '							<p class="vote-state-bar">'+
-'								<span style="width:<%if(vote_total){print(opt.total/vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
+'								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
 '							</p>'+
-'							<span class="vote-state"><%if(vote_total){print(opt.total/vote_total*100)}else{print(\'0\')}%>%</span>'+
+'							<span class="vote-state"><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%</span>'+
 '						</div>'+
 '						<%}else{%>'+
 '						<div class="<%if(opt.checked){print(\'active\')}%>">'+
-'							<%if(opt.img){%>'+
+'							<%if(opt.attach.get(\'img\')){%>'+
 '							<span class="img">'+
-'								<img src="<%=opt.img%>">'+
+'								<img src="<%=opt.attach.get(\'img\')%>">'+
 '							</span>'+
 '							<%}%>'+
-'							<span><%=opt.value%></span>'+
+'							<span><%=opt.attach.get(\'value\')%></span>'+
 '						</div>'+
 '						<%}%>'+
 '					</li>'+
 '				<%})%>'+
 '			</ul>'+
 '			<a href="javascript:;" class="user-vote">'+
-'				<%if(user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'				<%if(vote.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
 '			</a>'+
 '		</div>'+
 '	</div>'+
-'	<%}else{%>'+
-'		end'+
-'	<%}%>'+
-'<%}%>';return tpl;});
+'<%}%>'+
+'<%})%>'+
+''+
+'<%}else{%>'+
+'	end'+
+'<%}%>'+
+'';return tpl;});
