@@ -1,16 +1,17 @@
 <div>
   <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" class="active"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">新投票</a></li>
-    <li role="presentation"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票</a></li>
+    <li role="presentation" id="vote-edit-tab" class="<%if(panel!='votelist'){print('active')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票编辑</a></li>
+    <li role="presentation" id="vote-list-tab" class="<%if(panel=='votelist'){print('active')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票</a></li>
   </ul>
   <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="add-vote">
+    <div role="tabpanel" class="tab-pane <%if(panel!='votelist'){print('active')}%>" id="add-vote">
+    <%if(mark.get('group')){%>
 		<form style="margin-top:20px;">
           <div class="form-group clearfix">
             <label class="col-sm-3">投票名称：</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control limit-length"  data-max="45"  data-target="vote-name-limit" placeholder="" name="vote_name" value="<%=vote_name%>">
-              <em id="vote-name-limit" class="limit-counter"><%=vote_name.length%>/45</em>
+              <input type="text" class="form-control limit-length"  data-max="45"  data-target="vote-name-limit" placeholder="" name="group-title" value="<%=mark.get('group').get('title')%>">
+              <em id="vote-name-limit" class="limit-counter"><%=mark.get('group').get('title').length%>/45</em>
             </div>
           </div>
           <p class="text-muted form-group clearfix">
@@ -18,79 +19,130 @@
           <div class="form-group clearfix">
             <label class="col-sm-3">截止时间：</label>
             <div class="col-sm-9">
-              <input type="text" class="form-control" placeholder="" name="vote_endtime" value="<%=vote_endtime%>">
+              <input type="text" class="form-control group-date" placeholder="" name="group-e_time" value="<%=mark.get('group').get('e_time')%>">
             </div>
           </div>
           <div class="form-group clearfix">
             <label class="col-sm-3">投票权限：</label>
             <div class="col-sm-9">
-              <input type="radio" placeholder="" id="vote_permission_1" name="vote_permission" <%if(vote_permission==='1'){print('checked')}%> value="1">
-              <label for="vote_permission_1">所有人</label>
-              <input type="radio" placeholder="" name="vote_permission" id="vote_permission_2" <%if(vote_permission==='2'){print('checked')}%> value="2">
-              <label for="vote_permission_2">已登陆</label>
+              <input type="radio" placeholder="" id="status_1" name="group-status" <%if(mark.get('group').get('status')==''){print('checked')}%> value="0">
+              <label for="status_1">禁用</label>
+              <input type="radio" placeholder="" name="group-status" id="status_2" <%if(mark.get('group').get('status')=='1'){print('checked')}%> value="1">
+              <label for="status_2">正常</label>
+              <input type="radio" placeholder="" name="group-status" id="status_3" <%if(mark.get('group').get('status')=='10'){print('checked')}%> value="10">
+              <label for="status_3">删除</label>
             </div>
           </div>
         </form>
         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+         <%_.each(mark.get('group').attach.models, function(vote_link, i){%>
 		  <div class="panel panel-default">
 		    <div class="panel-heading" role="tab" id="headingOne">
 		      <h4 class="panel-title">
-		        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1" class="btn-block">
-		         问题一
+		        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=i%>" aria-expanded="true" aria-controls="collapse-<%=i%>" class="btn-block">
+		         问题<%=i+1%>
 		        </a>
 		      </h4>
 		    </div>
-		    <div id="collapse-1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+		    <div id="collapse-<%=i%>" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
 		      <div class="panel-body">
 		      	<form style="margin-top:20px;">
 		          <div class="form-group clearfix">
 		            <label class="col-sm-2">标题：</label>
 		            <div class="col-sm-10">
-		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit" data-max="35" placeholder="" name="vote_title" value="<%=vote_title%>">
-		              <em id="vote-title-limit" class="limit-counter"><%=vote_title.length%>/35</em>
+		              <input type="text" class="form-control limit-length"  data-target="vote-title-limit-<%=i%>" data-max="35" placeholder="" name="group-attach-<%=i%>-attach-title" value="<%=vote_link.attach.get('title')%>">
+		              <em id="vote-title-limit-<%=i%>" class="limit-counter"><%=vote_link.attach.get('title').length%>/35</em>
 		            </div>
 		          </div>
 		          <div class="form-group clearfix">
 		            <label class="col-sm-2"></label>
 		            <div class="col-sm-10">
-		              <input type="radio" id="vote_type_1" placeholder="" name="vote_type"  <%if(vote_type==='1'){print('checked')}%> value="1">
-		              <label for='vote_type_1'>单选</label>
-		              <input type="radio" id="vote_type_2" placeholder="" name="vote_type" <%if(vote_type==='2'){print('checked')}%> value="2">
-		              <label for="vote_type_2">多选</label>
+		              <input type="radio" id="vote_type_1-<%=i%>" placeholder="" name="group-attach-<%=i%>-attach-type"  <%if(vote_link.attach.get('type')=='0'){print('checked')}%> value="0">
+		              <label for='vote_type_1-<%=i%>'>单选</label>
+		              <input type="radio" id="vote_type_2-<%=i%>" placeholder="" name="group-attach-<%=i%>-attach-type" <%if(vote_link.attach.get('type')=='1'){print('checked')}%> value="1">
+		              <label for="vote_type_2-<%=i%>">多选</label>
 		            </div>
 		          </div>
 		          <div class="vote-options">
-		          	<%_.each(vote_options,function(opt,i){%>
+		          	<%_.each(vote_link.attach.attach.models,function(node_link,j){%>
 						<div class="form-group clearfix">
-				            <label class="col-sm-2">选项<%=(i+1)%>：</label>
+				            <label class="col-sm-2">选项<%=(j+1)%>：</label>
 				            <div class="col-sm-6">
-				              <input type="text" data-max="35" data-target="vote-option-limit-<%=i%>" class="form-control limit-length" placeholder=""  value="<%=opt.value%>" name="vote_option_<%=i%>">
-				              <em id="vote-option-limit-<%=i%>" class="limit-counter"><%=opt.value?opt.value.length:0%>/35</em>
+				              <input type="text" data-max="35" data-target="vote-option-limit-<%=i%>-<%=j%>" class="form-control limit-length" placeholder=""  value="<%=node_link.attach.get('value')%>" name="group-attach-<%=i%>-attach-attach-<%=j%>-attach-value">
+				              <em id="vote-option-limit-<%=i%>-<%=j%>" class="limit-counter"><%=node_link.attach.get('value').length%>/35</em>
 				            </div>
 				            <div class="col-sm-2 btn btn-default">
 				            	上传图片
-				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=i%>" class="vote-option-img" name="vote_img_<%=i%>">
+				            	 <input type="file" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer;opacity: 0;width:100%;height:35px;" data-id="<%=j%>" class="vote-option-img" name="group-attach-<%=i%>-attach-attach-<%=j%>-attach-img">
 				            </div>
-				            <a href="javascript:;" class="J-remove-option col-sm-2" data-id="<%=i%>">删除选项</a>
+				            <a href="javascript:;" class="J-remove-option col-sm-2" data-model="group-attach-<%=i%>-attach" data-id="<%=j%>">删除选项</a>
 				        </div>
-				        <%if(opt.img){%>
+				        <%if(node_link.attach.get('img')){%>
 				        <div class="form-group clearfix">
 				        	<div class="col-sm-12">
-				        		<img src="<%=opt.img%>" style="width:40px;height:40px;">
+				        		<img src="<%=node_link.attach.get('img')%>" style="width:40px;height:40px;">
 				        	</div>
 				        </div>
 				        <%}%>
 		          	<%})%>
 			       </div>
 			       <hr>
-			       <a href="javascript:;" id="J-add-option">添加选项</a>
+			       <a href="javascript:;" id="J-add-option" data-model="group-attach-<%=i%>-attach">添加选项</a>
 		        </form>
 		      </div>
 		    </div>
 		  </div>
+		 <%})%>
 		</div>
-
+		<a class="btn btn-default center-block" href="#" role="button" style="width:30%;" id="J-add-vote">添加投票</a>
+	<%}else{%>
+		<br>
+		<a class="btn btn-default center-block" href="#" role="button" style="width:40%;" id="J-new-group">新投票</a>
+	<%}%>
     </div>
-    <div role="tabpanel" class="tab-pane" id="vote-list">vote list</div>
+    <div role="tabpanel" class="tab-pane <%if(panel=='votelist'){print('active')}%>" id="vote-list">
+    	<%if(votelist){%>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>名称</th>
+					<th>截止时间</th>
+					<th>投票权限</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<%_.each(votelist.models, function(vote, i){%>
+				<tr>
+					<td><%=vote.get('id')%></td>
+					<td><%=vote.get('title')%></td>
+					<td><%=vote.get('e_time')%></td>
+					<td><%if(vote.get('status')==0){print('禁用')}else if(vote.get('status')==1){print('正常')}else{print('删除')}%></td>
+					<td>
+						<a href="javascript:;" class="J-add-vote-from-votelist" data-id="<%=vote.get('id')%>"><%if(mark.get('group')){print('替换')}else{print('插入')}%></a>
+					</td>
+				</tr>
+				<%})%>
+			</tbody>
+		</table>
+<!-- 		<div class="row">
+			<div class="input-group col-md-6" style="left:25%;">
+		      <input type="text" class="form-control" placeholder="根据名称筛选">
+		      <span class="input-group-btn">
+		        <button class="btn btn-default" type="button" id="vote-list-search">筛选</button>
+		      </span>
+		    </div>
+		</div>
+ -->		<nav>
+		  <ul class="pager">
+		    <li class="previous" id="vote-list-page-prev"><a href="#"><span aria-hidden="true">&larr;</span> 上一页</a></li>
+		    <li class="next" id="vote-list-page-next"><a href="#">下一页 <span aria-hidden="true">&rarr;</span></a></li>
+		  </ul>
+		</nav>
+		<%}else{%>
+			<span class='center-block'>加载中...</span>
+		<%}%>
+    </div>
   </div>
 </div>

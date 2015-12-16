@@ -332,11 +332,23 @@
 				if(!me.onModalConfirm){
 					throw new Error('requrie onModalConfirm');
 				}
-				if(me.onModalConfirm()){
-					modal.modal('hide')
-					me.toEditorView().then(function(){
-						me.mount(UE.getEditor('editor-box').selection.getRange());
+				var res = me.onModalConfirm();
+				if(res.then){
+					res.then(function(){
+						modal.modal('hide');
+						me.toEditorView().then(function(){
+							me.mount(UE.getEditor('editor-box').selection.getRange());
+						});
+					}, function(){
+
 					});
+				}else{
+					if(res){
+						modal.modal('hide')
+						me.toEditorView().then(function(){
+							me.mount(UE.getEditor('editor-box').selection.getRange());
+						});
+					}
 				}
 			}
 			modal.on('show.bs.modal', onShow).on('hide.bs.modal', onHide).modal();

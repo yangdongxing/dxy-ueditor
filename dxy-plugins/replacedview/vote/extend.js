@@ -2,6 +2,7 @@
 	var IMG_PREFIX = 'http://img.dxycdn.com/dotcom/';
 	var UPLOAD_ACTION = 'http://dxy.com/admin/i/att/upload?type=column_content';
 	var IS_PC = isPC();
+
 	function isPC(){  
         	var userAgentInfo = navigator.userAgent;  
         	var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");  
@@ -24,27 +25,71 @@
 			'click .J-remove-option' : 'removeOption',
 			'keyup input' : 'valueChange',
 			'change input' : 'valueChange',
-			'keyup .limit-length' : 'limitLength'
+			'keyup .limit-length' : 'limitLength',
+			'click #J-add-vote' : 'addVote',
+			'click #J-new-group' : 'newGroup',
+			'click #vote-list-tab' : 'fetchVoteList',
+			'click #vote-list-page-prev' : 'VoteListPrevPage',
+			'click #vote-list-page-next' : 'VoteListNextPage',
+			'click .J-add-vote-from-votelist' : 'insertGroup'
 		},
 		initialize : function(view){
-			var me = this;
-			this.setElement($('#dxy-vote-modal .modal-body')[0]);
-			this.model =  new VoteModel(view.data);
-			this.model.on('change', this.render, this);
-			this.render();
+		var me = this;
+		require(['VoteModel'], function(m){
+			me.setElement($('#dxy-vote-modal .modal-body')[0]);
+			if(!view.data.group_id){
+				var mark = new m.VoteMarkModel({});
+				me.model = mark;
+				me.model.on('change', this.render, this);
+				me.render();
+			}else{
+					var mark = new m.VoteMarkModel({obj_id:view.data.group_id,type:10});
+					mark.fetch({
+						success:function(model, res){
+							if(res.error){
+								view.modal.modal('hide');
+								alert(res.error.message);
+								return;
+							}
+							window.mark = mark;
+							me.model = mark;
+							me.model.on('change', function(){
+								me.render();
+								console.log(me);
+								window.m = me.model;
+							});
+							me.render();
+						},
+						error : function(model,res){
+							alert(res.error.message);
+							view.modal.modal('hide');
+						}
+					});
+			}
+		});
+		},
+		fetchData : function(group_id){
+			var dtd = $.Deferred();
+			return $.get('http://dxy.us/admin/i/functionmarker/data',{type: 10, obj_id: group_id});
 		},
 		render: function() {
+			console.log(this.model);
 		  	var me = this;
 		  	require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(tpl){
-		  		me.el.innerHTML = _.template(tpl)(me.model.attributes);
-		  		$(me.el).find('[name=vote_endtime]').datetimepicker({
+		  		me.el.innerHTML = _.template(tpl)({mark: me.model, votelist : me.votelist, panel : me.currentPanel});
+		  		$(me.el).find('[name=group-e_time]').datetimepicker({
 					defaultDate: 0,
 				  	changeYear: true,
 				  	changeMonth: true,
 				  	numberOfMonths: 1,
 				  	dateFormat : 'yy-mm-dd',
+				  	onClose : function(newDate){
+				  		if(newDate.split(":").length===2){
+				  			newDate = newDate+':00';
+				  		}
+				  		me.model.get('group').set('e_time', newDate, {silent:true});
+				  	}
 				});
-				me.delegateEvents(me.events);
 				me.trigger('render');
 		  	});
 			return me;
@@ -70,46 +115,131 @@
             });
             return dtd;
 		},
-		fetchVotes : function(){
-
+		clickDate : function(){
+			console.log('click date');
 		},
-		addVote : function(){
-
+		fetchVoteList : function(){
+			var me =this;
+			require(['VoteModel'], function(m){
+				var list = new m.VoteGroupsModel([],{items_per_page:8});
+				list.fetch().then(function(){
+					list.on('all', me.render, me);
+					me.votelist = list;
+					me.currentPanel = 'votelist';
+					me.render();
+				}, function(model, res){
+					console.log(res);
+					alert(res.error.message);
+				});
+			});
+		},
+		insertGroup : function(e){
+			var t = $(e.currentTarget),
+				me =this,
+				id = t.data('id'),
+				group = me.votelist.get(+id);
+			me.model.addGroup(group);
+			$('#confirm-vote').click();
+		},
+		VoteListPrevPage : function(){
+			var me = this;
+			if(this.votelist.fetching){
+				return;
+			}
+			this.votelist.fetching = true;
+			this.votelist.goto(-1).then(function(){
+				me.votelist.fetching = false;
+			}, function(model,res){
+				alert(res.error.message);
+				me.votelist.fetching = false;
+			});
+		},
+		VoteListNextPage : function(){
+			var me = this;
+			if(this.votelist.fetching){
+				return;
+			}
+			this.votelist.fetching = true;
+			this.votelist.goto(1).then(function(){
+				me.votelist.fetching = false;
+			}, function(model,res){
+				alert(res.error.message);
+				me.votelist.fetching = false;
+			});
+		},
+		newGroup : function(){
+			var me = this;
+			this.model.newGroup().then(function(){
+				me.render();
+			}, function(res){
+				console.log(res);
+			});
+		},
+		addVote : function(e){
+			var group = this.model.find('group');
+			if(group){
+				group.addVote();
+			}
 		},
 		deleteVote : function(){
-
+			
 		},
-		addOption : function(){
-			this.model.addOption();
+		addOption : function(e){
+			var vote = this.model.find($(e.currentTarget).data('model'));
+			if(vote){
+				vote.addOption();
+			}
 		},
 		removeOption : function(e){
-			this.model.removeOption($(e.currentTarget).data('id'));
+			var t = $(e.currentTarget),
+				vote = this.model.find(t.data('model')),
+				i = t.data('id');
+			if(vote){
+				vote.removeOption(i);
+			}
 		},
 		valueChange : function(e){
+			function set(obj, key, val){
+				var arr = key.split('-');
+				_.every(arr, function(k, i, all){
+					if(k!==undefined && obj){
+						if(i===all.length-1){
+							if(obj.get(k)===val){
+								return;
+							}
+							obj.set(k, val, {silent: true});
+ 						}else{
+ 							if(/\d+/.test(''+k)){
+ 								obj = obj.at(k);
+ 							}else if(k==='attach'){
+ 								obj = obj.attach;
+ 							}else{
+ 								obj = obj.get(k);
+ 							}
+ 						}
+						return true;
+					}else{
+						return false;
+					}
+				});
+			}
 			var t = $(e.currentTarget),
 				v = t.val(),
 				k = t.attr('name'),
 				i,
-				data = this.model.attributes,
+				data = _.clone(this.model.attributes),
 				me =this;
-			if(k.indexOf('vote_option')!==-1){
-				i = +k.split('_').pop();
-				data.vote_options[i].value = v;
-				this.model.set('vote_options', data.vote_options);
-			}else if(k.indexOf('vote_img')!==-1){
-				i = +k.split('_').pop();
+			if(k.slice(-3)==='img'){
 				this.uploadImage(t[0]).then(function(e){
 					var res = JSON.parse(e.currentTarget.responseText);
-					data.vote_options[i].img = IMG_PREFIX + res.data.items[0].path;
-					me.model.set('vote_options', data.vote_options);
+					set(me.model, k, IMG_PREFIX + res.data.items[0].path);
 					me.model.trigger('change');
 				},function(e){
 					var res = JSON.parse(e.currentTarget.responseText);
 					alert('上传失败：'+res);
 				});
 			}else{
-				data[k] = v;
-				this.model.set(k, v);
+				set(this.model, k, v);
 			}
 		},
 		limitLength : function(e){
@@ -194,37 +324,47 @@
 
 	var VoteModel = Backbone.Model.extend({
 		defaults : {
-			vote_total : 0,
-			vote_name : '',
-			vote_title : '',
-			vote_options : [{
-				value : '',
-				checked : false,
-				total : 0,
-				img: ''
-			},{
-				value : '',
-				checked : false,
-				total : 0,
-				img : ''
-			},{
-				value : '',
-				checked : false,
-				total : 0,
-				img : ''
-			}],
-			vote_type : '1',
-			vote_permission : '1',
-			vote_endtime : '',
-			user_voted : false
-		},
+            "id" : '',
+            "status" : 1,
+            "title" : "",
+            "content" : "",
+            "s_time" : "",
+            "e_time" : "",
+            "votes" : 
+            [
+                {
+                    "id" : '',
+                    "group_id" : '',
+                    "vote_id" : '',
+                    "vote_title" : "",
+                    "vote_content" : "",
+                    "sort" : 1,
+                    "prefix" : "",
+                    "type" : 0,
+                    "nodes" : 
+                    [
+                        {
+                            "id" : "",
+                            "vote_id" : "",
+                            "node_id" : "",
+                            "node_value" : "",
+                            "sort" : "",
+                            "prefix" : "" 
+                        }
+                    ]
+                }
+            ]
+        },
 		addQuestion : function(){
 
 		},
 		constructor : function(data){
 			var me = this;
-			_.each(data.vote_options, function(opt, i, arr){
-				arr[i] = $.extend(true, {}, me.defaults.vote_options[0], opt);
+			_.each(data.votes, function(vote, i, votes){
+				_.each(vote.nodes, function(node, j, nodes){
+					nodes[j] = $.extend(true, {}, me.defaults.votes[0].nodes[0], node);
+				});
+				votes[i] = $.extend(true, {}, me.defaults.votes[0], vote);
 			});
 			Backbone.Model.call(this, $.extend(true, {}, this.defaults, data));
 		},
@@ -376,10 +516,12 @@
 			var ele = this.createWrapNode(),
 				me = this,
 				dtd = $.Deferred();
+			ele.innerHTML = 'vote';
+			me.ele = ele;
 			ele.setAttribute('contenteditable', 'false');
 			require(['dxy-plugins/replacedview/vote/views/editor.view'], function(tpl){
-		  		ele.innerHTML = _.template(tpl)(me.data);
-		  		me.ele = ele;
+		  		// ele.innerHTML = _.template(tpl)(me.data);
+		  		// me.ele = ele;
 		  		dtd.resolve(ele);
 		  	});
 			return dtd;
@@ -387,10 +529,19 @@
 		onModalShow : function(){
 			this.vote =  new VoteView(this);
 		},
+		onModalHide : function(){
+			this.vote.undelegateEvents();
+		}, 
 		onModalConfirm : function(){
+			var data, dtd = $.Deferred(),me =this;
 			if(this.vote.verify()){
-				this.data = _.clone(this.vote.model.attributes);
-				return true;
+				this.vote.model.confirm().then(function(){
+					me.data.group_id = me.vote.model.get('group').get('id');
+					dtd.resolve();
+				},function(){
+					dtd.reject();
+				});
+				return dtd;
 			}else{
 				return false;
 			}

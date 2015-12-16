@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         },
         concat: {
             plugin : {
-                src : ['dxy-plugins/**/*.js','!dxy-plugins/**/extend.js'],
+                src : ['dxy-plugins/**/*.js','!dxy-plugins/**/extend.js', '!dxy-plugins/**/model.js'],
                 dest : 'ueditor.dxy.custom.js'
             },
             editorcss: {
@@ -19,18 +19,22 @@ module.exports = function (grunt) {
                 dest : 'themes/wechat.css'
             },
             extend : {
-                src : ['dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
+                src : ['models.js','dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
                 dest : 'ueditor.dxy.extend.js'
             },
             modal : {
                 src : ['dxy-plugins/**/modal.tpl'],
                 dest : 'dxy-plugins/modals/dxy-plugin-modals.tpl'
+            },
+            model : {
+                src : ['dxy-plugins/**/model.js'],
+                dest : 'models.js'
             }
         },
         watch: {
             js : {
                 files : ['dxy-plugins/**/*.js', 'Gruntfile.js', 'dxy-extend/**/*.js'],
-                tasks : ['jshint','concat:plugin', 'concat:extend']
+                tasks : ['jshint','concat:plugin', 'concat:model', 'concat:extend']
             },
             editorcss : {
                 files : ['dxy-plugins/**/editor.css'],
