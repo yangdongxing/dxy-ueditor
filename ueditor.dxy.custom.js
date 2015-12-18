@@ -726,11 +726,15 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '    padding: 20px;'+
 '    cursor: pointer;'+
 '}'+
-'.editor-vote-wraper p span{'+
+'.editor-vote-container p span{'+
 '    padding: 3px 6px;'+
 '    background: #c5c5c5;'+
 '    color: #fff;'+
 '    border-radius: 10px;'+
+'}'+
+'.editor-vote-wraper img{'+
+'    width: 50px!important;'+
+'    height: 50px!important;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles, true);
@@ -929,7 +933,7 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '    <div class="modal-content">'+
 '      <div class="modal-header">'+
 '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
-'        <h4 class="modal-title">投票编辑</h4>'+
+'        <h4 class="modal-title">投票组编辑</h4>'+
 '      </div>'+
 '      <div class="modal-body">'+
 '      </div>'+
@@ -960,15 +964,24 @@ $(document).ready(function(){
             flag = false,
             dxyFlag = false;
         root.traversal(function(node){
-            if(node.type==='text' && !flag){
-                if(node.data==='丁香园版权所有，未经许可不得转载。'){
-                    dxyFlag = true;
+            if(node.getAttr && node.getAttr('class') && node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+                var view = ReplacedView.getInstance(node.getAttr('data-type'));
+                if(view){
+                    view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
+                    node.setStyle('display','none');
+                    node.innerHTML(view.toMetaView().innerHTML);
                 }
-                if(node.data==='参考资料：' && dxyFlag){
-                    flag = true;
-                    return;
+            }else{
+                if(node.type==='text' && !flag){
+                    if(node.data==='丁香园版权所有，未经许可不得转载。'){
+                        dxyFlag = true;
+                    }
+                    if(node.data==='参考资料：' && dxyFlag){
+                        flag = true;
+                        return;
+                    }
+                    node.data = fomat(node.data);
                 }
-                node.data = fomat(node.data);
             }
         });
         editor.setContent(root.toHtml());
@@ -1109,7 +1122,7 @@ $(document).ready(function(){
         }
         me.addOutputRule(function(root){
 			root.traversal(function(node){
-				if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+				if(node.getAttr && node.getAttr('class') && node.getAttr('class')==='dxy-meta-replaced-view' ){ 
 					var view = ReplacedView.getInstance(node.getAttr('data-type'));
 					if(view){
 						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));

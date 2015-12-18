@@ -91,11 +91,15 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '    padding: 20px;'+
 '    cursor: pointer;'+
 '}'+
-'.editor-vote-wraper p span{'+
+'.editor-vote-container p span{'+
 '    padding: 3px 6px;'+
 '    background: #c5c5c5;'+
 '    color: #fff;'+
 '    border-radius: 10px;'+
+'}'+
+'.editor-vote-wraper img{'+
+'    width: 50px!important;'+
+'    height: 50px!important;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles, true);

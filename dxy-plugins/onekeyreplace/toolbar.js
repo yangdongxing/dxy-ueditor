@@ -15,15 +15,24 @@
             flag = false,
             dxyFlag = false;
         root.traversal(function(node){
-            if(node.type==='text' && !flag){
-                if(node.data==='丁香园版权所有，未经许可不得转载。'){
-                    dxyFlag = true;
+            if(node.getAttr && node.getAttr('class') && node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+                var view = ReplacedView.getInstance(node.getAttr('data-type'));
+                if(view){
+                    view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
+                    node.setStyle('display','none');
+                    node.innerHTML(view.toMetaView().innerHTML);
                 }
-                if(node.data==='参考资料：' && dxyFlag){
-                    flag = true;
-                    return;
+            }else{
+                if(node.type==='text' && !flag){
+                    if(node.data==='丁香园版权所有，未经许可不得转载。'){
+                        dxyFlag = true;
+                    }
+                    if(node.data==='参考资料：' && dxyFlag){
+                        flag = true;
+                        return;
+                    }
+                    node.data = fomat(node.data);
                 }
-                node.data = fomat(node.data);
             }
         });
         editor.setContent(root.toHtml());

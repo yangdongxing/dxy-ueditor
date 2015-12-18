@@ -60,8 +60,16 @@ define('VoteModel', function(){
 				dtd.reject.apply(arguments);
 			});
 			return dtd;
+		},
+		findByAttachId : function(id){
+			var res = null;
+			_.each(this.models, function(v){
+				if(v.attach.get('id')==id){
+					res = v;
+				}
+			});
+			return res;
 		}
-
 	});
 	var NodeModel = Backbone.Model.extend({
 		sync : function(method, model, options){
@@ -139,6 +147,7 @@ define('VoteModel', function(){
 				id : id,
 				value : value
 			};
+			this.total = 0;
 			this.attach = new NodeModel(node);
 			this.listenTo(this.attach, 'all', function(){
 				me.trigger('change');
@@ -203,6 +212,7 @@ define('VoteModel', function(){
 		constructor : function(data){
 			var me = this;
 			this.attach = new NodeLinksModel(data.nodes);
+			this.attach.parent = this;
 			delete data.nodes;
 			data.type = data.type===undefined? 0 : data.type;
 			this.listenTo(this.attach, 'all', function(){
@@ -286,7 +296,7 @@ define('VoteModel', function(){
 			var votelink = this.attach.at(parseInt(id)),
 				dtd = $.Deferred(),
 				me = this;
-			if(votelink){
+			if(votelink.get('id')){
 				votelink.destroy().success(function(res){
 					if(res.error){
 						dtd.reject();
@@ -296,6 +306,8 @@ define('VoteModel', function(){
 				}).error(function(res){
 					dtd.reject();
 				});
+			}else{
+				return this.attach.remove(votelink);
 			}
 			return dtd;
 		}
@@ -319,6 +331,7 @@ define('VoteModel', function(){
 		constructor : function(data){
 			var me = this;
 			this.attach = new VoteGroupLinksModel(data.votes);
+			this.attach.parent = this;
 			delete data.votes;
 			data.status = data.status===undefined ? 1 : data.status;
 			this.listenTo(this.attach, 'all', function(){
@@ -350,6 +363,12 @@ define('VoteModel', function(){
 			}else{
 				return resp;
 			}
+		},
+		getUserVotes : function(){
+			return $.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id'));
+		},
+		getVotesStat : function(){
+			return $.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100');
 		},
 		addVote : function(){
 			var	nodes = this.attach,
@@ -388,6 +407,7 @@ define('VoteModel', function(){
 					nodelink.set('id', res.data.items[0].id, {silent:true})
 					nodelink.addNode(node);
 					nodes.add(nodelink);
+					dtd.resolve(res);
 				}).error(function(res){
 					node.destroy({wait:true});
 					dtd.reject(res);
@@ -425,6 +445,7 @@ define('VoteModel', function(){
 			});
 			temp.nodes = data.nodes || [];
 			this.attach = new VoteModel(temp);
+			this.vote_total = 0;
 			this.listenTo(this.attach, 'all', function(){
 				me.trigger('change');
 				console.log('vote group link change');
@@ -556,6 +577,9 @@ define('VoteModel', function(){
 			if(resp.error){
 				return {};
 			}
+			if(!resp.data.items[0].title){
+				return resp.data.items[0];
+			}
 			if(resp.data.items[0].votes){
 				_.each(resp.data.items[0].votes, function(vote){
 					if(vote.nodes){
@@ -594,65 +618,125 @@ define('VoteModel', function(){
 		confirm : function(){
 			var error = false;
 			var dtd = $.Deferred();
-			var i = 0;
-			function next(root){
-				if(root.attach){
-					return root.attach
-				}else{
-					return null;
-				}
-			}
 			function save(model){
+				var me = this;
 				if(!model){
 					return;
 				}
-				if(model.length){
+				if(model.models){
 					_.each(model.models, function(m){
 						save(m);
 					});
-					return;
+				}
+				if(model.attach){
+					save(model.attach);
+				}
+				if(model instanceof NodeLinkModel){
+					model.set('node_id', model.attach.get('id'));
+					if(!model.collection.parent.get('id')){
+						model.collection.parent.save({},{
+							data : model.collection.parent.attributes,
+							async: false, 
+							success: function(res){
+								if(res.error){
+									throw new Error('保存失败');
+								}
+							}, 
+							error: function(){
+								throw new Error('保存失败');
+							}
+						});
+					}
+					model.set('vote_id',  model.collection.parent.get('id'));
+				}
+				if(model instanceof VoteGroupLinkModel){
+					model.set('vote_id', model.attach.get('id'));
+					if(!model.collection.parent.get('id')){
+						model.collection.parent.save({},{
+							data : model.collection.parent.attributes, 
+							async: false, 
+							success: function(res){
+								if(res.error){
+									throw new Error('保存失败');
+								}
+							}, 
+							error: function(){
+								throw new Error('保存失败');
+							}
+						});
+					}
+					model.set('group_id',  model.collection.parent.get('id'));
 				}
 				if(model.hasChanged && model.hasChanged()){
-					i++;
-					var data = model.attributes;
+					var _data = model.attributes;
 					if(model.processPostData){
-						data = model.processPostData(data);
+						_data = model.processPostData(_data);
 					}
-					model.save({},{data: model.attributes}).success(function(res){
-						if(res.error){
-							dtd.reject();
-							return;
+					model.save({},{
+						data: _data, 
+						async: false, 
+						success: function(res){
+							if(res.error){
+								throw new Error('保存失败');
+							}
+						},
+						error : function(){
+							throw new Error('保存失败');
 						}
-						i--;
-						if(i===0){
-							dtd.resolve();
-						}
-					}).error(function(){
-						dtd.reject();
 					});
 				}
-				save(next(model));
 			}
-			var root = this.get('group');
-			save(root);
-			setTimeout(function(){
-				if(i===0){
-					dtd.resolve();
+			try{
+				var root = this.get('group');
+				save(root);
+				if(!this.get('obj_id')){
+					this.save({},{
+						data: {
+							obj_id : root.get('id'),
+							type : 10,
+						},
+					 	async : false,
+					 	success : function(res){
+					 		if(res.error){
+					 			throw new Error('保存失败');
+					 		}
+					 	},
+					 	error : function(){
+					 		throw new Error('保存失败');
+					 	}
+					})
 				}
-			},0);
+				setTimeout(function(){
+					dtd.resolve();
+				},0);
+			}catch(e){
+				alert(e.message);
+				console.log(e);
+				setTimeout(function(){
+					dtd.reject();
+				},0);
+			}
 			return dtd;
 		}
 	});
 
 	var VoteUserMarkModel = VoteMarkModel.extend({
-		function(method, model, options){
+		sync : function(method, model, options){
 			switch(method){
 				case 'read':
 					options.url = API_HOST + 'view/i/functionmarker/single?obj_id='+this.get('obj_id')+'&type='+this.get('type');
 					break;
 			}
 			return Backbone.sync(method, model, options);
-		}
+		},
+		userChooseVoteOption : function(nid, vid, gid){
+			return $.post(API_HOST+'user/i/vote/result/add', {
+				node_id : nid,
+				vote_id : vid,
+				group_id : gid
+			});
+		},
+
 	});
 
 	return {
@@ -667,6 +751,7 @@ define('VoteModel', function(){
 		VoteGroupLinkModel : VoteGroupLinkModel,
 		VoteGroupLinksModel : VoteGroupLinksModel,
 		VoteMarkModel : VoteMarkModel,
-		VoteUserMarkModel : VoteUserMarkModel
+		VoteUserMarkModel : VoteUserMarkModel,
+		BaseListModel : BaseListModel
 	};
 });

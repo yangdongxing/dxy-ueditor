@@ -1,8 +1,75 @@
-<div class="editor-vote-wraper">
-	<p>
-		<span class="tag">投票</span>
-		<span class="tag"><%=id%></span>
-		<span class="tag"><%=e_time%></span>
-	</p>
-	<h4><%=title%></h4>
+<div class="editor-vote-container">
+<p>
+	<span class="tag">投票</span>
+	<span class="tag"><%if(group.get('status')=='0'){print('禁用')}else if(group.get('status')=='1'){print('正常')}else{print('删除')}%></span>
+	<span class="tag"><%if(new Date()<new Date(group.get('e_time')) && new Date()>=new Date(group.get('s_time'))){print('进行中')}else if(new Date()>new Date(group.get('e_time'))){print('已过期')}else{print('未开始')}%></span>
+</p>
+<%_.each(votes, function(vote, i){%>
+<%if(+vote.attach.get('type')===0){%>
+	<div class="editor-vote-wraper vote-single <%if(!vote.attach.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+		<h4><%=vote.attach.get('title')%></h4>
+		<div class="vote-body">
+			<ul>
+				<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
+						<%if(vote.attach.user_voted){%>
+						<p>
+							<%=opt.attach.get('value')%>
+						</p>
+						<div style="height:10px;">
+							<p class="vote-state-bar">
+								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
+							</p>
+							<span class="vote-state"><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%</span>
+						</div>
+						<%}else{%>
+						<div class="<%if(opt.checked){print('active')}%>">
+							<%if(opt.attach.get('img')){%>
+							<span class="img">
+								<img src="<%=opt.attach.get('img')%>">
+							</span>
+							<%}%>
+							<span><%=opt.attach.get('value')%></span>
+						</div>
+						<%}%>
+					</li>
+				<%})%>
+			</ul>
+		</div>
+	</div>
+<%}else{%>
+	<div class="editor-vote-wraper vote-multiple <%if(!vote.attach.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+		<h4><%=vote.attach.get('title')%></h4>
+		<div class="vote-body">
+			<ul>
+				<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
+						<%if(vote.attach.user_voted){%>
+						<p>
+							<%=opt.attach.get('value')%>
+						</p>
+						<div style="height:10px;">
+							<p class="vote-state-bar">
+								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
+							</p>
+							<span class="vote-state"><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%</span>
+						</div>
+						<%}else{%>
+						<div class="<%if(opt.checked){print('active')}%>">
+							<%if(opt.attach.get('img')){%>
+							<span class="img">
+								<img src="<%=opt.attach.get('img')%>">
+							</span>
+							<%}%>
+							<span><%=opt.attach.get('value')%></span>
+						</div>
+						<%}%>
+					</li>
+				<%})%>
+			</ul>
+		</div>
+	</div>
+<%}%>
+<%})%>
+
 </div>

@@ -21,8 +21,8 @@ define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<
 '</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
 '  <ul class="nav nav-tabs" role="tablist">'+
-'    <li role="presentation" id="vote-edit-tab" class="<%if(panel!=\'votelist\'){print(\'active\')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票编辑</a></li>'+
-'    <li role="presentation" id="vote-list-tab" class="<%if(panel==\'votelist\'){print(\'active\')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票</a></li>'+
+'    <li role="presentation" id="vote-edit-tab" class="<%if(panel!=\'votelist\'){print(\'active\')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票组编辑</a></li>'+
+'    <li role="presentation" id="vote-list-tab" class="<%if(panel==\'votelist\'){print(\'active\')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票组</a></li>'+
 '  </ul>'+
 '  <div class="tab-content">'+
 '    <div role="tabpanel" class="tab-pane <%if(panel!=\'votelist\'){print(\'active\')}%>" id="add-vote">'+
@@ -37,6 +37,12 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '          </div>'+
 '          <p class="text-muted form-group clearfix">'+
 '          	<span class="col-sm-3"></span><span class="col-sm-9">投票名称只用于管理，不显示在下发的投票内容中</span></p>'+
+'           <div class="form-group clearfix">'+
+'            <label class="col-sm-3">开始时间：</label>'+
+'            <div class="col-sm-9">'+
+'              <input type="text" class="form-control group-date" placeholder="" name="group-s_time" value="<%=mark.get(\'group\').get(\'s_time\')%>">'+
+'            </div>'+
+'          </div>'+
 '          <div class="form-group clearfix">'+
 '            <label class="col-sm-3">截止时间：</label>'+
 '            <div class="col-sm-9">'+
@@ -46,7 +52,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '          <div class="form-group clearfix">'+
 '            <label class="col-sm-3">投票权限：</label>'+
 '            <div class="col-sm-9">'+
-'              <input type="radio" placeholder="" id="status_1" name="group-status" <%if(mark.get(\'group\').get(\'status\')==\'\'){print(\'checked\')}%> value="0">'+
+'              <input type="radio" placeholder="" id="status_1" name="group-status" <%if(mark.get(\'group\').get(\'status\')==\'0\'){print(\'checked\')}%> value="0">'+
 '              <label for="status_1">禁用</label>'+
 '              <input type="radio" placeholder="" name="group-status" id="status_2" <%if(mark.get(\'group\').get(\'status\')==\'1\'){print(\'checked\')}%> value="1">'+
 '              <label for="status_2">正常</label>'+
@@ -128,6 +134,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '				<tr>'+
 '					<th>#</th>'+
 '					<th>名称</th>'+
+'					<th>开始时间</th>'+
 '					<th>截止时间</th>'+
 '					<th>投票权限</th>'+
 '					<th>操作</th>'+
@@ -135,9 +142,10 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '			</thead>'+
 '			<tbody>'+
 '				<%_.each(votelist.models, function(vote, i){%>'+
-'				<tr>'+
+'				<tr class="<%if(new Date()<new Date(vote.get(\'e_time\')) && new Date()>=new Date(vote.get(\'s_time\'))){print(\'success\')}%>">'+
 '					<td><%=vote.get(\'id\')%></td>'+
 '					<td><%=vote.get(\'title\')%></td>'+
+'					<td><%=vote.get(\'s_time\')%></td>'+
 '					<td><%=vote.get(\'e_time\')%></td>'+
 '					<td><%if(vote.get(\'status\')==0){print(\'禁用\')}else if(vote.get(\'status\')==1){print(\'正常\')}else{print(\'删除\')}%></td>'+
 '					<td>'+
@@ -167,25 +175,92 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '    </div>'+
 '  </div>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-wraper">'+
-'	<p>'+
-'		<span class="tag">投票</span>'+
-'		<span class="tag"><%=id%></span>'+
-'		<span class="tag"><%=e_time%></span>'+
-'	</p>'+
-'	<h4><%=title%></h4>'+
-'</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(new Date()<new Date(group.get(\'e_time\'))){%>'+
+define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-container">'+
+'<p>'+
+'	<span class="tag">投票</span>'+
+'	<span class="tag"><%if(group.get(\'status\')==\'0\'){print(\'禁用\')}else if(group.get(\'status\')==\'1\'){print(\'正常\')}else{print(\'删除\')}%></span>'+
+'	<span class="tag"><%if(new Date()<new Date(group.get(\'e_time\')) && new Date()>=new Date(group.get(\'s_time\'))){print(\'进行中\')}else if(new Date()>new Date(group.get(\'e_time\'))){print(\'已过期\')}else{print(\'未开始\')}%></span>'+
+'</p>'+
 '<%_.each(votes, function(vote, i){%>'+
-'<%if(+vote.attach.get(\'type\')===1){%>'+
-'	<div class="editor-vote-wraper vote-single <%if(!vote.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
-'		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">'+
+'<%if(+vote.attach.get(\'type\')===0){%>'+
+'	<div class="editor-vote-wraper vote-single <%if(!vote.attach.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'		<h4><%=vote.attach.get(\'title\')%></h4>'+
 '		<div class="vote-body">'+
-'			<h4><%=vote.attach.get(\'title\')%></h4>'+
 '			<ul>'+
-'				<%_.each(vote.attach.attach.models,function(opt,i){ %> '+
-'					<li data-id="<%=i%>"  class="<%if(opt.checked){print(\'checked\')}%>">'+
-'						<%if(vote.user_voted){%>'+
+'				<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
+'						<%if(vote.attach.user_voted){%>'+
+'						<p>'+
+'							<%=opt.attach.get(\'value\')%>'+
+'						</p>'+
+'						<div style="height:10px;">'+
+'							<p class="vote-state-bar">'+
+'								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
+'							</p>'+
+'							<span class="vote-state"><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%</span>'+
+'						</div>'+
+'						<%}else{%>'+
+'						<div class="<%if(opt.checked){print(\'active\')}%>">'+
+'							<%if(opt.attach.get(\'img\')){%>'+
+'							<span class="img">'+
+'								<img src="<%=opt.attach.get(\'img\')%>">'+
+'							</span>'+
+'							<%}%>'+
+'							<span><%=opt.attach.get(\'value\')%></span>'+
+'						</div>'+
+'						<%}%>'+
+'					</li>'+
+'				<%})%>'+
+'			</ul>'+
+'		</div>'+
+'	</div>'+
+'<%}else{%>'+
+'	<div class="editor-vote-wraper vote-multiple <%if(!vote.attach.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'		<h4><%=vote.attach.get(\'title\')%></h4>'+
+'		<div class="vote-body">'+
+'			<ul>'+
+'				<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
+'						<%if(vote.attach.user_voted){%>'+
+'						<p>'+
+'							<%=opt.attach.get(\'value\')%>'+
+'						</p>'+
+'						<div style="height:10px;">'+
+'							<p class="vote-state-bar">'+
+'								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
+'							</p>'+
+'							<span class="vote-state"><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%</span>'+
+'						</div>'+
+'						<%}else{%>'+
+'						<div class="<%if(opt.checked){print(\'active\')}%>">'+
+'							<%if(opt.attach.get(\'img\')){%>'+
+'							<span class="img">'+
+'								<img src="<%=opt.attach.get(\'img\')%>">'+
+'							</span>'+
+'							<%}%>'+
+'							<span><%=opt.attach.get(\'value\')%></span>'+
+'						</div>'+
+'						<%}%>'+
+'					</li>'+
+'				<%})%>'+
+'			</ul>'+
+'		</div>'+
+'	</div>'+
+'<%}%>'+
+'<%})%>'+
+''+
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(new Date()<new Date(group.get(\'e_time\')) && new Date()>=new Date(group.get(\'s_time\'))){%>'+
+'<%_.each(votes, function(vote, i){%>'+
+'<%if(+vote.attach.get(\'type\')===0){%>'+
+'	<div class="editor-vote-wraper vote-single <%if(!vote.attach.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">'+
+'		<h4><%=vote.attach.get(\'title\')%></h4>'+
+'		<div class="vote-body">'+
+'			<ul>'+
+'				<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
+'						<%if(vote.attach.user_voted){%>'+
 '						<p>'+
 '							<%=opt.attach.get(\'value\')%>'+
 '						</p>'+
@@ -209,19 +284,19 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '				<%})%>'+
 '			</ul>'+
 '			<a href="javascript:;" class="user-vote">'+
-'				<%if(vote.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'				<%if(vote.attach.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
 '			</a>'+
 '		</div>'+
 '	</div>'+
 '<%}else{%>'+
-'	<div class="editor-vote-wraper vote-multiple <%if(!vote.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'	<div class="editor-vote-wraper vote-multiple <%if(!vote.attach.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">'+
+'		<h4><%=vote.attach.get(\'title\')%></h4>'+
 '		<div class="vote-body">'+
-'			<h4><%=vote.attach.get(\'title\')%></h4>'+
 '			<ul>'+
-'				<%_.each(vote.attach.attach.models,function(opt,i){ %> '+
-'					<li data-id="<%=i%>"  class="<%if(opt.checked){print(\'checked\')}%>">'+
-'						<%if(vote.user_voted){%>'+
+'				<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
+'						<%if(vote.attach.user_voted){%>'+
 '						<p>'+
 '							<%=opt.attach.get(\'value\')%>'+
 '						</p>'+
@@ -245,14 +320,12 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '				<%})%>'+
 '			</ul>'+
 '			<a href="javascript:;" class="user-vote">'+
-'				<%if(vote.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'				<%if(vote.attach.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
 '			</a>'+
 '		</div>'+
 '	</div>'+
 '<%}%>'+
 '<%})%>'+
 ''+
-'<%}else{%>'+
-'	end'+
-'<%}%>'+
+'<%}else{%><%}%>'+
 '';return tpl;});

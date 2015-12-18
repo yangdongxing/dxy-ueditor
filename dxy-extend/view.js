@@ -181,7 +181,7 @@
 		toAppropriateView : function(ele){
 			if(!ReplacedView.platform){
 				if(isPC()){
-					if(window.location.href.indexOf('admin/column')!==-1){
+					if(/admin\/column\/\d+/.test(window.location.href)){
 						ReplacedView.platform = 'editor';
 					}else{
 						ReplacedView.platform = 'pc';
@@ -333,16 +333,22 @@
 					throw new Error('requrie onModalConfirm');
 				}
 				var res = me.onModalConfirm();
+				if(me.saving){
+					return;
+				}
+				me.saving = true;
 				if(res.then){
 					res.then(function(){
+						me.saving = false;
 						modal.modal('hide');
 						me.toEditorView().then(function(){
 							me.mount(UE.getEditor('editor-box').selection.getRange());
 						});
 					}, function(){
-
+						me.saving = false;
 					});
 				}else{
+					me.saving = false;
 					if(res){
 						modal.modal('hide')
 						me.toEditorView().then(function(){

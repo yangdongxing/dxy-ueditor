@@ -1,14 +1,14 @@
-<%if(new Date()<new Date(group.get('e_time'))){%>
+<%if(new Date()<new Date(group.get('e_time')) && new Date()>=new Date(group.get('s_time'))){%>
 <%_.each(votes, function(vote, i){%>
-<%if(+vote.attach.get('type')===1){%>
-	<div class="editor-vote-wraper vote-single <%if(!vote.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+<%if(+vote.attach.get('type')===0){%>
+	<div class="editor-vote-wraper vote-single <%if(!vote.attach.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
 		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">
+		<h4><%=vote.attach.get('title')%></h4>
 		<div class="vote-body">
-			<h4><%=vote.attach.get('title')%></h4>
 			<ul>
-				<%_.each(vote.attach.attach.models,function(opt,i){ %> 
-					<li data-id="<%=i%>"  class="<%if(opt.checked){print('checked')}%>">
-						<%if(vote.user_voted){%>
+				<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
+						<%if(vote.attach.user_voted){%>
 						<p>
 							<%=opt.attach.get('value')%>
 						</p>
@@ -32,19 +32,19 @@
 				<%})%>
 			</ul>
 			<a href="javascript:;" class="user-vote">
-				<%if(vote.user_voted){print('已投票')}else{print('我要投票')}%>
+				<%if(vote.attach.user_voted){print('已投票')}else{print('我要投票')}%>
 			</a>
 		</div>
 	</div>
 <%}else{%>
-	<div class="editor-vote-wraper vote-multiple <%if(!vote.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+	<div class="editor-vote-wraper vote-multiple <%if(!vote.attach.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
 		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">
+		<h4><%=vote.attach.get('title')%></h4>
 		<div class="vote-body">
-			<h4><%=vote.attach.get('title')%></h4>
 			<ul>
-				<%_.each(vote.attach.attach.models,function(opt,i){ %> 
-					<li data-id="<%=i%>"  class="<%if(opt.checked){print('checked')}%>">
-						<%if(vote.user_voted){%>
+				<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
+						<%if(vote.attach.user_voted){%>
 						<p>
 							<%=opt.attach.get('value')%>
 						</p>
@@ -68,13 +68,11 @@
 				<%})%>
 			</ul>
 			<a href="javascript:;" class="user-vote">
-				<%if(vote.user_voted){print('已投票')}else{print('我要投票')}%>
+				<%if(vote.attach.user_voted){print('已投票')}else{print('我要投票')}%>
 			</a>
 		</div>
 	</div>
 <%}%>
 <%})%>
 
-<%}else{%>
-	end
-<%}%>
+<%}else{%><%}%>

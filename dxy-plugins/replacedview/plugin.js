@@ -16,7 +16,7 @@
         }
         me.addOutputRule(function(root){
 			root.traversal(function(node){
-				if(node.getAttr('class')==='dxy-meta-replaced-view' ){ 
+				if(node.getAttr && node.getAttr('class') && node.getAttr('class')==='dxy-meta-replaced-view' ){ 
 					var view = ReplacedView.getInstance(node.getAttr('data-type'));
 					if(view){
 						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));

@@ -1,7 +1,7 @@
 <div>
   <ul class="nav nav-tabs" role="tablist">
-    <li role="presentation" id="vote-edit-tab" class="<%if(panel!='votelist'){print('active')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票编辑</a></li>
-    <li role="presentation" id="vote-list-tab" class="<%if(panel=='votelist'){print('active')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票</a></li>
+    <li role="presentation" id="vote-edit-tab" class="<%if(panel!='votelist'){print('active')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票组编辑</a></li>
+    <li role="presentation" id="vote-list-tab" class="<%if(panel=='votelist'){print('active')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票组</a></li>
   </ul>
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane <%if(panel!='votelist'){print('active')}%>" id="add-vote">
@@ -16,6 +16,12 @@
           </div>
           <p class="text-muted form-group clearfix">
           	<span class="col-sm-3"></span><span class="col-sm-9">投票名称只用于管理，不显示在下发的投票内容中</span></p>
+           <div class="form-group clearfix">
+            <label class="col-sm-3">开始时间：</label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control group-date" placeholder="" name="group-s_time" value="<%=mark.get('group').get('s_time')%>">
+            </div>
+          </div>
           <div class="form-group clearfix">
             <label class="col-sm-3">截止时间：</label>
             <div class="col-sm-9">
@@ -25,7 +31,7 @@
           <div class="form-group clearfix">
             <label class="col-sm-3">投票权限：</label>
             <div class="col-sm-9">
-              <input type="radio" placeholder="" id="status_1" name="group-status" <%if(mark.get('group').get('status')==''){print('checked')}%> value="0">
+              <input type="radio" placeholder="" id="status_1" name="group-status" <%if(mark.get('group').get('status')=='0'){print('checked')}%> value="0">
               <label for="status_1">禁用</label>
               <input type="radio" placeholder="" name="group-status" id="status_2" <%if(mark.get('group').get('status')=='1'){print('checked')}%> value="1">
               <label for="status_2">正常</label>
@@ -107,6 +113,7 @@
 				<tr>
 					<th>#</th>
 					<th>名称</th>
+					<th>开始时间</th>
 					<th>截止时间</th>
 					<th>投票权限</th>
 					<th>操作</th>
@@ -114,9 +121,10 @@
 			</thead>
 			<tbody>
 				<%_.each(votelist.models, function(vote, i){%>
-				<tr>
+				<tr class="<%if(new Date()<new Date(vote.get('e_time')) && new Date()>=new Date(vote.get('s_time'))){print('success')}%>">
 					<td><%=vote.get('id')%></td>
 					<td><%=vote.get('title')%></td>
+					<td><%=vote.get('s_time')%></td>
 					<td><%=vote.get('e_time')%></td>
 					<td><%if(vote.get('status')==0){print('禁用')}else if(vote.get('status')==1){print('正常')}else{print('删除')}%></td>
 					<td>

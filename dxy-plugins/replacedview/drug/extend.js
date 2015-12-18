@@ -27,7 +27,7 @@
 			return this.toEditorView();
 		},
 		toWebView : function(){
-			var ele = this.createWrapNode(),
+			var ele = this.createWrapNode(true),
 				me = this,
 				dtd = $.Deferred();
 			var tpl = '<span>'+this.data.drug_name+'</span>';
