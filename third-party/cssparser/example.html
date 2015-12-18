@@ -1,0 +1,273 @@
+<html>
+	<head>
+		<script type="text/javascript" src="./cssparser.js"></script>
+	</head>
+	<body>
+		example
+	</body>
+	<script type="text/style" id="tpl">
+.abt-contanier{
+	background: #fff;
+}
+.abt-header .banner{
+	margin: 0 auto;
+	width: 100%; height: 565px;
+	text-indent: -99em; overflow: hidden;
+	background: url(http://assets.dxycdn.com/app/dxydoctor/img/about/banner.jpg) center 0 no-repeat;
+}
+.abt-wrap{
+	margin: 0 auto;
+	width: 1000px;
+}
+.abt-mod-blk{
+	padding: 50px 65px 50px 45px;
+}
+.abt-mod-blk .sub{
+	position: relative;
+}
+.sec-fl{
+	float: left;
+}
+.sec-fr{
+	float: right;
+}
+.abt-line{
+	position: relative;
+	border-bottom: 1px solid #ccc;
+}
+
+.abt-blk2, .abt-blk3, .abt-blk4{
+	background: #eee;
+}
+
+.sec-info h2{
+	font-size: 34px; margin-bottom: 10px;
+	/*height: 45px; line-height: 45px;*/
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.sec-fr.sec-info{
+	right: 0;
+}
+.sec-info{
+	position: absolute; top: 50%; 
+	-webkit-transform: translate(0, -50%);
+	-moz-transform: translate(0, -50%);
+	-ms-transform: translate(0, -50%);
+	transform: translate(0, -50%);
+}
+.sec-info .txt{
+	padding-left: 5px;
+	font-size: 22px;
+	font-size: 1.4;
+}
+.sec-info .btn-box{
+	margin-top: 10px;
+}
+.sec-info .btn-box a{
+	padding-left: 5px;
+	color: #999; font-size: 20px;
+}
+.sec-img1{
+	width: 490px; height: 310px;
+	overflow-x: scroll;
+	/*background: url(http://assets.dxycdn.com/app/dxydoctor/img/about/img1.jpg) 0 0 no-repeat;*/
+}
+.sec-img1 .box{
+	width: 400%;
+}
+.sec-img1 img{
+	margin-right: 20px;
+	float: left;
+}
+.sec-img2{
+	width: 443px; height: 283px;
+	background: url(http://assets.dxycdn.com/app/dxydoctor/img/about/img2.jpg) 0 0 no-repeat;
+}
+.sec-img3{
+	width: 501px; height: 374px;
+	background: url(http://assets.dxycdn.com/app/dxydoctor/img/about/img3.jpg) 0 0 no-repeat;
+}
+.sec-img4{
+	width: 423px; height: 294px;
+	background: url(http://assets.dxycdn.com/app/dxydoctor/img/about/img4.jpg) 0 0 no-repeat;
+}
+
+.team-box{
+}
+.team-box h3{
+	margin-top: 10px;
+	height: 80px; line-height: 80px;
+	text-align: center;
+	font-size: 30px; color: #666;
+	border-bottom: 2px solid #eee;
+}
+.team-box .slide{
+	position: relative;
+	padding: 40px 0 20px;
+	height: 370px;
+	overflow: hidden;
+}
+.slide .slide-cnt{
+	margin: 0 auto;
+	width: 330px; height: 398px!important;
+}
+.slide .item{
+	width: 100%;
+	color: #666; font-size: 12px; text-align: center;
+}
+.slide .item .ava{
+	display: inline-block;
+	position: relative;
+	width: 330px; height: 230px;
+	overflow: hidden;
+}
+.eas-rotate{
+	-webkit-transition: all .6s linear;
+	-moz-transition: all .6s linear;
+	-o-transition: all .6s linear;
+	-ms-transition: all .6s linear;
+	transition: all .6s linear;
+
+	-webkit-transform: rotateY(-360deg);
+	-moz-transform: rotateY(-360deg);
+	-o-transform: rotateY(-360deg);
+	-ms-transform: rotateY(-360deg);
+	transform: rotateY(-360deg);
+}
+
+.slide .wish{
+	margin: 50px 0 20px;
+	font-size: 20px;
+}
+.slide .name-card{
+	margin-bottom: 20px;
+}
+.slide .name-card i{
+	display: inline-block; 
+	width: 16px; height: 18px; margin-right: 10px;
+	vertical-align: middle;
+	background: url(http://assets.dxycdn.com/app/dxydoctor/img/about/msg.jpg) 0 0 no-repeat;
+}
+.slide-pager{
+	position: absolute; top: 290px; left: 50%;
+	float: left;
+}
+.slide-pager a{
+	position: relative;
+	float: left; right: 50%;
+	display: block;
+	margin: 0 4px;
+	width: 10px; height: 10px; 
+	overflow: hidden; text-indent: -99em;
+	border-radius: 150px;
+	background: #ccc;
+}
+.slide-pager a.activeSlide{
+	background: #333;
+}
+.btn-prev{
+	position: absolute; top: 140px; left: 50%;
+	margin-left: -235px;
+}
+.btn-next{
+	position: absolute; top: 140px; left: 50%;
+	margin-left: 195px;
+}
+.btn-prev:before, .btn-prev:after,
+.btn-next:before, .btn-next:after{
+	content: ' '; 
+	position: absolute; top: 0; left: 0;
+	width: 0; height: 0; 
+	border: 20px solid #ddd;
+	border-color: transparent #303030 transparent transparent;
+}
+.btn-next:before{
+	border-color: transparent transparent transparent #303030;
+}
+.btn-next:after{
+	content: ' '; left: 0; top: 3px;
+	border-width: 17px;
+	border-color: transparent transparent transparent #fff;
+}
+.btn-prev:after{
+	content: ' '; left: 6px; top: 3px;
+	border-width: 17px;
+	border-color: transparent #fff transparent transparent;
+}
+.btn-prev.none:before{
+	border-color: transparent #eee transparent transparent;
+}
+.btn-next.none:before{
+	border-color: transparent transparent transparent #eee;
+}
+
+.abt-footer{
+	/*margin: 0 auto; padding: 0 20px;*/
+	/*width: 960px;*/
+	background: #eee;
+}
+.abt-footer .wx-box{
+	padding: 80px 60px;
+	text-align: center;
+}
+.abt-footer .img-box{
+	margin: 0 auto 10px;
+	width: 128px; height: 128px; 
+	background: url(http://assets.dxycdn.com/app/dxydoctor/img/column/qr.png) center center no-repeat;
+}
+.abt-footer .img-txt{
+	color: #ccc; font-size: 12px;
+}
+.abt-footer .copyright{
+	padding: 15px 0;
+	text-align: center; font-size: 12px;
+	background: #f8f8f8;
+	border-top: 1px solid #e7e7e7;
+}
+.abt-footer .copyright a{
+	color: #666; line-height: 1.8;
+}
+.abt-footer .copyright a:hover{
+	text-decoration: none;
+}
+.abt-footer .copyright a::before {
+	display: inline-block;
+	width: 1px;
+	height: 12px;
+	margin: 0 9px 0 6px;
+	background: #ccc;
+	vertical-align: -2px;
+	content: '';
+}
+.abt-footer .copyright a:first-child:before{
+	display: none;
+}
+
+.video-box{
+	max-width: 500px;
+	width: 90%;
+	margin: 0 auto;
+	padding: 5% 5%;
+}
+.video-tit{
+	margin-bottom: 3%;
+	font-size: 1.8rem;
+}
+.video-cnt{
+	/*text-align: center;*/
+}
+.video-cnt iframe{
+	width: 100%; height: 312px;
+	max-width: 640px;
+	max-height: 400px;
+}
+
+
+.abt-m-banner, .abt-m-txt, .abt-m-blk{display: none;}
+
+	</script>
+	<script type="text/javascript">
+var str = document.getElementById('tpl').innerHTML;
+var styles = CssParser.parse(str);
+	</script>
+</html>
