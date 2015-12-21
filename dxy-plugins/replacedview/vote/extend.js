@@ -48,34 +48,36 @@
 			me.view = view;
 			require(['VoteModel'], function(m){
 				me.setElement($('#dxy-vote-modal .modal-body')[0]);
-				if(!view.data.group_id){
-					var mark = new m.VoteMarkModel({});
-					me.model = mark;
-					me.model.on('change', this.render, this);
-					me.render();
-				}else{
-						var mark = new m.VoteMarkModel({obj_id:view.data.group_id,type:10});
-						mark.fetch({
-							success:function(model, res){
-								if(res.error){
-									view.modal.modal('hide');
-									alert(res.error.message);
-									return;
-								}
-								me.model = mark;
-								me.model.on('change', function(){
-									me.render();
-									console.log(me);
-									window.m = me.model;
-								});
-								me.render();
-							},
-							error : function(model,res){
-								alert(res.error.message);
-								view.modal.modal('hide');
-							}
-						});
-				}
+				// if(!view.data.group_id){
+				// 	var mark = new m.VoteMarkModel({});
+				// 	me.model = mark;
+				// 	me.model.on('change', this.render, this);
+				// 	me.render();
+				// }else{
+				// 		var mark = new m.VoteMarkModel({obj_id:view.data.group_id,type:10});
+				// 		mark.fetch({
+				// 			success:function(model, res){
+				// 				if(res.error){
+				// 					view.modal.modal('hide');
+				// 					alert(res.error.message);
+				// 					return;
+				// 				}
+				// 				me.model = mark;
+				// 				me.model.on('change', function(){
+				// 					me.render();
+				// 					console.log(me);
+				// 					window.m = me.model;
+				// 				});
+				// 				me.render();
+				// 			},
+				// 			error : function(model,res){
+				// 				alert(res.error.message);
+				// 				view.modal.modal('hide');
+				// 			}
+				// 		});
+				// }
+				me.model = new m.VoteMarkModel({});
+				me.fetchVoteList();
 			});
 		},
 		fetchData : function(group_id){
@@ -379,7 +381,6 @@
 					return true;
 				}catch(e){
 					alert(e.message);
-					tag = false;
 					return false
 				}
 		}
@@ -631,17 +632,21 @@
 		}, 
 		onModalConfirm : function(){
 			var data, dtd = $.Deferred(),me =this;
-			if(this.vote.verify()){
-				this.vote.model.confirm().then(function(){
-					me.data.group_id = me.vote.model.get('group').get('id');
-					dtd.resolve();
-				},function(){
+			me.vote.model.save({}, {data : {obj_id: me.vote.model.get('group').get('id'), type: 10}}).success(function(res){
+				if(res.error){
+					alert(res.error.message);
 					dtd.reject();
-				});
-				return dtd;
-			}else{
-				return false;
-			}
+					return;
+				}
+				me.data.obj_id = me.data.group_id = me.vote.model.get('group').get('id');
+				me.data.type_id = 10;
+				me.data.id = res.data.items[0].id;
+				dtd.resolve();
+			}).error(function(){
+				alert('保存标记失败');
+				dtd.reject();
+			});
+			return dtd;
 		},
 		modalInit : function(){
 			

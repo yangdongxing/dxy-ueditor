@@ -10,14 +10,22 @@
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/mobile.view'], function(v){
-				var t = _.template(v);
-				me.el.innerHTML = t({
-				  	drug_name : '倍德汀 （聚维酮碘溶液)',
-				  	drug_tags : ['医保'],
-				  	drug_company : '史达德药业 （北京）有限公司'
+			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
+				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+				mark.fetch().success(function(res){
+					if(res.error){
+						return;
+					}
+					var t = _.template(v);
+					me.el.innerHTML = t({
+					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
+					  	is_medicare : res.data.items[0].is_medicare,
+					  	drug_company : '史达德药业 （北京）有限公司'
+					});
+					me.trigger('render');
+				}).error(function(){
+
 				});
-				me.trigger('render');
 			});
 		  	return this;
 		}
@@ -27,6 +35,7 @@
 			return this.toEditorView();
 		},
 		toWebView : function(){
+			return toAppView();
 			var ele = this.createWrapNode(true),
 				me = this,
 				dtd = $.Deferred();
@@ -51,12 +60,26 @@
 				me = this,
 				dtd = $.Deferred();
 			ele.setAttribute('contenteditable', 'false');
-			var tpl = '<span>'+this.data.drug_name+'</span>';
-			ele.innerHTML = tpl;
-			this.ele = ele;
-			setTimeout(function(){
-				dtd.resolve();
-			}, 0);
+			require(['MarkModel'], function(m){
+				var mark = new m.MarkModel({obj_id: me.data.obj_id, type: me.data.type_id});
+				mark.fetch().success(function(res){
+					if(res.error){
+						alert(res.error.message);
+						dtd.reject();
+						return;
+					}
+					var tpl = '';
+					for(var prop in res.data.items[0]){
+						tpl += (res.data.items[0][prop]+'<br>');
+					}
+					ele.innerHTML = tpl;
+					me.ele = ele;
+					dtd.resolve();
+				}).error(function(res){
+					dtd.reject();
+					alert('网络错误');
+				});
+			});			
 			return dtd;
 		},
 		onModalShow : function(){
@@ -66,10 +89,25 @@
 			this.modal.find('#drug-id').keyup();
 		},
 		onModalConfirm : function(){
-			if(this.verifyDrugId() && this.drugData && this.modal.find('#drug-id').val()==this.drugData.id){
-				this.data.drug_name = this.drugData.name;
-				this.data.drug_id = this.drugData.id;
-				return true;
+			var me = this,
+				dtd = $.Deferred();
+			if(this.verifyDrugId()){
+				require(['MarkModel'], function(m){
+					var mark = new m.MarkModel({obj_id: me.modal.find('#drug-id').val(), type: 1});
+					mark.save({},{data : mark.attributes}).success(function(res){
+						if(res.error){
+							alert(res.error.message);
+							dtd.reject();
+							return;
+						}
+						me.data.obj_id = me.modal.find('#drug-id').val();
+						me.data.type_id = 1;
+						dtd.resolve();
+					}).error(function(res){
+						alert('网络错误');
+					});
+				});
+				return dtd;
 			}else{
 				return false;
 			}
@@ -88,27 +126,27 @@
 		},
 		verifyDrugId : function(){
 			var val = this.modal.find('#drug-id').val();
-			return /\d{5}/.test(val);
+			return /\d+/.test(val);
 		},
 		modalInit : function(){
-			var me = this;
-			me.modal.find('#drug-id').on('keyup', function(){
-				if(me.verifyDrugId()){	
-					me.modal.find('#J-drug-info').text('检索数据中...');
-					me.fetchDrugData().then(function(res){
-						if(res.type===0){
-							me.modal.find('#J-drug-info').text('该药品 ID 不存在，请查验');
-						}else{
-							me.modal.find('#J-drug-info').text(res.name);
-							me.drugData = res;
-						}
-					}, function(){
-						alert('网络错误');
-					});
-				}else{
-					me.modal.find('#J-drug-info').text('请输入5位药品数字ID');
-				}
-			});
+			// var me = this;
+			// me.modal.find('#drug-id').on('keyup', function(){
+			// 	if(me.verifyDrugId()){	
+			// 		me.modal.find('#J-drug-info').text('检索数据中...');
+			// 		me.fetchDrugData().then(function(res){
+			// 			if(res.type===0){
+			// 				me.modal.find('#J-drug-info').text('该药品 ID 不存在，请查验');
+			// 			}else{
+			// 				me.modal.find('#J-drug-info').text(res.name);
+			// 				me.drugData = res;
+			// 			}
+			// 		}, function(){
+			// 			alert('网络错误');
+			// 		});
+			// 	}else{
+			// 		me.modal.find('#J-drug-info').text('请输入5位药品数字ID');
+			// 	}
+			// });
 		}
 	});
 })();

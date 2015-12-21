@@ -1,0 +1,10 @@
+<%if(marks){%>
+
+<%_.each(marks, function(mark){%>
+
+<a class="btn btn-default center-block mark-item" href="#" role="button" style="width:40%;" data-id=<%=mark.id%>><%=mark.name%></a>
+<br>
+
+<%})%>
+
+<%}%>

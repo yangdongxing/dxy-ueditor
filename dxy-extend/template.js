@@ -7,25 +7,33 @@ define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<div c
 '		<p><%=drug_company%></p>'+
 '	</div>'+
 '	<div class="m-drug-view-footer">'+
-'		<%if(drug_tags){%>'+
-'		<%_.each(drug_tags, function(tag){%>'+
-'		<span class="tag"><%=tag%></span>'+
-'		<%})%>'+
+'		<%if(is_medicare){%>'+
+'		<span class="tag">医保</span>'+
 '		<%}%>'+
 '		<span class=\'right-arrow\'>></span>'+
 '	</div>'+
 '</div>';return tpl;});
+define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
+''+
+'<%_.each(marks, function(mark){%>'+
+''+
+'<a class="btn btn-default center-block mark-item" href="#" role="button" style="width:40%;" data-id=<%=mark.id%>><%=mark.name%></a>'+
+'<br>'+
+''+
+'<%})%>'+
+''+
+'<%}%>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box <%if(cls){print(cls)}%>">'+
 '	<p><%=title%></p>'+
 '	<a href="javascript:;"><%=button_title%></a>'+
 '</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
 '  <ul class="nav nav-tabs" role="tablist">'+
-'    <li role="presentation" id="vote-edit-tab" class="<%if(panel!=\'votelist\'){print(\'active\')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票组编辑</a></li>'+
-'    <li role="presentation" id="vote-list-tab" class="<%if(panel==\'votelist\'){print(\'active\')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票组</a></li>'+
+'    <!-- <li role="presentation" id="vote-edit-tab" class="<%if(panel!=\'votelist\'){print(\'active\')}%>"><a href="#add-vote" aria-controls="add-vote" role="tab" data-toggle="tab">投票组编辑</a></li> -->'+
+'   <!--  <li role="presentation" id="vote-list-tab" class="<%if(panel==\'votelist\'){print(\'active\')}%>"><a href="#vote-list" aria-controls="vote-list" role="tab" data-toggle="tab">已有投票组</a></li> -->'+
 '  </ul>'+
 '  <div class="tab-content">'+
-'    <div role="tabpanel" class="tab-pane <%if(panel!=\'votelist\'){print(\'active\')}%>" id="add-vote">'+
+'    <div role="tabpanel" class="tab-pane" id="add-vote">'+
 '    <%if(mark.get(\'group\')){%>'+
 '		<form style="margin-top:20px;">'+
 '          <div class="form-group clearfix">'+
@@ -127,7 +135,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '		<a class="btn btn-default center-block" href="#" role="button" style="width:40%;" id="J-new-group">新投票</a>'+
 '	<%}%>'+
 '    </div>'+
-'    <div role="tabpanel" class="tab-pane <%if(panel==\'votelist\'){print(\'active\')}%>" id="vote-list">'+
+'    <div role="tabpanel" class="tab-pane active" id="vote-list">'+
 '    	<%if(votelist){%>'+
 '		<table class="table table-hover">'+
 '			<thead>'+

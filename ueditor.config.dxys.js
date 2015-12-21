@@ -77,7 +77,7 @@
             'insertorderedlist', 'insertunorderedlist', '|',
             'dxylink', 'horizontal','blockquote' ,'|',
             'dxyupload','inserttable','|',
-            'superscript', 'subscript','|','onekeyreplace', 'copytowechat', 'vote'
+            'superscript', 'subscript','|','onekeyreplace', 'copytowechat','mark'
             
         ]]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准

@@ -132,7 +132,7 @@ define('VoteModel', function(){
 					options.url = API_HOST + 'admin/i/vote/node/add';
 					break;
 				case 'read' :
-					options.url = API_HOST + 'admin/i/vote/node/list';
+					options.url = API_HOST + 'admin/i/vote/node/list' + '?page_index='+this.page_index+'&items_per_page='+this.items_per_page;
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -321,7 +321,7 @@ define('VoteModel', function(){
 					options.url = API_HOST + 'admin/i/vote/add';
 					break;
 				case 'read':
-					options.url = API_HOST + 'admin/i/vote/list';
+					options.url = API_HOST + 'admin/i/vote/list' + '?page_index='+this.page_index+'&items_per_page='+this.items_per_page;
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -527,6 +527,9 @@ define('VoteModel', function(){
 				case 'create':
 					options.url = API_HOST + 'admin/i/functionmarker/add';
 					break;
+				case 'delete':
+					options.url = API_HOST + 'admin/i/functionmarker/delete';
+					break;
 			}
 			return Backbone.sync(method, model, options);
 		},
@@ -689,23 +692,6 @@ define('VoteModel', function(){
 			try{
 				var root = this.get('group');
 				save(root);
-				if(!this.get('obj_id')){
-					this.save({},{
-						data: {
-							obj_id : root.get('id'),
-							type : 10,
-						},
-					 	async : false,
-					 	success : function(res){
-					 		if(res.error){
-					 			throw new Error('保存失败');
-					 		}
-					 	},
-					 	error : function(){
-					 		throw new Error('保存失败');
-					 	}
-					})
-				}
 				setTimeout(function(){
 					dtd.resolve();
 				},0);
