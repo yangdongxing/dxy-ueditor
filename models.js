@@ -97,6 +97,15 @@ define('VoteModel', function(){
 				}
 			});
 			return res;
+		},
+		search : function(q, len){
+			len = len || 6;
+			if(this.searchXHR){
+				this.searchXHR.abort();
+				this.searchXHR = null;
+			}
+			this.searchXHR = this.fetch({items_per_page: len, search: q});
+			return this.searchXHR;
 		}
 	});
 	var NodeModel = Backbone.Model.extend({
@@ -155,12 +164,18 @@ define('VoteModel', function(){
 	var NodesModel = BaseListModel.extend({
 		model : NodeModel,
 		sync : function(method, model, options){
+			var page_index = options.page_index || this.page_index;
+			var items_per_page = options.items_per_page || this.items_per_page;
 			switch(method){
 				case 'create' : 
 					options.url = API_HOST + 'admin/i/vote/node/add';
 					break;
 				case 'read' :
-					options.url = API_HOST + 'admin/i/vote/node/list' + '?page_index='+this.page_index+'&items_per_page='+this.items_per_page;
+					if(options.search){
+						options.url = API_HOST + 'admin/i/vote/node/search?q='+options.search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+					}else{
+						options.url = API_HOST + 'admin/i/vote/node/list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+					}
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -230,7 +245,7 @@ define('VoteModel', function(){
 		sync : function(method, model, options){
 			switch(method){
 				case 'read':
-					options.url = API_HOST + 'admin/i/vote/node/link/list';
+					options.url = API_HOST + 'admin/i/vote/node/link/list?vote_id='+this.id+'&items_per_page=100';
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -248,6 +263,43 @@ define('VoteModel', function(){
 				console.log('vote change');
 			});
 			Backbone.Model.apply(this,arguments);
+		},
+		gen : function(opt){
+			try{
+				this.attach.id = this.get('id');
+				this.attach.fetch({
+					async: false,
+					success : function(res){
+						if(res.error){
+							throw new Error('获取NodeLinks数据失败');
+						}
+					},
+					error : function(){
+						if(res.error){
+							throw new Error('获取获取NodeLinks数据失败失败');
+						}
+					}
+				});
+				_.each(this.attach.models, function(nodelink){
+					nodelink.attach.fetch({
+						async: false,
+						success : function(res){
+							if(res.error){
+								throw new Error('获取Node数据失败');
+							}
+						},
+						error : function(){
+							if(res.error){
+								throw new Error('获取获取Node数据失败失败');
+							}
+						}
+					});
+					nodelink.attach.processInData();
+				});
+				opt.success();
+			}catch(e){
+				opt.error(e.message);
+			}
 		},
 		sync : function(method, model, options){
 			switch(method){
@@ -335,7 +387,9 @@ define('VoteModel', function(){
 					dtd.reject();
 				});
 			}else{
-				return this.attach.remove(votelink);
+				setTimeout(function(){
+					me.attach.remove(votelink);
+				},0);
 			}
 			return dtd;
 		}
@@ -344,12 +398,18 @@ define('VoteModel', function(){
 	var VotesModel = BaseListModel.extend({
 		model : VoteModel,
 		sync : function(method, model, options){
+			var page_index = options.page_index || this.page_index;
+			var items_per_page = options.items_per_page || this.items_per_page;
 			switch(method){
 				case 'create':
 					options.url = API_HOST + 'admin/i/vote/add';
 					break;
 				case 'read':
-					options.url = API_HOST + 'admin/i/vote/list' + '?page_index='+this.page_index+'&items_per_page='+this.items_per_page;
+					if(options.search){
+						options.url = API_HOST + 'admin/i/vote/search?q='+options.search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+					}else{
+						options.url = API_HOST + 'admin/i/vote/list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+					}
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -377,7 +437,7 @@ define('VoteModel', function(){
 					options.url = API_HOST + 'admin/i/vote/group/put';
 					break;
 				case 'delete':
-					options.url = API_HOST + 'admin/i/vote/group/delete';
+					options.url = API_HOST + 'admin/i/vote/group/delete?id='+model.get('id');
 					break;
 				case 'create' :
 					options.url = API_HOST + 'admin/i/vote/group/add';
@@ -393,10 +453,52 @@ define('VoteModel', function(){
 			}
 		},
 		getUserVotes : function(){
-			return $.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id'));
+			var dtd = $.Deferred();
+			 $.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).success(function(res){
+			 	dtd.resolve(res);
+			 }).error(function(res){
+			 	dtd.resolve({
+			 		error : {
+			 			code : 101
+			 		}
+			 	});
+			 	console.log(res);
+			 });
+			return dtd;
 		},
 		getVotesStat : function(){
-			return $.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100');
+			var dtd = $.Deferred();
+			 $.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').success(function(res){
+			 	dtd.resolve(res);
+			 }).error(function(res){
+			 	dtd.resolve({
+			 		error : {
+			 			code : 101
+			 		}
+			 	});
+			 });
+			return dtd;
+		},
+		removeVote : function(id){
+			var votelink = this.attach.at(parseInt(id)),
+				dtd = $.Deferred(),
+				me = this;
+			if(votelink.get('id')){
+				votelink.destroy().success(function(res){
+					if(res.error){
+						dtd.reject();
+						return;
+					}
+					me.attach.remove(votelink);
+				}).error(function(res){
+					dtd.reject();
+				});
+			}else{
+				setTimeout(function(){
+					me.attach.remove(votelink)
+				},0);
+			}
+			return dtd;
 		},
 		addVote : function(){
 			var	nodes = this.attach,
@@ -444,17 +546,36 @@ define('VoteModel', function(){
 				dtd.reject(res);
 			});
 			return dtd;
+		},
+		sort : function(){
+			function _sort(list){
+				var len = list.length;
+				_.each(list, function(item, i){
+					item.set('sort', len-i);
+				});
+			}
+			var votelinks = this.attach.models;
+			_sort(votelinks);
+			_.each(votelinks, function(votelink){
+				_sort(votelink.attach.attach.models);
+			});
 		}
 	});
 	var VoteGroupsModel = BaseListModel.extend({
 		model : VoteGroupModel,
 		sync : function(method, model, options){
+			var page_index = options.page_index || this.page_index;
+			var items_per_page = options.items_per_page || this.items_per_page;
 			switch(method){
 				case 'create':
 					options.url = API_HOST + 'admin/i/vote/group/add';
 					break;
 				case 'read':
-					options.url = API_HOST + 'admin/i/vote/group/list' + '?page_index='+this.page_index+'&items_per_page='+this.items_per_page;
+					if(options.search){
+						options.url = API_HOST + 'admin/i/vote/group/search?q='+options.search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+					}else{
+						options.url = API_HOST + 'admin/i/vote/group/list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+					}
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -489,7 +610,7 @@ define('VoteModel', function(){
 					options.url = API_HOST + 'admin/i/vote/group/link/put';
 					break;
 				case 'delete':
-					options.url = API_HOST + 'admin/i/vote/group/link/delete';
+					options.url = API_HOST + 'admin/i/vote/group/link/delete?id='+this.get('id');
 					break;
 				case 'create':
 					options.url = API_HOST + 'admin/i/vote/group/link/add';
@@ -528,7 +649,7 @@ define('VoteModel', function(){
 					options.url = API_HOST + 'admin/i/vote/group/link/add';
 					break;
 				case 'read':
-					options.url = API_HOST + 'admin/i/vote/group/link/list';
+					options.url = API_HOST + 'admin/i/vote/group/link/list?group_id='+this.id+'&items_per_page=100';
 					break;
 			}
 			return Backbone.sync(method, model, options);
@@ -611,13 +732,13 @@ define('VoteModel', function(){
 			if(!resp.data.items[0].title){
 				return resp.data.items[0];
 			}
-			if(resp.data.items[0].votes){
-				_.each(resp.data.items[0].votes, function(vote){
-					if(vote.nodes){
-						vote.nodes.reverse();
-					}
-				});
-			}
+			// if(resp.data.items[0].votes){
+			// 	_.each(resp.data.items[0].votes, function(vote){
+			// 		if(vote.nodes){
+			// 			vote.nodes.reverse();
+			// 		}
+			// 	});
+			// }
 			var group = new VoteGroupModel(resp.data.items[0]);
 			var me = this;
 			me.stopListening();
@@ -663,7 +784,9 @@ define('VoteModel', function(){
 					save(model.attach);
 				}
 				if(model instanceof NodeLinkModel){
-					model.set('node_id', model.attach.get('id'));
+					if(!model.get('node_id')){
+						model.set('node_id', model.attach.get('id'));
+					}
 					if(!model.collection.parent.get('id')){
 						model.collection.parent.save({},{
 							data : model.collection.parent.attributes,
@@ -678,10 +801,14 @@ define('VoteModel', function(){
 							}
 						});
 					}
-					model.set('vote_id',  model.collection.parent.get('id'));
+					if(!model.get('vote_id')){
+						model.set('vote_id',  model.collection.parent.get('id'));
+					}
 				}
 				if(model instanceof VoteGroupLinkModel){
-					model.set('vote_id', model.attach.get('id'));
+					if(!model.get('vote_id')){
+						model.set('vote_id', model.attach.get('id'));
+					}
 					if(!model.collection.parent.get('id')){
 						model.collection.parent.save({},{
 							data : model.collection.parent.attributes, 
@@ -696,7 +823,9 @@ define('VoteModel', function(){
 							}
 						});
 					}
-					model.set('group_id',  model.collection.parent.get('id'));
+					if(!model.get('group_id')){
+						model.set('group_id',  model.collection.parent.get('id'));
+					}
 				}
 				if(model.hasChanged && model.hasChanged()){
 					var _data = model.attributes;
@@ -718,6 +847,7 @@ define('VoteModel', function(){
 				}
 			}
 			try{
+				this.get('group').sort();
 				var root = this.get('group');
 				save(root);
 				setTimeout(function(){
@@ -731,6 +861,93 @@ define('VoteModel', function(){
 				},0);
 			}
 			return dtd;
+		},
+		gen : function(opt){
+			if(!this.get('obj_id')){
+				opt.error('require obj_id');
+				return;
+			}
+			try{
+				this.addGroup(new VoteGroupModel({}));
+				this.get('group').attributes.id = this.get('obj_id');
+				this.get('group').fetch({
+					async: false,
+					success : function(res){
+						if(res.error){
+							throw new Error('获取投票组数据失败');
+						}
+					},
+					error : function(){
+						if(res.error){
+							throw new Error('获取投票组数据失败');
+						}
+					}
+				});
+				this.get('group').attach.id = this.get('group').get('id');
+				this.get('group').attach.fetch({
+					async: false,
+					success : function(res){
+						if(res.error){
+							throw new Error('获取VoteGroupLinksModel数据失败');
+						}
+					},
+					error : function(){
+						if(res.error){
+							throw new Error('获取VoteGroupLinksModel失败');
+						}
+					}
+				});
+				_.each(this.get('group').attach.models, function(votelink){
+					votelink.attach.attributes.id = votelink.get('vote_id');
+					votelink.attach.fetch({
+						async: false,
+						success : function(res){
+							if(res.error){
+								throw new Error('获取Vote数据失败');
+							}
+						},
+						error : function(){
+							if(res.error){
+								throw new Error('获取Vote失败');
+							}
+						}
+					});
+					votelink.attach.attach.id = votelink.attach.get('id');
+					votelink.attach.attach.fetch({
+						async: false,
+						success : function(res){
+							if(res.error){
+								throw new Error('获取NodeLinks数据失败');
+							}
+						},
+						error : function(){
+							if(res.error){
+								throw new Error('获取获取NodeLinks数据失败失败');
+							}
+						}
+					});
+					_.each(votelink.attach.attach.models, function(nodelink){
+						nodelink.attach.fetch({
+							async: false,
+							success : function(res){
+								if(res.error){
+									throw new Error('获取Node数据失败');
+								}
+							},
+							error : function(){
+								if(res.error){
+									throw new Error('获取获取Node数据失败失败');
+								}
+							}
+						});
+						nodelink.attach.processInData();
+					});
+					opt.success();
+				});
+			}catch(e){
+				throw e;
+				opt.error(e.message);
+			}
 		}
 	});
 
@@ -749,8 +966,7 @@ define('VoteModel', function(){
 				vote_id : vid,
 				group_id : gid
 			});
-		},
-
+		}
 	});
 
 	return {

@@ -6,10 +6,4 @@
 		<h4><%=drug_name%></h4>
 		<p><%=drug_company%></p>
 	</div>
-	<div class="m-drug-view-footer">
-		<%if(is_medicare){%>
-		<span class="tag">医保</span>
-		<%}%>
-		<span class='right-arrow'>></span>
-	</div>
 </div>

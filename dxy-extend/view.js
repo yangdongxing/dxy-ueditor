@@ -293,6 +293,7 @@
 		CustomReplacedView.prototype = assign({}, ReplacedView.prototype, instancemethods);
 		classmethods && assign(CustomReplacedView, classmethods);
 		CustomReplacedView.prototype.showModal = function(){
+			console.log('showmodal');
 			if(instancemethods.showModal){
 				instancemethods.showModal.call(this);
 				return;
@@ -308,6 +309,7 @@
 			}
 			me.modal = modal;
 			function onShow(){
+				console.log('show');
 				if(!modal.isInited){
 					if(me.modalInit){
 						me.modalInit();
@@ -321,6 +323,7 @@
 				me.onModalShow();
 			}
 			function onHide(){
+				console.log('hide');
 				if(me.onModalHide){
 					me.onModalHide();
 				}
@@ -329,6 +332,7 @@
 				modal.data('view', null);
 			}
 			function onConfirm(){
+				console.log('confirm');
 				if(!me.onModalConfirm){
 					throw new Error('requrie onModalConfirm');
 				}

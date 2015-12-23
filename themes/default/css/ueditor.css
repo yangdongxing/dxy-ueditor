@@ -2019,3 +2019,17 @@ div.edui-box {
 .limit-length{
     padding-right: 45px;
 }
+#search-list-container{
+    position: absolute;
+    top: 33px;
+    border: 1px solid rgb(204,204,204);
+    width: 100%;
+    background-color: #fff;
+}
+#search-list-container li{
+    padding: 10px;
+    cursor: pointer;
+}
+#search-list-container li:hover{
+    background-color: #eee;
+}

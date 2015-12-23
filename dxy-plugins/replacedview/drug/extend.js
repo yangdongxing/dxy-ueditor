@@ -20,7 +20,7 @@
 					me.el.innerHTML = t({
 					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
 					  	is_medicare : res.data.items[0].is_medicare,
-					  	drug_company : '史达德药业 （北京）有限公司'
+					  	drug_company : res.data.items[0].company
 					});
 					me.trigger('render');
 				}).error(function(){
@@ -32,10 +32,9 @@
 	});
 	window.DrugReplacedView = ReplacedView.register('drug', {
 		toWechatView : function(){
-			return this.toEditorView();
 		},
 		toWebView : function(){
-			return toAppView();
+			return this.toAppView();
 			var ele = this.createWrapNode(true),
 				me = this,
 				dtd = $.Deferred();

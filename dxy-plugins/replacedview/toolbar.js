@@ -1,7 +1,6 @@
 (function(){
 	var MarkView = Backbone.View.extend({
 		initialize : function(editor){
-			this.setElement($('#dxy-mark-modal .modal-body')[0]);
 			this.render();
 			this.editor = editor;
 		},
@@ -44,7 +43,8 @@
 	    });
 
 	    btn.addListener('click', function(){
-	    	new MarkView(editor);
+	    	var v = new MarkView(editor);
+	    	$('#dxy-mark-modal .modal-body').html($(v.el));
 	        $('#dxy-mark-modal').modal('show');
 	    });
 	        
