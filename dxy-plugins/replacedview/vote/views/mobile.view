@@ -1,4 +1,4 @@
-<%if(new Date()<new Date(group.get('e_time')) && new Date()>=new Date(group.get('s_time'))){%>
+<%if(true){%>
 <div class="editor-vote-group <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>" >
 <%_.each(votes, function(vote, i){%>
 <%if(+vote.attach.get('type')===0){%>

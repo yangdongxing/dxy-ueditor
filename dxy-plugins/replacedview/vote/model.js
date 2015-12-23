@@ -425,31 +425,20 @@ define('VoteModel', function(){
 			}
 		},
 		getUserVotes : function(){
-			var dtd = $.Deferred();
-			$.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).then(function(res){
-				dtd.resolve(res);
-			}, function(res){
-				dtd.resolve({
-			 		error : {
-			 			code : 101
-			 		}
-			 	});
-			 	console.log(res);
+			var xhr = $.ajax({
+				async: false,
+				url : API_HOST+'user/i/vote/result/list?group_id='+this.get('id'),
+				type : 'GET'
 			});
-			return dtd;
+			return xhr;
 		},
 		getVotesStat : function(){
-			var dtd = $.Deferred();
-			$.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').then(function(res){
-				dtd.resolve(res);
-			}, function(res){
-				dtd.resolve({
-			 		error : {
-			 			code : 101
-			 		}
-			 	});
+			var xhr = $.ajax({
+				async: false,
+				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
+				type : 'GET'
 			});
-			return dtd;
+			return xhr;
 		},
 		removeVote : function(id){
 			var votelink = this.attach.at(parseInt(id)),

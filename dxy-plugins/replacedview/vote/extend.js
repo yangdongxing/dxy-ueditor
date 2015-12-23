@@ -165,26 +165,36 @@
 									console.log(res);
 									return;
 								}
-								mark.get('group').getUserVotes().then(function(res){
-									var votes = [];
-									if(res.error){
-										if(res.error.code==101){
-											votes = [];
+								try{
+									var xhr = mark.get('group').getUserVotes();
+									if(xhr.readyState===4 && xhr.status===200){
+										var res = JSON.parse(xhr.responseText);
+										var votes = [];
+										if(res.error){
+											if(res.error.code==101){
+												votes = [];
+											}else{
+												console.log(res);
+												return;
+											}
 										}else{
-											console.log(res);
-											return;
+											votes = res.data.items;
 										}
-									}else{
-										votes = res.data.items;
+										_.each(votes, function(vote){
+											var vote_id = vote.vote_id,
+												node_id = vote.node_id;
+											mark.get('group').attach.findByAttachId(vote_id).attach.attach.findByAttachId(node_id).checked = true;
+											mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
+											mark.get('group').user_voted = true;
+										});
 									}
-									_.each(votes, function(vote){
-										var vote_id = vote.vote_id,
-											node_id = vote.node_id;
-										mark.get('group').attach.findByAttachId(vote_id).attach.attach.findByAttachId(node_id).checked = true;
-										mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
-										mark.get('group').user_voted = true;
-									});
-									mark.get('group').getVotesStat().then(function(res){
+								}catch(e){
+
+								}
+								try{
+									xhr = mark.get('group').getVotesStat();
+									if(xhr.readyState===4 && xhr.status===200){
+										var res = JSON.parse(xhr.responseText);
 										if(res.data){
 											_.each(res.data.items, function(item, i){
 												var vote = mark.get('group').attach.findByAttachId(item.vote_id),
@@ -199,17 +209,13 @@
 												opt.total += item.count;
 											});
 										}
-										mark.on('change', me.render, me);
-										me.model = mark;
-										me.render();
-									}, function(res){
-										console.log(res);
-										return;
-									});
-								}, function(res){
-									console.log(res);
-									return;
-								});
+									}
+								}catch(e){
+
+								}
+								mark.on('change', me.render, me);
+								me.model = mark;
+								me.render();
 							},
 							error : function(model,res){
 								console.log(res);
@@ -320,7 +326,12 @@
 						me.render();
 					}, function(res){
 						if(!window.__voted){
-							alert('请登录');
+							me.showAlertBox({
+								title : '请登陆',
+								button_title : '好吧',
+								cls : 'global-alert',
+								container : $('body')
+							});
 						}
 						window.__voted = true;
 					});

@@ -19,7 +19,7 @@ module.exports = function (grunt) {
                 dest : 'themes/wechat.css'
             },
             extend : {
-                src : ['models.js','dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
+                src : ['third-party/date/date.js','models.js','dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
                 dest : 'ueditor.dxy.extend.js'
             },
             modal : {

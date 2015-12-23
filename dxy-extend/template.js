@@ -163,7 +163,7 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '<%})%>'+
 ''+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(new Date()<new Date(group.get(\'e_time\')) && new Date()>=new Date(group.get(\'s_time\'))){%>'+
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(true){%>'+
 '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
 '<%_.each(votes, function(vote, i){%>'+
 '<%if(+vote.attach.get(\'type\')===0){%>'+

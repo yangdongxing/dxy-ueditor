@@ -1,3 +1,53 @@
+(function(root, factory) {
+    root.Date = factory(root);
+})(this, function(g){
+    var D,
+        staticMethods = ['UTC','apply','bind','call','constructor','hasOwnProperty','isPrototypeOf','now','parse','propertyIsEnumerable','toLocaleString', 'toString', 'valueOf'];
+    if(!g.Date.tag){
+        D = g.Date;
+        g.Date = function(){
+            var len = arguments.length;
+            if(this===undefined || this === g){
+                return D();
+            }
+            if(arguments.length==1){
+                if(typeof arguments[0]==='string' && arguments[0].indexOf('-')!==-1){
+                    return new D(arguments[0].replace(/\-/g,'/'));
+                }
+            }
+            switch(len){
+                case 0:
+                    return new D();
+                case 1:
+                    return new D(arguments[0]);
+                case 2:
+                    return new D(arguments[0], arguments[1]);
+                case 3:
+                    return new D(arguments[0], arguments[1], arguments[2]); 
+                case 4:
+                    return new D(arguments[0], arguments[1], arguments[2], arguments[3]); 
+                case 5:
+                    return new D(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]); 
+                case 6:
+                    return new D(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5]); 
+            }
+        };
+        g.Date.tag = 'hehe';
+        g.Date.name = 'Date';
+        for(var i=0,len=staticMethods.length; i<len; i++){
+            g.Date[staticMethods[i]] = (function(methodName){
+                return function(){
+                    return D[methodName].apply(null, Array.prototype.slice(arguments,0));
+                };
+            })(staticMethods[i]);
+        }
+        g.Date.conflict = function(){
+            return D;
+        };
+        g.Date.prototype = D.prototype;
+    }
+    return g.Date;
+});
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
@@ -453,31 +503,20 @@ define('VoteModel', function(){
 			}
 		},
 		getUserVotes : function(){
-			var dtd = $.Deferred();
-			$.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).then(function(res){
-				dtd.resolve(res);
-			}, function(res){
-				dtd.resolve({
-			 		error : {
-			 			code : 101
-			 		}
-			 	});
-			 	console.log(res);
+			var xhr = $.ajax({
+				async: false,
+				url : API_HOST+'user/i/vote/result/list?group_id='+this.get('id'),
+				type : 'GET'
 			});
-			return dtd;
+			return xhr;
 		},
 		getVotesStat : function(){
-			var dtd = $.Deferred();
-			$.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').then(function(res){
-				dtd.resolve(res);
-			}, function(res){
-				dtd.resolve({
-			 		error : {
-			 			code : 101
-			 		}
-			 	});
+			var xhr = $.ajax({
+				async: false,
+				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
+				type : 'GET'
 			});
-			return dtd;
+			return xhr;
 		},
 		removeVote : function(id){
 			var votelink = this.attach.at(parseInt(id)),
@@ -1522,7 +1561,7 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '<%})%>'+
 ''+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(new Date()<new Date(group.get(\'e_time\')) && new Date()>=new Date(group.get(\'s_time\'))){%>'+
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(true){%>'+
 '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
 '<%_.each(votes, function(vote, i){%>'+
 '<%if(+vote.attach.get(\'type\')===0){%>'+
@@ -2026,26 +2065,36 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 									console.log(res);
 									return;
 								}
-								mark.get('group').getUserVotes().then(function(res){
-									var votes = [];
-									if(res.error){
-										if(res.error.code==101){
-											votes = [];
+								try{
+									var xhr = mark.get('group').getUserVotes();
+									if(xhr.readyState===4 && xhr.status===200){
+										var res = JSON.parse(xhr.responseText);
+										var votes = [];
+										if(res.error){
+											if(res.error.code==101){
+												votes = [];
+											}else{
+												console.log(res);
+												return;
+											}
 										}else{
-											console.log(res);
-											return;
+											votes = res.data.items;
 										}
-									}else{
-										votes = res.data.items;
+										_.each(votes, function(vote){
+											var vote_id = vote.vote_id,
+												node_id = vote.node_id;
+											mark.get('group').attach.findByAttachId(vote_id).attach.attach.findByAttachId(node_id).checked = true;
+											mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
+											mark.get('group').user_voted = true;
+										});
 									}
-									_.each(votes, function(vote){
-										var vote_id = vote.vote_id,
-											node_id = vote.node_id;
-										mark.get('group').attach.findByAttachId(vote_id).attach.attach.findByAttachId(node_id).checked = true;
-										mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
-										mark.get('group').user_voted = true;
-									});
-									mark.get('group').getVotesStat().then(function(res){
+								}catch(e){
+
+								}
+								try{
+									xhr = mark.get('group').getVotesStat();
+									if(xhr.readyState===4 && xhr.status===200){
+										var res = JSON.parse(xhr.responseText);
 										if(res.data){
 											_.each(res.data.items, function(item, i){
 												var vote = mark.get('group').attach.findByAttachId(item.vote_id),
@@ -2060,17 +2109,13 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 												opt.total += item.count;
 											});
 										}
-										mark.on('change', me.render, me);
-										me.model = mark;
-										me.render();
-									}, function(res){
-										console.log(res);
-										return;
-									});
-								}, function(res){
-									console.log(res);
-									return;
-								});
+									}
+								}catch(e){
+
+								}
+								mark.on('change', me.render, me);
+								me.model = mark;
+								me.render();
 							},
 							error : function(model,res){
 								console.log(res);
@@ -2181,7 +2226,12 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 						me.render();
 					}, function(res){
 						if(!window.__voted){
-							alert('请登录');
+							me.showAlertBox({
+								title : '请登陆',
+								button_title : '好吧',
+								cls : 'global-alert',
+								container : $('body')
+							});
 						}
 						window.__voted = true;
 					});
