@@ -12,7 +12,7 @@
 			var me = this;
 			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
 				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
-				mark.fetch().success(function(res){
+				mark.fetch().then(function(res){
 					if(res.error){
 						return;
 					}
@@ -23,7 +23,38 @@
 					  	drug_company : res.data.items[0].company
 					});
 					me.trigger('render');
-				}).error(function(){
+				}, function(res){
+					
+				});
+			});
+		  	return this;
+		}
+	});
+	var WebView = Backbone.View.extend({
+		events: {
+
+		},
+		initialize : function(view){
+			this.view = view;
+			this.el = view.ele;
+			this.render();
+		},
+		render: function() {
+			var me = this;
+			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
+				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+				mark.fetch().then(function(res){
+					if(res.error){
+						return;
+					}
+					var t = _.template(v);
+					me.el.innerHTML = t({
+					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
+					  	is_medicare : res.data.items[0].is_medicare,
+					  	drug_company : res.data.items[0].company
+					});
+					me.trigger('render');
+				}, function(res){
 
 				});
 			});
@@ -61,7 +92,7 @@
 			ele.setAttribute('contenteditable', 'false');
 			require(['MarkModel'], function(m){
 				var mark = new m.MarkModel({obj_id: me.data.obj_id, type: me.data.type_id});
-				mark.fetch().success(function(res){
+				mark.fetch().then(function(res){
 					if(res.error){
 						alert(res.error.message);
 						dtd.reject();
@@ -74,7 +105,7 @@
 					ele.innerHTML = tpl;
 					me.ele = ele;
 					dtd.resolve();
-				}).error(function(res){
+				}, function(res){
 					dtd.reject();
 					alert('网络错误');
 				});
@@ -93,7 +124,7 @@
 			if(this.verifyDrugId()){
 				require(['MarkModel'], function(m){
 					var mark = new m.MarkModel({obj_id: me.modal.find('#drug-id').val(), type: 1});
-					mark.save({},{data : mark.attributes}).success(function(res){
+					mark.save({},{data : mark.attributes}).then(function(res){
 						if(res.error){
 							alert(res.error.message);
 							dtd.reject();
@@ -102,7 +133,7 @@
 						me.data.obj_id = me.modal.find('#drug-id').val();
 						me.data.type_id = 1;
 						dtd.resolve();
-					}).error(function(res){
+					}, function(res){
 						alert('网络错误');
 					});
 				});

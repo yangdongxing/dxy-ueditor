@@ -1,6 +1,6 @@
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://dxy.us/';
+	var API_HOST = 'http://'+document.domain+'/';
 	var MarkModel = Backbone.Model.extend({
 		sync : function(method, model, options){
 			switch(method){
@@ -28,7 +28,7 @@ define('MarkModel', function(){
 });
 define('VoteModel', function(){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://dxy.us/';
+	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -77,14 +77,14 @@ define('VoteModel', function(){
 				return dtd.resolve();
 			}
 			this.page_index = newPage;
-			this.fetch().success(function(model, res){
+			this.fetch().then(function(res){
 				if(res.error){
 					me.page_index = oldPage;
 					dtd.reject(res);
 					return;
 				}
 				dtd.resolve.apply(arguments);
-			}).error(function(res){
+			}, function(res){
 				dtd.reject.apply(arguments);
 			});
 			return dtd;
@@ -339,7 +339,7 @@ define('VoteModel', function(){
 			}
 			var node = new NodeModel({}),
 				nodelink = new NodeLinkModel({});
-			node.save({value:''},{data:{value:''}}).success(function(res){
+			node.save({value:''},{data:{value:''}}).then(function(res){
 				if(res.error){
 					dtd.reject(res);
 					return;
@@ -355,7 +355,7 @@ define('VoteModel', function(){
 							node_id : node.get('id'),
 							sort : 1
 						}
-				}).success(function(res){
+				}).then(function(res){
 					if(res.error){
 						dtd.reject(res);
 						return;
@@ -363,11 +363,11 @@ define('VoteModel', function(){
 					nodelink.set('id', res.data.items[0].id, {silent:true})
 					nodelink.addNode(node);
 					nodes.add(nodelink);
-				}).error(function(res){
+				}, function(res){
 					node.destroy({wait:true});
 					dtd.reject(res);
 				});
-			}).error(function(res){
+			}, function(res){
 				dtd.reject(res);
 			});
 			return dtd;
@@ -377,13 +377,13 @@ define('VoteModel', function(){
 				dtd = $.Deferred(),
 				me = this;
 			if(votelink.get('id')){
-				votelink.destroy().success(function(res){
+				votelink.destroy().then(function(res){
 					if(res.error){
 						dtd.reject();
 						return;
 					}
 					me.attach.remove(votelink);
-				}).error(function(res){
+				}, function(res){
 					dtd.reject();
 				});
 			}else{
@@ -454,29 +454,29 @@ define('VoteModel', function(){
 		},
 		getUserVotes : function(){
 			var dtd = $.Deferred();
-			 $.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).success(function(res){
-			 	dtd.resolve(res);
-			 }).error(function(res){
-			 	dtd.resolve({
+			$.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).then(function(res){
+				dtd.resolve(res);
+			}, function(res){
+				dtd.resolve({
 			 		error : {
 			 			code : 101
 			 		}
 			 	});
 			 	console.log(res);
-			 });
+			});
 			return dtd;
 		},
 		getVotesStat : function(){
 			var dtd = $.Deferred();
-			 $.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').success(function(res){
-			 	dtd.resolve(res);
-			 }).error(function(res){
-			 	dtd.resolve({
+			$.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').then(function(res){
+				dtd.resolve(res);
+			}, function(res){
+				dtd.resolve({
 			 		error : {
 			 			code : 101
 			 		}
 			 	});
-			 });
+			});
 			return dtd;
 		},
 		removeVote : function(id){
@@ -484,13 +484,13 @@ define('VoteModel', function(){
 				dtd = $.Deferred(),
 				me = this;
 			if(votelink.get('id')){
-				votelink.destroy().success(function(res){
+				votelink.destroy().then(function(res){
 					if(res.error){
 						dtd.reject();
 						return;
 					}
 					me.attach.remove(votelink);
-				}).error(function(res){
+				}, function(res){
 					dtd.reject();
 				});
 			}else{
@@ -514,7 +514,7 @@ define('VoteModel', function(){
 			}
 			var node = new VoteModel({}),
 				nodelink = new VoteGroupLinkModel({});
-			node.save({type:0, title:'默认标题',content:'默认内容'},{data:{type:0, title:'默认标题',content:'默认内容'}}).success(function(res){
+			node.save({type:0, title:'默认标题',content:'默认内容'},{data:{type:0, title:'默认标题',content:'默认内容'}}).then(function(res){
 				if(res.error){
 					dtd.reject(res);
 					return;
@@ -529,7 +529,7 @@ define('VoteModel', function(){
 							group_id : me.get('id'),
 							vote_id : node.get('id')
 						}
-				}).success(function(res){
+				}).then(function(res){
 					if(res.error){
 						dtd.reject(res);
 						return;
@@ -538,11 +538,11 @@ define('VoteModel', function(){
 					nodelink.addNode(node);
 					nodes.add(nodelink);
 					dtd.resolve(res);
-				}).error(function(res){
+				}, function(res){
 					node.destroy({wait:true});
 					dtd.reject(res);
 				});
-			}).error(function(res){
+			}, function(res){
 				dtd.reject(res);
 			});
 			return dtd;
@@ -701,14 +701,14 @@ define('VoteModel', function(){
 				content : '默认内容'
 			});
 			var mark = new VoteMarkModel({});
-			group.save({},{data:group.attributes}).success(function(res){
+			group.save({},{data:group.attributes}).then(function(res){
 				if(res.error){
 					console.log(res);
 					dtd.reject(res);
 					return;
 				}
 				group.set('id', res.data.items[0].id);
-				me.save({obj_id: group.get('id'), type: 10}, {data: {obj_id: group.get('id'), type: 10}}).success(function(res){
+				me.save({obj_id: group.get('id'), type: 10}, {data: {obj_id: group.get('id'), type: 10}}).then(function(res){
 					if(res.error){
 						dtd.reject(res);
 						return;
@@ -717,10 +717,10 @@ define('VoteModel', function(){
 					me.set('id', res.data.items[0].id);
 					me.addGroup(group);
 					dtd.resolve(group);
-				}).error(function(res){
+				}, function(res){
 					dtd.reject(res);
 				});
-			}).error(function(res){
+			}, function(res){
 				dtd.reject(res);
 			});
 			return dtd;
@@ -877,7 +877,7 @@ define('VoteModel', function(){
 							throw new Error('获取投票组数据失败');
 						}
 					},
-					error : function(){
+					error : function(res){
 						if(res.error){
 							throw new Error('获取投票组数据失败');
 						}
@@ -891,7 +891,7 @@ define('VoteModel', function(){
 							throw new Error('获取VoteGroupLinksModel数据失败');
 						}
 					},
-					error : function(){
+					error : function(res){
 						if(res.error){
 							throw new Error('获取VoteGroupLinksModel失败');
 						}
@@ -906,7 +906,7 @@ define('VoteModel', function(){
 								throw new Error('获取Vote数据失败');
 							}
 						},
-						error : function(){
+						error : function(res){
 							if(res.error){
 								throw new Error('获取Vote失败');
 							}
@@ -920,7 +920,7 @@ define('VoteModel', function(){
 								throw new Error('获取NodeLinks数据失败');
 							}
 						},
-						error : function(){
+						error : function(res){
 							if(res.error){
 								throw new Error('获取获取NodeLinks数据失败失败');
 							}
@@ -934,7 +934,7 @@ define('VoteModel', function(){
 									throw new Error('获取Node数据失败');
 								}
 							},
-							error : function(){
+							error : function(res){
 								if(res.error){
 									throw new Error('获取获取Node数据失败失败');
 								}
@@ -1691,7 +1691,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			var me = this;
 			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
 				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
-				mark.fetch().success(function(res){
+				mark.fetch().then(function(res){
 					if(res.error){
 						return;
 					}
@@ -1702,7 +1702,38 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 					  	drug_company : res.data.items[0].company
 					});
 					me.trigger('render');
-				}).error(function(){
+				}, function(res){
+					
+				});
+			});
+		  	return this;
+		}
+	});
+	var WebView = Backbone.View.extend({
+		events: {
+
+		},
+		initialize : function(view){
+			this.view = view;
+			this.el = view.ele;
+			this.render();
+		},
+		render: function() {
+			var me = this;
+			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
+				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+				mark.fetch().then(function(res){
+					if(res.error){
+						return;
+					}
+					var t = _.template(v);
+					me.el.innerHTML = t({
+					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
+					  	is_medicare : res.data.items[0].is_medicare,
+					  	drug_company : res.data.items[0].company
+					});
+					me.trigger('render');
+				}, function(res){
 
 				});
 			});
@@ -1740,7 +1771,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			ele.setAttribute('contenteditable', 'false');
 			require(['MarkModel'], function(m){
 				var mark = new m.MarkModel({obj_id: me.data.obj_id, type: me.data.type_id});
-				mark.fetch().success(function(res){
+				mark.fetch().then(function(res){
 					if(res.error){
 						alert(res.error.message);
 						dtd.reject();
@@ -1753,7 +1784,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 					ele.innerHTML = tpl;
 					me.ele = ele;
 					dtd.resolve();
-				}).error(function(res){
+				}, function(res){
 					dtd.reject();
 					alert('网络错误');
 				});
@@ -1772,7 +1803,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			if(this.verifyDrugId()){
 				require(['MarkModel'], function(m){
 					var mark = new m.MarkModel({obj_id: me.modal.find('#drug-id').val(), type: 1});
-					mark.save({},{data : mark.attributes}).success(function(res){
+					mark.save({},{data : mark.attributes}).then(function(res){
 						if(res.error){
 							alert(res.error.message);
 							dtd.reject();
@@ -1781,7 +1812,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 						me.data.obj_id = me.modal.find('#drug-id').val();
 						me.data.type_id = 1;
 						dtd.resolve();
-					}).error(function(res){
+					}, function(res){
 						alert('网络错误');
 					});
 				});
@@ -1896,7 +1927,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 				$('#search-list-container').html('');
 				return;
 			}
-			this.searchModel.search(q,10).success(function(res){
+			this.searchModel.search(q,10).then(function(res){
 				if(res.error){
 					$('#search-list-container').html('');
 					return;
@@ -1904,7 +1935,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 				require(['dxy-plugins/replacedview/vote/views/searchList.view'], function(tpl){
 			  		$('#search-list-container')[0].innerHTML = _.template(tpl)({list: me.searchModel.models});
 			  	});
-			}).error(function(){
+			}, function(res){
 				$('#search-list-container').html('');
 			});
 		},
@@ -2251,7 +2282,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 		}, 
 		onModalConfirm : function(){
 			var data, dtd = $.Deferred(),me =this;
-			me.vote.model.save({}, {data : {obj_id: window.group.get('id'), type: 10}}).success(function(res){
+			me.vote.model.save({}, {data : {obj_id: window.group.get('id'), type: 10}}).then(function(res){
 				if(res.error){
 					alert(res.error.message);
 					dtd.reject();
@@ -2261,7 +2292,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 				me.data.type_id = 10;
 				me.data.id = res.data.items[0].id;
 				dtd.resolve();
-			}).error(function(){
+			}, function(res){
 				alert('保存标记失败');
 				dtd.reject();
 			});

@@ -1,6 +1,6 @@
 define('VoteModel', function(){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://dxy.us/';
+	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -49,14 +49,14 @@ define('VoteModel', function(){
 				return dtd.resolve();
 			}
 			this.page_index = newPage;
-			this.fetch().success(function(model, res){
+			this.fetch().then(function(res){
 				if(res.error){
 					me.page_index = oldPage;
 					dtd.reject(res);
 					return;
 				}
 				dtd.resolve.apply(arguments);
-			}).error(function(res){
+			}, function(res){
 				dtd.reject.apply(arguments);
 			});
 			return dtd;
@@ -311,7 +311,7 @@ define('VoteModel', function(){
 			}
 			var node = new NodeModel({}),
 				nodelink = new NodeLinkModel({});
-			node.save({value:''},{data:{value:''}}).success(function(res){
+			node.save({value:''},{data:{value:''}}).then(function(res){
 				if(res.error){
 					dtd.reject(res);
 					return;
@@ -327,7 +327,7 @@ define('VoteModel', function(){
 							node_id : node.get('id'),
 							sort : 1
 						}
-				}).success(function(res){
+				}).then(function(res){
 					if(res.error){
 						dtd.reject(res);
 						return;
@@ -335,11 +335,11 @@ define('VoteModel', function(){
 					nodelink.set('id', res.data.items[0].id, {silent:true})
 					nodelink.addNode(node);
 					nodes.add(nodelink);
-				}).error(function(res){
+				}, function(res){
 					node.destroy({wait:true});
 					dtd.reject(res);
 				});
-			}).error(function(res){
+			}, function(res){
 				dtd.reject(res);
 			});
 			return dtd;
@@ -349,13 +349,13 @@ define('VoteModel', function(){
 				dtd = $.Deferred(),
 				me = this;
 			if(votelink.get('id')){
-				votelink.destroy().success(function(res){
+				votelink.destroy().then(function(res){
 					if(res.error){
 						dtd.reject();
 						return;
 					}
 					me.attach.remove(votelink);
-				}).error(function(res){
+				}, function(res){
 					dtd.reject();
 				});
 			}else{
@@ -426,29 +426,29 @@ define('VoteModel', function(){
 		},
 		getUserVotes : function(){
 			var dtd = $.Deferred();
-			 $.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).success(function(res){
-			 	dtd.resolve(res);
-			 }).error(function(res){
-			 	dtd.resolve({
+			$.get(API_HOST+'user/i/vote/result/list?group_id='+this.get('id')).then(function(res){
+				dtd.resolve(res);
+			}, function(res){
+				dtd.resolve({
 			 		error : {
 			 			code : 101
 			 		}
 			 	});
 			 	console.log(res);
-			 });
+			});
 			return dtd;
 		},
 		getVotesStat : function(){
 			var dtd = $.Deferred();
-			 $.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').success(function(res){
-			 	dtd.resolve(res);
-			 }).error(function(res){
-			 	dtd.resolve({
+			$.get(API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100').then(function(res){
+				dtd.resolve(res);
+			}, function(res){
+				dtd.resolve({
 			 		error : {
 			 			code : 101
 			 		}
 			 	});
-			 });
+			});
 			return dtd;
 		},
 		removeVote : function(id){
@@ -456,13 +456,13 @@ define('VoteModel', function(){
 				dtd = $.Deferred(),
 				me = this;
 			if(votelink.get('id')){
-				votelink.destroy().success(function(res){
+				votelink.destroy().then(function(res){
 					if(res.error){
 						dtd.reject();
 						return;
 					}
 					me.attach.remove(votelink);
-				}).error(function(res){
+				}, function(res){
 					dtd.reject();
 				});
 			}else{
@@ -486,7 +486,7 @@ define('VoteModel', function(){
 			}
 			var node = new VoteModel({}),
 				nodelink = new VoteGroupLinkModel({});
-			node.save({type:0, title:'默认标题',content:'默认内容'},{data:{type:0, title:'默认标题',content:'默认内容'}}).success(function(res){
+			node.save({type:0, title:'默认标题',content:'默认内容'},{data:{type:0, title:'默认标题',content:'默认内容'}}).then(function(res){
 				if(res.error){
 					dtd.reject(res);
 					return;
@@ -501,7 +501,7 @@ define('VoteModel', function(){
 							group_id : me.get('id'),
 							vote_id : node.get('id')
 						}
-				}).success(function(res){
+				}).then(function(res){
 					if(res.error){
 						dtd.reject(res);
 						return;
@@ -510,11 +510,11 @@ define('VoteModel', function(){
 					nodelink.addNode(node);
 					nodes.add(nodelink);
 					dtd.resolve(res);
-				}).error(function(res){
+				}, function(res){
 					node.destroy({wait:true});
 					dtd.reject(res);
 				});
-			}).error(function(res){
+			}, function(res){
 				dtd.reject(res);
 			});
 			return dtd;
@@ -673,14 +673,14 @@ define('VoteModel', function(){
 				content : '默认内容'
 			});
 			var mark = new VoteMarkModel({});
-			group.save({},{data:group.attributes}).success(function(res){
+			group.save({},{data:group.attributes}).then(function(res){
 				if(res.error){
 					console.log(res);
 					dtd.reject(res);
 					return;
 				}
 				group.set('id', res.data.items[0].id);
-				me.save({obj_id: group.get('id'), type: 10}, {data: {obj_id: group.get('id'), type: 10}}).success(function(res){
+				me.save({obj_id: group.get('id'), type: 10}, {data: {obj_id: group.get('id'), type: 10}}).then(function(res){
 					if(res.error){
 						dtd.reject(res);
 						return;
@@ -689,10 +689,10 @@ define('VoteModel', function(){
 					me.set('id', res.data.items[0].id);
 					me.addGroup(group);
 					dtd.resolve(group);
-				}).error(function(res){
+				}, function(res){
 					dtd.reject(res);
 				});
-			}).error(function(res){
+			}, function(res){
 				dtd.reject(res);
 			});
 			return dtd;
@@ -849,7 +849,7 @@ define('VoteModel', function(){
 							throw new Error('获取投票组数据失败');
 						}
 					},
-					error : function(){
+					error : function(res){
 						if(res.error){
 							throw new Error('获取投票组数据失败');
 						}
@@ -863,7 +863,7 @@ define('VoteModel', function(){
 							throw new Error('获取VoteGroupLinksModel数据失败');
 						}
 					},
-					error : function(){
+					error : function(res){
 						if(res.error){
 							throw new Error('获取VoteGroupLinksModel失败');
 						}
@@ -878,7 +878,7 @@ define('VoteModel', function(){
 								throw new Error('获取Vote数据失败');
 							}
 						},
-						error : function(){
+						error : function(res){
 							if(res.error){
 								throw new Error('获取Vote失败');
 							}
@@ -892,7 +892,7 @@ define('VoteModel', function(){
 								throw new Error('获取NodeLinks数据失败');
 							}
 						},
-						error : function(){
+						error : function(res){
 							if(res.error){
 								throw new Error('获取获取NodeLinks数据失败失败');
 							}
@@ -906,7 +906,7 @@ define('VoteModel', function(){
 									throw new Error('获取Node数据失败');
 								}
 							},
-							error : function(){
+							error : function(res){
 								if(res.error){
 									throw new Error('获取获取Node数据失败失败');
 								}

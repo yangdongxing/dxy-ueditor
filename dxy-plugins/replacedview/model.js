@@ -1,6 +1,6 @@
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://dxy.us/';
+	var API_HOST = 'http://'+document.domain+'/';
 	var MarkModel = Backbone.Model.extend({
 		sync : function(method, model, options){
 			switch(method){

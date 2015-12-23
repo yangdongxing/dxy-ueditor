@@ -66,7 +66,7 @@
 				$('#search-list-container').html('');
 				return;
 			}
-			this.searchModel.search(q,10).success(function(res){
+			this.searchModel.search(q,10).then(function(res){
 				if(res.error){
 					$('#search-list-container').html('');
 					return;
@@ -74,7 +74,7 @@
 				require(['dxy-plugins/replacedview/vote/views/searchList.view'], function(tpl){
 			  		$('#search-list-container')[0].innerHTML = _.template(tpl)({list: me.searchModel.models});
 			  	});
-			}).error(function(){
+			}, function(res){
 				$('#search-list-container').html('');
 			});
 		},
@@ -421,7 +421,7 @@
 		}, 
 		onModalConfirm : function(){
 			var data, dtd = $.Deferred(),me =this;
-			me.vote.model.save({}, {data : {obj_id: window.group.get('id'), type: 10}}).success(function(res){
+			me.vote.model.save({}, {data : {obj_id: window.group.get('id'), type: 10}}).then(function(res){
 				if(res.error){
 					alert(res.error.message);
 					dtd.reject();
@@ -431,7 +431,7 @@
 				me.data.type_id = 10;
 				me.data.id = res.data.items[0].id;
 				dtd.resolve();
-			}).error(function(){
+			}, function(res){
 				alert('保存标记失败');
 				dtd.reject();
 			});

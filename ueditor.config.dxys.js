@@ -70,7 +70,7 @@
         //     'print', 'preview', 'searchreplace', 'help', 'drafts'
         // ]]
 
-        , toolbars: [[
+        , toolbars: document.domain === 'dxy.us' ? [[
             'fullscreen', 'paragraph','bold', 'italic','strikethrough','underline','|',
             'forecolor','removeformat','|',
             'justifyleft','justifycenter','justifyright','indent','|',
@@ -78,6 +78,15 @@
             'dxylink', 'horizontal','blockquote' ,'|',
             'dxyupload','inserttable','|',
             'superscript', 'subscript','|','onekeyreplace', 'copytowechat','mark'
+            
+        ]] : [[
+            'fullscreen', 'paragraph','bold', 'italic','strikethrough','underline','|',
+            'forecolor','removeformat','|',
+            'justifyleft','justifycenter','justifyright','indent','|',
+            'insertorderedlist', 'insertunorderedlist', '|',
+            'dxylink', 'horizontal','blockquote' ,'|',
+            'dxyupload','inserttable','|',
+            'superscript', 'subscript','|','onekeyreplace', 'copytowechat'
             
         ]]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准
