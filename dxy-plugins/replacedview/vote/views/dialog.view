@@ -20,7 +20,7 @@
 					<th>名称</th>
 					<th>开始时间</th>
 					<th>截止时间</th>
-					<th>投票权限</th>
+					<th>状态</th>
 					<th>操作</th>
 				</tr>
 			</thead>

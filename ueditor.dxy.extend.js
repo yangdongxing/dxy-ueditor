@@ -48,6 +48,7 @@
     }
     return g.Date;
 });
+
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
@@ -111,6 +112,9 @@ define('VoteModel', function(){
 				items = resp.data.items;
 				delete resp.data.items;
 				_.extend(this, resp.data);
+			}
+			if(resp.error){
+				items = [];
 			}
 			Backbone.Collection.prototype.set.call(this, items, option);
 		},
@@ -1396,15 +1400,15 @@ define('VoteModel', function(){
 	g.ReplacedView = ReplacedView;
 	g.EditView = EditView;
 })(this);
-define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<div class=\'m-drug-view-wraper\'>'+
-'	<div>'+
-'		<img src=\'\'>'+
+define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
+'	<div class="m-drug-view-img">'+
+'		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+
 '	</div>'+
 '	<div class=\'m-drug-view-body\'>'+
 '		<h4><%=drug_name%></h4>'+
 '		<p><%=drug_company%></p>'+
 '	</div>'+
-'</div>';return tpl;});
+'</a>';return tpl;});
 define("dxy-plugins/replacedview/drug/web.view", function(){var tpl = '<div class=\'web-drug-view-wraper\'>'+
 '	<div>'+
 '		<img src=\'\'>'+
@@ -1455,7 +1459,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '					<th>名称</th>'+
 '					<th>开始时间</th>'+
 '					<th>截止时间</th>'+
-'					<th>投票权限</th>'+
+'					<th>状态</th>'+
 '					<th>操作</th>'+
 '				</tr>'+
 '			</thead>'+
@@ -1563,10 +1567,19 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(true){%>'+
 '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
+'<%if(expired){%>'+
+'<a href="javascript:;" class="vote-expired-tip user-vote">'+
+'	投票已过期'+
+'</a>'+
+'<%}else if(!isLogin){%>'+
+'<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="vote-expired-tip user-vote">'+
+'	请登录后再投票'+
+'</a>'+
+'<%}%>'+
 '<%_.each(votes, function(vote, i){%>'+
 '<%if(+vote.attach.get(\'type\')===0){%>'+
 '	<div class="editor-vote-wraper vote-single <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
-'		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">'+
+'		<div class="vote-type"></div>'+
 '		<h4><%=vote.attach.get(\'title\')%></h4>'+
 '		<div class="vote-body">'+
 '			<ul>'+
@@ -1599,7 +1612,7 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '	</div>'+
 '<%}else{%>'+
 '	<div class="editor-vote-wraper vote-multiple <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
-'		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">'+
+'		<div class="vote-type"></div>'+
 '		<h4><%=vote.attach.get(\'title\')%></h4>'+
 '		<div class="vote-body">'+
 '			<ul>'+
@@ -1632,9 +1645,11 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '	</div>'+
 '<%}%>'+
 '<%})%>'+
+'<%if(!expired && isLogin){%>'+
 '<a href="javascript:;" class="user-vote">'+
-'	<%if(group.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'	<%if(group.user_voted){print(\'你已投票\')}else if(isLogin){print(\'我要投票\')}%>'+
 '</a>'+
+'<%}%>'+
 '</div>'+
 '<%}else{%><%}%>'+
 '';return tpl;});
@@ -1717,6 +1732,32 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 	});
 })(this);
 (function(){
+	window.AnnotationReplacedView = ReplacedView.register('annotation', {
+		toWechatView : function(){
+		},
+		toWebView : function(){
+			return this.toAppView();
+		},
+		toAppView : function(){
+			var dtd = $.Deferred();
+			return dtd;
+		},
+		toEditorView : function(callback){
+			var ele = this.createWrapNode(),
+				me = this,
+				dtd = $.Deferred();
+			return dtd;
+		},
+		onModalShow : function(){
+		},
+		onModalConfirm : function(){
+			var me = this,
+				dtd = $.Deferred();
+			return true;
+		},
+	});
+})();
+(function(){
 	var AppView = Backbone.View.extend({
 		events: {
 
@@ -1738,7 +1779,8 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 					me.el.innerHTML = t({
 					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
 					  	is_medicare : res.data.items[0].is_medicare,
-					  	drug_company : res.data.items[0].company
+					  	drug_company : res.data.items[0].company,
+					  	drug_url : 'http://yao.dxy.com/drug/'+res.data.items[0].id+'.htm'
 					});
 					me.trigger('render');
 				}, function(res){
@@ -1902,6 +1944,17 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 	var IMG_PREFIX = 'http://img.dxycdn.com/dotcom/';
 	var UPLOAD_ACTION = 'http://dxy.com/admin/i/att/upload?type=column_content';
 	var IS_PC = isPC();
+	var isLogin = (function(){
+		try{
+			if(+window.GDATA.userId){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(e){
+			return false;
+		}
+	})();
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -2131,7 +2184,12 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 		render : function(){
 			var me = this;
 			require(['dxy-plugins/replacedview/vote/views/mobile.view'], function(tpl){
-		  		me.el.innerHTML = _.template(tpl)({votes: me.model.get('group').attach.models, group: me.model.get('group')});
+		  		me.el.innerHTML = _.template(tpl)({
+		  			votes: me.model.get('group').attach.models, 
+		  			group: me.model.get('group'),
+		  			expired : new Date()>new Date(me.model.get('group').get('e_time')),
+		  			isLogin : isLogin
+		  		});
 				me.trigger('render');
 		  	});
 			return me;

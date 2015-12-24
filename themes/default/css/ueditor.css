@@ -2010,6 +2010,14 @@ div.edui-box {
     content: '\e800';
 }
 
+.edui-for-mark .edui-icon{
+    background-image: url('../images2/mark_icon.png')!important;
+    background-repeat: no-repeat!important;
+    background-size: 15px!important;
+    background-position: 41% 13px!important;
+}
+
+
 .limit-counter{
     position: absolute;
     top : 8px;

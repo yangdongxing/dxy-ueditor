@@ -2,6 +2,17 @@
 	var IMG_PREFIX = 'http://img.dxycdn.com/dotcom/';
 	var UPLOAD_ACTION = 'http://dxy.com/admin/i/att/upload?type=column_content';
 	var IS_PC = isPC();
+	var isLogin = (function(){
+		try{
+			if(+window.GDATA.userId){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(e){
+			return false;
+		}
+	})();
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -231,7 +242,12 @@
 		render : function(){
 			var me = this;
 			require(['dxy-plugins/replacedview/vote/views/mobile.view'], function(tpl){
-		  		me.el.innerHTML = _.template(tpl)({votes: me.model.get('group').attach.models, group: me.model.get('group')});
+		  		me.el.innerHTML = _.template(tpl)({
+		  			votes: me.model.get('group').attach.models, 
+		  			group: me.model.get('group'),
+		  			expired : new Date()>new Date(me.model.get('group').get('e_time')),
+		  			isLogin : isLogin
+		  		});
 				me.trigger('render');
 		  	});
 			return me;

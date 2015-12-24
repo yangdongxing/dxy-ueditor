@@ -1,7 +1,7 @@
 (function(){
 	baidu.editor.ui.drug = function (editor) {
 		var name = 'drug',
-			title = '插入药品信息';
+			title = '插入药品卡';
 	    var btn = new UE.ui.Button({
 	        name: name,
 	        title: title

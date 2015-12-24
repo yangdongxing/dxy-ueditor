@@ -13,10 +13,15 @@
 				item.id = prop;
 				switch(prop){
 					case 'vote' : 
-						item.name = '插入投票组';
+						item.name = '插入投票卡';
 						break;
 					case 'drug' :
 						item.name = '插入药品卡';
+						break;
+					case 'annotation':
+						item.name = '插入注释卡';
+						break
+					default:
 						break;
 				}
 				ctx.marks.push(item);

@@ -1,7 +1,7 @@
 (function(){
-	baidu.editor.ui.vote = function (editor) {
-		var name = 'vote',
-			title = '插入投票卡';
+	baidu.editor.ui.drug = function (editor) {
+		var name = 'annotation',
+			title = '插入注释卡';
 	    var btn = new UE.ui.Button({
 	        name: name,
 	        title: title

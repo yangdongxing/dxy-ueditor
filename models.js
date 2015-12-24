@@ -1,3 +1,4 @@
+
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
@@ -61,6 +62,9 @@ define('VoteModel', function(){
 				items = resp.data.items;
 				delete resp.data.items;
 				_.extend(this, resp.data);
+			}
+			if(resp.error){
+				items = [];
 			}
 			Backbone.Collection.prototype.set.call(this, items, option);
 		},

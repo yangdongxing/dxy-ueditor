@@ -34,6 +34,9 @@ define('VoteModel', function(){
 				delete resp.data.items;
 				_.extend(this, resp.data);
 			}
+			if(resp.error){
+				items = [];
+			}
 			Backbone.Collection.prototype.set.call(this, items, option);
 		},
 		goto : function(page){

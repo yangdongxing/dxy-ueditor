@@ -20,7 +20,8 @@
 					me.el.innerHTML = t({
 					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
 					  	is_medicare : res.data.items[0].is_medicare,
-					  	drug_company : res.data.items[0].company
+					  	drug_company : res.data.items[0].company,
+					  	drug_url : 'http://yao.dxy.com/drug/'+res.data.items[0].id+'.htm'
 					});
 					me.trigger('render');
 				}, function(res){

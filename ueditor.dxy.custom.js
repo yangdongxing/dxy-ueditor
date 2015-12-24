@@ -898,6 +898,21 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '    </div>'+
 '  </div>'+
 '</div>'+
+'<div class="modal fade" id="dxy-annotation-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-annotation-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">插入注释卡</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button class="btn btn-primary" type="button" id="confirm-annotation">确定</button>'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
+'</div>'+
 '<div class="modal fade" id="dxy-drug-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-drug-modal">'+
 '  <div class="modal-dialog" role="document">'+
 '    <div class="modal-content">'+
@@ -945,7 +960,7 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '    <div class="modal-content">'+
 '      <div class="modal-header">'+
 '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
-'        <h4 class="modal-title">插入投票组</h4>'+
+'        <h4 class="modal-title">插入投票卡</h4>'+
 '      </div>'+
 '      <div class="modal-body">'+
 '      </div>'+
@@ -1102,8 +1117,24 @@ $(document).ready(function(){
 })();
 (function(){
 	baidu.editor.ui.drug = function (editor) {
+		var name = 'annotation',
+			title = '插入注释卡';
+	    var btn = new UE.ui.Button({
+	        name: name,
+	        title: title
+	    });
+
+	    btn.addListener('click', function(){
+	        editor.execCommand('replacedview', name);
+	    });
+	        
+	    return btn;
+	};
+})();
+(function(){
+	baidu.editor.ui.drug = function (editor) {
 		var name = 'drug',
-			title = '插入药品信息';
+			title = '插入药品卡';
 	    var btn = new UE.ui.Button({
 	        name: name,
 	        title: title
@@ -1231,10 +1262,15 @@ $(document).ready(function(){
 				item.id = prop;
 				switch(prop){
 					case 'vote' : 
-						item.name = '插入投票组';
+						item.name = '插入投票卡';
 						break;
 					case 'drug' :
 						item.name = '插入药品卡';
+						break;
+					case 'annotation':
+						item.name = '插入注释卡';
+						break
+					default:
 						break;
 				}
 				ctx.marks.push(item);
@@ -1272,7 +1308,7 @@ $(document).ready(function(){
 (function(){
 	baidu.editor.ui.vote = function (editor) {
 		var name = 'vote',
-			title = '插入投票';
+			title = '插入投票卡';
 	    var btn = new UE.ui.Button({
 	        name: name,
 	        title: title

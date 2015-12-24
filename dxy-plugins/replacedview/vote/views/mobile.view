@@ -1,9 +1,18 @@
 <%if(true){%>
 <div class="editor-vote-group <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>" >
+<%if(expired){%>
+<a href="javascript:;" class="vote-expired-tip user-vote">
+	投票已过期
+</a>
+<%}else if(!isLogin){%>
+<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="vote-expired-tip user-vote">
+	请登录后再投票
+</a>
+<%}%>
 <%_.each(votes, function(vote, i){%>
 <%if(+vote.attach.get('type')===0){%>
 	<div class="editor-vote-wraper vote-single <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
-		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-single-poll.png" class="vote-type">
+		<div class="vote-type"></div>
 		<h4><%=vote.attach.get('title')%></h4>
 		<div class="vote-body">
 			<ul>
@@ -36,7 +45,7 @@
 	</div>
 <%}else{%>
 	<div class="editor-vote-wraper vote-multiple <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
-		<img src="http://assets.dxycdn.com/app/dxydoctor/img/editor/icon-muli-poll.png" class="vote-type">
+		<div class="vote-type"></div>
 		<h4><%=vote.attach.get('title')%></h4>
 		<div class="vote-body">
 			<ul>
@@ -69,8 +78,10 @@
 	</div>
 <%}%>
 <%})%>
+<%if(!expired && isLogin){%>
 <a href="javascript:;" class="user-vote">
-	<%if(group.user_voted){print('已投票')}else{print('我要投票')}%>
+	<%if(group.user_voted){print('你已投票')}else if(isLogin){print('我要投票')}%>
 </a>
+<%}%>
 </div>
 <%}else{%><%}%>

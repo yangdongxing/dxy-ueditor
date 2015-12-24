@@ -70,7 +70,7 @@
         //     'print', 'preview', 'searchreplace', 'help', 'drafts'
         // ]]
 
-        , toolbars: document.domain === 'dxy.us' ? [[
+        , toolbars: true ? [[
             'fullscreen', 'paragraph','bold', 'italic','strikethrough','underline','|',
             'forecolor','removeformat','|',
             'justifyleft','justifycenter','justifyright','indent','|',
