@@ -1269,9 +1269,12 @@ $(document).ready(function(){
 						break;
 					case 'annotation':
 						item.name = '插入注释卡';
+						if(document.domain!=='dxy.us'){
+							continue;
+						}
 						break
 					default:
-						break;
+						continue;
 				}
 				ctx.marks.push(item);
 			}

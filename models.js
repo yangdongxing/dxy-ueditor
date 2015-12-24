@@ -865,13 +865,13 @@ define('VoteModel', function(){
 				this.get('group').attributes.id = this.get('obj_id');
 				this.get('group').fetch({
 					async: false,
-					success : function(res){
-						if(res.error){
+					success : function(res, resp){
+						if(resp.error){
 							throw new Error('获取投票组数据失败');
 						}
 					},
-					error : function(res){
-						if(res.error){
+					error : function(res, resp){
+						if(resp.error){
 							throw new Error('获取投票组数据失败');
 						}
 					}
@@ -879,13 +879,17 @@ define('VoteModel', function(){
 				this.get('group').attach.id = this.get('group').get('id');
 				this.get('group').attach.fetch({
 					async: false,
-					success : function(res){
-						if(res.error){
-							throw new Error('获取VoteGroupLinksModel数据失败');
+					success : function(res, resp){
+						if(resp.error){
+							if(resp.error.code==101){
+								return;
+							}else{
+								throw new Error('获取VoteGroupLinksModel数据失败');
+							}
 						}
 					},
-					error : function(res){
-						if(res.error){
+					error : function(res, resp){
+						if(resp.error){
 							throw new Error('获取VoteGroupLinksModel失败');
 						}
 					}
@@ -894,13 +898,13 @@ define('VoteModel', function(){
 					votelink.attach.attributes.id = votelink.get('vote_id');
 					votelink.attach.fetch({
 						async: false,
-						success : function(res){
-							if(res.error){
+						success : function(res, resp){
+							if(resp.error){
 								throw new Error('获取Vote数据失败');
 							}
 						},
-						error : function(res){
-							if(res.error){
+						error : function(res, resp){
+							if(resp.error){
 								throw new Error('获取Vote失败');
 							}
 						}
@@ -908,13 +912,13 @@ define('VoteModel', function(){
 					votelink.attach.attach.id = votelink.attach.get('id');
 					votelink.attach.attach.fetch({
 						async: false,
-						success : function(res){
-							if(res.error){
+						success : function(res, resp){
+							if(resp.error){
 								throw new Error('获取NodeLinks数据失败');
 							}
 						},
-						error : function(res){
-							if(res.error){
+						error : function(res, resp){
+							if(resp.error){
 								throw new Error('获取获取NodeLinks数据失败失败');
 							}
 						}
@@ -922,21 +926,21 @@ define('VoteModel', function(){
 					_.each(votelink.attach.attach.models, function(nodelink){
 						nodelink.attach.fetch({
 							async: false,
-							success : function(res){
-								if(res.error){
+							success : function(res, resp){
+								if(resp.error){
 									throw new Error('获取Node数据失败');
 								}
 							},
-							error : function(res){
-								if(res.error){
+							error : function(res, resp){
+								if(resp.error){
 									throw new Error('获取获取Node数据失败失败');
 								}
 							}
 						});
 						nodelink.attach.processInData();
 					});
-					opt.success();
 				});
+				opt.success();
 			}catch(e){
 				throw e;
 				opt.error(e.message);
