@@ -1,4 +1,4 @@
-define('VoteModel', ['DxyModel'],function(DxyModel){
+define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
@@ -142,6 +142,20 @@ define('VoteModel', ['DxyModel'],function(DxyModel){
 			}
 			this.set('tags_str', current.join(','));
 		},
+		addDeseaseTag : function(id){
+			var current = this.get('disease_tags_str') ? this.get('disease_tags_str').split(',') : [];
+			if(current.indexOf(''+id)===-1){
+				current.push(id);
+			}
+			this.set('disease_tags_str', current.join(','));
+		},
+		addSymptomTag : function(id){
+			var current = this.get('symptom_tags_str') ? this.get('symptom_tags_str').split(',') : [];
+			if(current.indexOf(''+id)===-1){
+				current.push(id);
+			}
+			this.set('symptom_tags_str', current.join(','));
+		},
 		removeTag : function(id){
 			var current = this.get('tags_str') ? this.get('tags_str').split(',') : [];
 			var index = current.indexOf(''+id);
@@ -149,6 +163,22 @@ define('VoteModel', ['DxyModel'],function(DxyModel){
 				current.splice(+index, 1);
 			}
 			this.set('tags_str', current.join(','));
+		},
+		removeDeseaseTag : function(id){
+			var current = this.get('disease_tags_str') ? this.get('disease_tags_str').split(',') : [];
+			var index = current.indexOf(''+id);
+			if(index!==-1){
+				current.splice(+index, 1);
+			}
+			this.set('disease_tags_str', current.join(','));
+		},
+		removeSymptomTag : function(id){
+			var current = this.get('symptom_tags_str') ? this.get('symptom_tags_str').split(',') : [];
+			var index = current.indexOf(''+id);
+			if(index!==-1){
+				current.splice(+index, 1);
+			}
+			this.set('symptom_tags_str', current.join(','));
 		}
 	});
 	var NodesModel = BaseListModel.extend({
@@ -199,6 +229,34 @@ define('VoteModel', ['DxyModel'],function(DxyModel){
 				return res.slice(0,-1);
 			}
 			return $.get(API_HOST+'admin/i/userprofile/tag/pick?'+process(ids));
+		}
+	});
+	var DeseaseTagsModel = DxyCollection.Collection.extend({
+		urlRoot : API_HOST + 'admin/i/common/disease',
+		model : TagModel,
+		pick : function(ids){
+			function process(ids){
+				var res = '';
+				_.each(ids, function(id){
+					res += ('id='+id+'&');
+				});
+				return res.slice(0,-1);
+			}
+			return $.get(API_HOST+'admin/i/common/disease/pick?'+process(ids));
+		}
+	});
+	var SymptomTagsModel = DxyCollection.Collection.extend({
+		urlRoot : API_HOST + 'admin/i/common/symptom',
+		model : TagModel,
+		pick : function(ids){
+			function process(ids){
+				var res = '';
+				_.each(ids, function(id){
+					res += ('id='+id+'&');
+				});
+				return res.slice(0,-1);
+			}
+			return $.get(API_HOST+'admin/i/common/symptom/pick?'+process(ids));
 		}
 	});
 	var NodeLinkModel = Backbone.Model.extend({
@@ -997,6 +1055,8 @@ define('VoteModel', ['DxyModel'],function(DxyModel){
 		VoteUserMarkModel : VoteUserMarkModel,
 		BaseListModel : BaseListModel,
 		TagsModel : TagsModel,
-		TagModel : TagModel
+		TagModel : TagModel,
+		DeseaseTagsModel : DeseaseTagsModel,
+		SymptomTagsModel : SymptomTagsModel
 	};
 });
