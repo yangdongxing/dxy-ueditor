@@ -1,0 +1,3 @@
+<div class="input-group">
+  <input type="text" class="form-control" id="annotation-value"  placeholder="请输入注释">
+</div>

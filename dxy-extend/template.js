@@ -1,3 +1,17 @@
+define("dxy-plugins/replacedview/annotation/views/dialog.view", function(){var tpl = '<div class="input-group">'+
+'  <input type="text" class="form-control" id="annotation-value"  placeholder="请输入注释">'+
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl = '	<%if(annotation){%>'+
+'	<div><%=annotation.get(\'value\')%></div>'+
+'	<%}else{%>'+
+'	<div class="loading">加载中...</div>'+
+'	<%}%>'+
+'	<%if(error){%>'+
+'	<div>'+
+'		<%=error%>'+
+'	</div>'+
+'	<%}%>'+
+'';return tpl;});
 define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
 '	<div class="m-drug-view-img">'+
 '		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+

@@ -132,13 +132,30 @@
 		this.type = data.type;
 		this.isMounted = false;
 		this.ele = null;
-		this.toMetaView();
+		// this.toMetaView();
 	};
 	ReplacedView.prototype = {
 		createWrapNode : function(plain){
 			var me = this;
 			var ele = document.createElement('p');
 			ele.style.display = 'block';
+			ele.className = CLASS_NAME;
+			ele.setAttribute('data-type', this.type);
+			ele.setAttribute('data-params', this.serialize(this.data));
+			if(!plain){
+				ele.ondblclick = function(e){
+					e = e || window.event;
+					var editor = UE.getEditor('editor-box'),
+						range = editor.selection.getRange();
+					range.selectNode(e.target).select();
+					UE.getEditor('editor-box').execCommand('replacedview', me.type);
+				};
+			}
+			return ele;
+		},
+		createInlineWrapNode : function(plain){
+			var me = this;
+			var ele = document.createElement('span');
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
@@ -171,10 +188,21 @@
 		showModal : function(){
 
 		},
-		toMetaView : function(c){
+		toMetaView : function(e){
 			this.view = 'meta';
-			var ele = this.createWrapNode();
-			ele.style.display = 'none';
+			var ele;
+			if(this.isWraper){
+				ele = this.createInlineWrapNode();
+				if(e){
+					ele.innerHTML = typeof e.innerHTML === 'string' ? e.innerHTML : e.innerHTML();
+				}else{
+					ele.appendChild(UE.getEditor('editor-box').selection.getRange().cloneContents());
+				}
+				ele.style.display = 'inline';
+			}else{
+				ele = this.createWrapNode();
+				ele.style.display = 'none';
+			}
 			this.ele = ele;
 			return ele;
 		},
@@ -221,12 +249,22 @@
 				ele.parentNode.replaceChild(this.ele, ele);
 			}else{
 				if(ele.cloneRange){
-					var ancestors = ele.getCommonAncestor(true);
-					var e = find(ancestors)
-					if(e){
-						this.mount(e);
+					if(this.isWraper){
+						var ancestors = ele.getCommonAncestor(true);
+						var e = find(ancestors)
+						if(e){
+							this.mount(e);
+						}else{
+							ele.deleteContents().insertNode(this.ele);
+						}
 					}else{
-						ele.enlarge(true).deleteContents().insertNode(this.ele);
+						var ancestors = ele.getCommonAncestor(true);
+						var e = find(ancestors)
+						if(e){
+							this.mount(e);
+						}else{
+							ele.enlarge(true).deleteContents().insertNode(this.ele);
+						}
 					}
 				}else{
 					throw new Error('mount argument should element or range');
@@ -279,7 +317,9 @@
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
 			view.toAppropriateView(ele).then(function(){
-				view.ele.style.display = 'block';
+				if(!view.isWraper){
+					view.ele.style.display = 'block';
+				}
 				view.mount(ele);
 			});
 		});
@@ -293,7 +333,6 @@
 		CustomReplacedView.prototype = assign({}, ReplacedView.prototype, instancemethods);
 		classmethods && assign(CustomReplacedView, classmethods);
 		CustomReplacedView.prototype.showModal = function(){
-			console.log('showmodal');
 			if(instancemethods.showModal){
 				instancemethods.showModal.call(this);
 				return;
@@ -309,7 +348,6 @@
 			}
 			me.modal = modal;
 			function onShow(){
-				console.log('show');
 				if(!modal.isInited){
 					if(me.modalInit){
 						me.modalInit();
@@ -323,7 +361,6 @@
 				me.onModalShow();
 			}
 			function onHide(){
-				console.log('hide');
 				if(me.onModalHide){
 					me.onModalHide();
 				}
@@ -332,7 +369,6 @@
 				modal.data('view', null);
 			}
 			function onConfirm(){
-				console.log('confirm');
 				if(!me.onModalConfirm){
 					throw new Error('requrie onModalConfirm');
 				}

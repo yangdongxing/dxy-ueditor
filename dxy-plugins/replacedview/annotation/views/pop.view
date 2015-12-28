@@ -1,0 +1,10 @@
+	<%if(annotation){%>
+	<div><%=annotation.get('value')%></div>
+	<%}else{%>
+	<div class="loading">加载中...</div>
+	<%}%>
+	<%if(error){%>
+	<div>
+		<%=error%>
+	</div>
+	<%}%>

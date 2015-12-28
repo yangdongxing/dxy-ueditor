@@ -48,7 +48,16 @@
     }
     return g.Date;
 });
-
+define('AnnotationModel', ['DxyModel'], function(dxy){
+	var API_HOST = 'http://'+document.domain+'/';
+	var AnnotationModel = dxy.Model.extend({
+		urlRoot : API_HOST + 'admin/i/card/annotation'
+	});
+	window.M = AnnotationModel;
+	return {
+		AnnotationModel : AnnotationModel
+	}
+});
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
@@ -77,7 +86,250 @@ define('MarkModel', function(){
 		MarkModel : MarkModel
 	};
 });
-define('VoteModel', function(){
+
+define('DxyModel', function(){
+	var backbone = Backbone;
+	var Model = backbone.Model.extend({
+		initialize : function(attrs){
+			if(attrs && typeof attrs === 'object' && attrs.id){
+				this._attrs = attrs;
+			}else{
+				this._attrs = {};
+			}
+		},
+		sync : function(method, model, options){
+			var success = options.success;
+			if(!options.restful){
+				var base = this.urlRoot;
+				if(!base){
+					throw new Error('Dxy Model require urlRoot defined');
+				}
+				base = base.replace(/[^\/]$/, '$&/');
+				switch(method){
+					case 'read':
+						if(this.isNew()){
+							options.url =  base + 'single';
+						}else{
+							options.url =  base + 'single?id='+this.get('id');
+						}
+						break;
+					case 'update' : 
+						options.url = base + 'put';
+						break;
+					case 'delete':
+						options.url = base + 'delete?id='+this.get('id');
+						break;
+					case 'create':
+						options.url = base + 'add';
+						options.data = this.attributes;
+						break;
+				}
+				options.success = function(resp, status, code, xhr){
+					if(resp.error && options.error){
+						options.error(resp)
+						return;
+					}
+					resp = resp.data.items[0];
+					delete model.attributes.id;
+					if(success){
+						success(resp, model, options);
+					}
+					model._attrs = _.clone(model.attributes);
+				}
+			}
+			return backbone.Model.prototype.sync.call(this, method, model, options);
+		},
+		save : function(key, val, options){
+			var opt, attr;
+			if(key == null || typeof key === 'object') {
+		        opt = val;
+		        attr = key;
+		    }else {
+		        opt = options;
+		        (attr = {})[key] = val;
+		    }
+			if(!attr && !opt){
+				opt = {
+					data : this.expiredAttributes()
+				};
+			}
+			if(!this.isNew()){
+				if(!opt){
+					opt = {};
+				}
+				opt.patch = true;
+			}
+			return backbone.Model.prototype.save.call(this, attr, opt);
+		},
+		set : function(key, val, options){
+			if(typeof key === 'object' && val.type){
+				if('update patch delete'.indexOf(val.type.toLowerCase()) !== -1){
+					for(var porp in key){
+						if(key.hasOwnProperty(prop)){
+							if(!this.attributes[prop]){
+								delete key[prop];
+							}
+						}
+					}
+				}
+				return backbone.Model.prototype.set.call(this, key, val);
+			}else{
+				return backbone.Model.prototype.set.apply(this, arguments);
+			}
+		},
+		hasExpired : function(){
+			var expired = this.expiredAttributes();
+			for(var prop in expired){
+				if(expired.hasOwnProperty(prop)){
+					return true;
+				}
+			}
+			return false;
+		},
+		expiredAttributes : function(){
+			var old = _.clone(this._attrs),
+				cur = _.clone(this.attributes),
+				expired = {};
+			for(var prop in cur){
+				if(cur.hasOwnProperty(prop)){
+					if(!_.isEqual(cur[prop], old[prop])){
+						expired[prop] = cur[prop];
+					}
+				}
+			}
+			return expired;
+		}
+	});
+	return {
+		Model : Model
+	}
+});
+define('DxyCollection', function(){
+	var backbone = Backbone;
+	var Collection = backbone.Collection.extend({
+		constructor : function(items, opt){
+			items = items || [];
+			opt = opt || {};
+			var defaults = {
+				"total_items" : 0,
+		        "items_per_page" : Math.max(5, items.length),
+		        "current_item_count" : items.length,
+		        "total_pages" : 1,
+		        "page_index" : 1,
+		        "start_index" : 1
+			};
+			_.extend(this, _.extend(defaults, opt));
+			Backbone.Collection.call(this, items);
+		},
+		add : function(models, options){
+			var me = this;
+			if(models && models.length){
+				_.each(models, function(model){
+					if(!me.get(model)){
+						this.items_per_page++;
+					}
+				});
+			}
+			return backbone.Collection.prototype.add.apply(this, arguments);
+		},
+		remove : function(models, options){
+			var me = this;
+			if(models && models.length){
+				_.each(models, function(model){
+					if(me.get(model)){
+						this.items_per_page--;
+					}
+				});
+			}
+			return backbone.Collection.prototype.remove.apply(this, arguments);
+		},
+		sync : function(method, model, options){
+			var success = options.success;
+			var page_index = options.page_index || this.page_index;
+			var items_per_page = options.items_per_page || this.items_per_page;
+			var search = options.q || this.q;
+			var base = this.urlRoot;
+			if(!base){
+				throw new Error('Dxy Collection require urlRoot defined');
+			}
+			base = base.replace(/[^\/]$/, '$&/');
+			if(!options.restful){
+				switch(method){
+					case 'read' :
+						if(search){
+							options.url = base + 'search?q='+search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+						}else{
+							options.url = base + 'list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+						}
+						break;
+				}
+				options.success = function(resp){
+					var items;
+					if(resp.error && options.error){
+						if(resp.error.code==101){
+							resp.data = {
+								items : [],
+								"total_items" : 0,
+								"current_item_count" : 0,
+								"total_pages" : 1,
+								"page_index" : 1,
+								"start_index" : 1
+							};
+							items = [];
+						}else{
+							options.error(resp)
+							return;
+						}
+					}else{
+						items = resp.data.items;
+					}
+					if(success){
+						success(items);
+					}
+					_.extend(model, resp.data);
+				}
+			}
+			return Backbone.sync(method, model, options);
+		},
+		goto : function(page){
+			page = parseInt(page);
+			var newPage = page + this.page_index,
+				oldPage = this.page_index,
+				me = this,
+				dtd = $.Deferred();
+			if(page===0){
+				return dtd.resolve();
+			}
+			if(newPage<=0 || newPage>this.total_pages){
+				return dtd.resolve();
+			}
+			this.page_index = newPage;
+			this.fetch().then(function(res){
+				if(res.error){
+					me.page_index = oldPage;
+					dtd.reject(res);
+					return;
+				}
+				dtd.resolve.apply(arguments);
+			}, function(res){
+				dtd.reject.apply(arguments);
+			});
+			return dtd;
+		},
+		search : function(){
+			if(this.searchXHR){
+				this.searchXHR.abort();
+				this.searchXHR = null;
+			}
+			this.searchXHR = this.fetch();
+			return this.searchXHR;
+		}
+	});
+	return {
+		Collection : Collection
+	}
+});
+define('VoteModel', ['DxyModel'],function(DxyModel){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
@@ -120,13 +372,13 @@ define('VoteModel', function(){
 		},
 		goto : function(page){
 			page = parseInt(page);
-			if(page===0){
-				return dtd.resolve();
-			}
 			var newPage = page + this.page_index,
 				oldPage = this.page_index,
 				me = this,
 				dtd = $.Deferred();
+			if(page===0){
+				return dtd.resolve();
+			}
 			if(newPage<=0 || newPage>this.total_pages){
 				return dtd.resolve();
 			}
@@ -213,6 +465,21 @@ define('VoteModel', function(){
 				data.value = data.value + '$$img='+ img; 
 			}
 			return data;
+		},
+		addTag : function(id){
+			var current = this.get('tags_str') ? this.get('tags_str').split(',') : [];
+			if(current.indexOf(''+id)===-1){
+				current.push(id);
+			}
+			this.set('tags_str', current.join(','));
+		},
+		removeTag : function(id){
+			var current = this.get('tags_str') ? this.get('tags_str').split(',') : [];
+			var index = current.indexOf(''+id);
+			if(index!==-1){
+				current.splice(+index, 1);
+			}
+			this.set('tags_str', current.join(','));
 		}
 	});
 	var NodesModel = BaseListModel.extend({
@@ -233,6 +500,36 @@ define('VoteModel', function(){
 					break;
 			}
 			return Backbone.sync(method, model, options);
+		}
+	});
+	var TagModel = DxyModel.Model.extend({
+		urlRoot : API_HOST+'admin/i/userprofile/tag'
+	});
+	var TagsModel = BaseListModel.extend({
+		model : TagModel,
+		sync : function(method, model, options){
+			var page_index = options.page_index || this.page_index;
+			var items_per_page = options.items_per_page || this.items_per_page;
+			switch(method){
+				case 'read' :
+					if(options.search){
+						options.url = API_HOST + 'admin/i/userprofile/tag/search?q='+options.search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+					}else{
+						options.url = API_HOST + 'admin/i/userprofile/tag/list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+					}
+					break;
+			}
+			return Backbone.sync(method, model, options);
+		},
+		pick : function(ids){
+			function process(ids){
+				var res = '';
+				_.each(ids, function(id){
+					res += ('id='+id+'&');
+				});
+				return res.slice(0,-1);
+			}
+			return $.get(API_HOST+'admin/i/userprofile/tag/pick?'+process(ids));
 		}
 	});
 	var NodeLinkModel = Backbone.Model.extend({
@@ -1029,7 +1326,9 @@ define('VoteModel', function(){
 		VoteGroupLinksModel : VoteGroupLinksModel,
 		VoteMarkModel : VoteMarkModel,
 		VoteUserMarkModel : VoteUserMarkModel,
-		BaseListModel : BaseListModel
+		BaseListModel : BaseListModel,
+		TagsModel : TagsModel,
+		TagModel : TagModel
 	};
 });
 (function(g){
@@ -1166,13 +1465,30 @@ define('VoteModel', function(){
 		this.type = data.type;
 		this.isMounted = false;
 		this.ele = null;
-		this.toMetaView();
+		// this.toMetaView();
 	};
 	ReplacedView.prototype = {
 		createWrapNode : function(plain){
 			var me = this;
 			var ele = document.createElement('p');
 			ele.style.display = 'block';
+			ele.className = CLASS_NAME;
+			ele.setAttribute('data-type', this.type);
+			ele.setAttribute('data-params', this.serialize(this.data));
+			if(!plain){
+				ele.ondblclick = function(e){
+					e = e || window.event;
+					var editor = UE.getEditor('editor-box'),
+						range = editor.selection.getRange();
+					range.selectNode(e.target).select();
+					UE.getEditor('editor-box').execCommand('replacedview', me.type);
+				};
+			}
+			return ele;
+		},
+		createInlineWrapNode : function(plain){
+			var me = this;
+			var ele = document.createElement('span');
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
@@ -1205,10 +1521,21 @@ define('VoteModel', function(){
 		showModal : function(){
 
 		},
-		toMetaView : function(c){
+		toMetaView : function(e){
 			this.view = 'meta';
-			var ele = this.createWrapNode();
-			ele.style.display = 'none';
+			var ele;
+			if(this.isWraper){
+				ele = this.createInlineWrapNode();
+				if(e){
+					ele.innerHTML = typeof e.innerHTML === 'string' ? e.innerHTML : e.innerHTML();
+				}else{
+					ele.appendChild(UE.getEditor('editor-box').selection.getRange().cloneContents());
+				}
+				ele.style.display = 'inline';
+			}else{
+				ele = this.createWrapNode();
+				ele.style.display = 'none';
+			}
 			this.ele = ele;
 			return ele;
 		},
@@ -1255,12 +1582,22 @@ define('VoteModel', function(){
 				ele.parentNode.replaceChild(this.ele, ele);
 			}else{
 				if(ele.cloneRange){
-					var ancestors = ele.getCommonAncestor(true);
-					var e = find(ancestors)
-					if(e){
-						this.mount(e);
+					if(this.isWraper){
+						var ancestors = ele.getCommonAncestor(true);
+						var e = find(ancestors)
+						if(e){
+							this.mount(e);
+						}else{
+							ele.deleteContents().insertNode(this.ele);
+						}
 					}else{
-						ele.enlarge(true).deleteContents().insertNode(this.ele);
+						var ancestors = ele.getCommonAncestor(true);
+						var e = find(ancestors)
+						if(e){
+							this.mount(e);
+						}else{
+							ele.enlarge(true).deleteContents().insertNode(this.ele);
+						}
 					}
 				}else{
 					throw new Error('mount argument should element or range');
@@ -1313,7 +1650,9 @@ define('VoteModel', function(){
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
 			view.toAppropriateView(ele).then(function(){
-				view.ele.style.display = 'block';
+				if(!view.isWraper){
+					view.ele.style.display = 'block';
+				}
 				view.mount(ele);
 			});
 		});
@@ -1327,7 +1666,6 @@ define('VoteModel', function(){
 		CustomReplacedView.prototype = assign({}, ReplacedView.prototype, instancemethods);
 		classmethods && assign(CustomReplacedView, classmethods);
 		CustomReplacedView.prototype.showModal = function(){
-			console.log('showmodal');
 			if(instancemethods.showModal){
 				instancemethods.showModal.call(this);
 				return;
@@ -1343,7 +1681,6 @@ define('VoteModel', function(){
 			}
 			me.modal = modal;
 			function onShow(){
-				console.log('show');
 				if(!modal.isInited){
 					if(me.modalInit){
 						me.modalInit();
@@ -1357,7 +1694,6 @@ define('VoteModel', function(){
 				me.onModalShow();
 			}
 			function onHide(){
-				console.log('hide');
 				if(me.onModalHide){
 					me.onModalHide();
 				}
@@ -1366,7 +1702,6 @@ define('VoteModel', function(){
 				modal.data('view', null);
 			}
 			function onConfirm(){
-				console.log('confirm');
 				if(!me.onModalConfirm){
 					throw new Error('requrie onModalConfirm');
 				}
@@ -1404,6 +1739,20 @@ define('VoteModel', function(){
 	g.ReplacedView = ReplacedView;
 	g.EditView = EditView;
 })(this);
+define("dxy-plugins/replacedview/annotation/views/dialog.view", function(){var tpl = '<div class="input-group">'+
+'  <input type="text" class="form-control" id="annotation-value"  placeholder="请输入注释">'+
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl = '	<%if(annotation){%>'+
+'	<div><%=annotation.get(\'value\')%></div>'+
+'	<%}else{%>'+
+'	<div class="loading">加载中...</div>'+
+'	<%}%>'+
+'	<%if(error){%>'+
+'	<div>'+
+'		<%=error%>'+
+'	</div>'+
+'	<%}%>'+
+'';return tpl;});
 define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
 '	<div class="m-drug-view-img">'+
 '		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+
@@ -1736,29 +2085,187 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 	});
 })(this);
 (function(){
+	function isPC(){  
+        	var userAgentInfo = navigator.userAgent;  
+        	var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");  
+        	var flag = true;  
+        	for (var i = 0; i < Agents.length; i++) {  
+				if (userAgentInfo.indexOf(Agents[i]) > 0){
+					flag = false;
+					break; 
+				}  
+        	}  
+        	return flag;  
+	}
+	var AnnotationView = Backbone.View.extend({
+		events: {
+			'blur #annotation-value' : 'changeValue'
+		},
+		initialize : function(view){
+			var me = this;
+			this.view = view;
+			require(['AnnotationModel'], function(m){
+				me.annotation = new m.AnnotationModel({});
+				me.render();
+			});
+		},
+		changeValue : function(e){
+			this.annotation.set('value', $('#annotation-value').val());
+		},
+		render: function() {
+			var me = this;
+			require(['dxy-plugins/replacedview/annotation/views/dialog.view'], function(v){
+				var t = _.template(v);
+				me.el.innerHTML = t({});
+				me.trigger('render');
+			});
+		  	return this;
+		}
+	});
+
+	var PopView = Backbone.View.extend({
+		className : 'editor-pop-container',
+		events: {
+
+		},
+		initialize : function(annotationId, target){
+			var me = this;
+			this.annotationId = annotationId;
+			this.target = target;
+		},
+		init : function(){
+			var me = this;
+			require(['AnnotationModel'], function(m){
+				me.annotation = new m.AnnotationModel({
+					id : me.annotationId
+				});
+				me.annotation.fetch().then(function(){
+					me.render();
+				}, function(){
+					me.error = '加载失败:(';
+					me.render();
+				});
+			});
+		},
+		show : function(){
+			if(!this.annotation){
+				this.init();
+			}
+			this.render();
+			this.$el.show();
+		},
+		hide : function(){
+			this.$el.hide();
+		},
+		getDocumentPosition : function(ele){
+			var p = $(ele).offset(),
+				left = p.left,
+				top = p.top,
+				scrollLeft = $('body').scrollLeft(),
+				scrollTop = $('body').scrollTop(),
+				left = left + scrollLeft,
+				top = top + scrollTop;
+			return {
+				left : left,
+				top : top
+			};
+		},
+		render: function() {
+			var me = this;
+			require(['dxy-plugins/replacedview/annotation/views/pop.view'], function(v){
+				var t = _.template(v);
+				me.el.innerHTML = t({
+					annotation : me.annotation,
+					error : me.error
+ 				});
+				var p = me.getDocumentPosition(me.target);
+				if(isPC()){
+					me.$el.css('left', parseInt(me.$el.outerWidth()/2) + 'px');
+					me.$el.css('top', '-'+ parseInt(me.$el.outerHeight())+'px');
+				}else{
+					me.$el.css('top', '-'+ parseInt(me.$el.outerHeight())+'px');
+				}
+				$(me.target).append(me.$el);
+				me.trigger('render');
+			});
+		  	return this;
+		}
+	});
+
 	window.AnnotationReplacedView = ReplacedView.register('annotation', {
 		toWechatView : function(){
+
 		},
-		toWebView : function(){
-			return this.toAppView();
-		},
-		toAppView : function(){
-			var dtd = $.Deferred();
+		toWebView : function(e){
+			var ele = this.toMetaView(e),
+				dtd = $.Deferred();
+			this.bindEvent(ele);
+			setTimeout(function(){
+				dtd.resolve(ele);
+			},0);
 			return dtd;
 		},
-		toEditorView : function(callback){
-			var ele = this.createWrapNode(),
-				me = this,
+		toAppView : function(e){
+			return this.toWebView(e);
+		},
+		toEditorView : function(e){
+			var ele = this.toMetaView(e),
 				dtd = $.Deferred();
+			setTimeout(function(){
+				dtd.resolve(ele);
+			},0);
 			return dtd;
 		},
 		onModalShow : function(){
+			this.annotation =  new AnnotationView(this);
+			$('#dxy-annotation-modal .modal-body').html($(this.annotation.el));
+		},
+		bindEvent : function(ele){
+			var me = this;
+			$(ele).on('mouseover', function(){
+				console.log('over');
+				if(!me.popview){
+					me.popview = new PopView(me.data.obj_id,ele);
+				}
+				me.popview.show();
+			});
+			$(ele).on('mouseout', function(){
+				me.popview.hide();
+			});
 		},
 		onModalConfirm : function(){
 			var me = this,
 				dtd = $.Deferred();
-			return true;
+			require(['MarkModel'], function(m){
+				var annotation = me.annotation.annotation;
+				annotation.save().then(function(res){
+					var mark = new m.MarkModel({
+						obj_id : annotation.get('id'),
+						type : 3
+					});
+					mark.save({}, {data: mark.attributes}).then(function(res){
+						if(res.error){
+							alert(res.error.message);
+							dtd.reject();
+							return;
+						}
+						me.data.obj_id = annotation.get('id');
+						me.data.type_id = 3;
+						dtd.resolve();
+					}, function(res){
+						alert('创建标记失败');
+						dtd.reject();
+						console.log(res);
+					});
+				}, function(res){
+					alert('创建注释卡失败');
+					dtd.reject();
+					console.log(res);
+				});
+			});
+			return dtd;
 		},
+		isWraper : true
 	});
 })();
 (function(){

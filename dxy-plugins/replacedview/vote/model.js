@@ -1,4 +1,4 @@
-define('VoteModel', function(){
+define('VoteModel', ['DxyModel'],function(DxyModel){
 	Backbone.emulateJSON = true;
 	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
@@ -41,13 +41,13 @@ define('VoteModel', function(){
 		},
 		goto : function(page){
 			page = parseInt(page);
-			if(page===0){
-				return dtd.resolve();
-			}
 			var newPage = page + this.page_index,
 				oldPage = this.page_index,
 				me = this,
 				dtd = $.Deferred();
+			if(page===0){
+				return dtd.resolve();
+			}
 			if(newPage<=0 || newPage>this.total_pages){
 				return dtd.resolve();
 			}
@@ -134,6 +134,21 @@ define('VoteModel', function(){
 				data.value = data.value + '$$img='+ img; 
 			}
 			return data;
+		},
+		addTag : function(id){
+			var current = this.get('tags_str') ? this.get('tags_str').split(',') : [];
+			if(current.indexOf(''+id)===-1){
+				current.push(id);
+			}
+			this.set('tags_str', current.join(','));
+		},
+		removeTag : function(id){
+			var current = this.get('tags_str') ? this.get('tags_str').split(',') : [];
+			var index = current.indexOf(''+id);
+			if(index!==-1){
+				current.splice(+index, 1);
+			}
+			this.set('tags_str', current.join(','));
 		}
 	});
 	var NodesModel = BaseListModel.extend({
@@ -154,6 +169,36 @@ define('VoteModel', function(){
 					break;
 			}
 			return Backbone.sync(method, model, options);
+		}
+	});
+	var TagModel = DxyModel.Model.extend({
+		urlRoot : API_HOST+'admin/i/userprofile/tag'
+	});
+	var TagsModel = BaseListModel.extend({
+		model : TagModel,
+		sync : function(method, model, options){
+			var page_index = options.page_index || this.page_index;
+			var items_per_page = options.items_per_page || this.items_per_page;
+			switch(method){
+				case 'read' :
+					if(options.search){
+						options.url = API_HOST + 'admin/i/userprofile/tag/search?q='+options.search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+					}else{
+						options.url = API_HOST + 'admin/i/userprofile/tag/list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+					}
+					break;
+			}
+			return Backbone.sync(method, model, options);
+		},
+		pick : function(ids){
+			function process(ids){
+				var res = '';
+				_.each(ids, function(id){
+					res += ('id='+id+'&');
+				});
+				return res.slice(0,-1);
+			}
+			return $.get(API_HOST+'admin/i/userprofile/tag/pick?'+process(ids));
 		}
 	});
 	var NodeLinkModel = Backbone.Model.extend({
@@ -950,6 +995,8 @@ define('VoteModel', function(){
 		VoteGroupLinksModel : VoteGroupLinksModel,
 		VoteMarkModel : VoteMarkModel,
 		VoteUserMarkModel : VoteUserMarkModel,
-		BaseListModel : BaseListModel
+		BaseListModel : BaseListModel,
+		TagsModel : TagsModel,
+		TagModel : TagModel
 	};
 });

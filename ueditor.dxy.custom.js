@@ -1169,8 +1169,10 @@ $(document).ready(function(){
 					var view = ReplacedView.getInstance(node.getAttr('data-type'));
 					if(view){
 						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
-						node.setStyle('display','none');
-						node.innerHTML(view.toMetaView().innerHTML);
+                        if(!view.isWraper){
+                            node.setStyle('display','none');
+                        }
+						node.innerHTML(view.toMetaView(node).innerHTML);
 					}
 				}
 			});
@@ -1179,7 +1181,7 @@ $(document).ready(function(){
             $(me.body).find('.dxy-meta-replaced-view').each(function(i,e){
                 var view = ReplacedView.getInstance(e);
                 if(view){
-                    view.toAppropriateView().then(function(){
+                    view.toAppropriateView(e).then(function(){
                         view.mount(e);
                     });
                 }
@@ -1272,7 +1274,7 @@ $(document).ready(function(){
 						if(document.domain!=='dxy.us'){
 							continue;
 						}
-						break
+						break;
 					default:
 						continue;
 				}

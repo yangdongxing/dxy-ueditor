@@ -23,7 +23,7 @@
 						if(document.domain!=='dxy.us'){
 							continue;
 						}
-						break
+						break;
 					default:
 						continue;
 				}
