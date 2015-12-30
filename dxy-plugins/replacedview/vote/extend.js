@@ -4,6 +4,9 @@
 	var IS_PC = isPC();
 	var isLogin = (function(){
 		try{
+			if(window.isLogin){
+				return true;
+			}
 			if(+window.GDATA.userId){
 				return true;
 			}else{
@@ -13,6 +16,10 @@
 			return false;
 		}
 	})();
+	window.setUserLogin = function(login){
+		isLogin = login;
+		ReplacedView.renderAll();
+	};
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -172,20 +179,28 @@
 						var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
 						mark.fetch({
 							success:function(model, res){
+								var i = 2;
+								function fin(){
+									if(i===0){
+										mark.on('change', me.render, me);
+										me.model = mark;
+										me.render();
+									}
+								}
 								if(res.error){
 									console.log(res);
 									return;
 								}
 								try{
-									var xhr = mark.get('group').getUserVotes();
-									if(xhr.readyState===4 && xhr.status===200){
-										var res = JSON.parse(xhr.responseText);
+									var xhr = mark.get('group').getUserVotes().then(function(res){
+										i--;
 										var votes = [];
 										if(res.error){
 											if(res.error.code==101){
 												votes = [];
 											}else{
 												console.log(res);
+												fin();
 												return;
 											}
 										}else{
@@ -198,14 +213,17 @@
 											mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
 											mark.get('group').user_voted = true;
 										});
-									}
+										fin();
+									}, function(res){
+										i--;
+										fin();
+									});
 								}catch(e){
-
+									throw e;
 								}
 								try{
-									xhr = mark.get('group').getVotesStat();
-									if(xhr.readyState===4 && xhr.status===200){
-										var res = JSON.parse(xhr.responseText);
+									xhr = mark.get('group').getVotesStat().then(function(res){
+										i--;
 										if(res.data){
 											_.each(res.data.items, function(item, i){
 												var vote = mark.get('group').attach.findByAttachId(item.vote_id),
@@ -220,13 +238,14 @@
 												opt.total += item.count;
 											});
 										}
-									}
+										fin();
+									}, function(res){
+										i--;
+										fin();
+									});
 								}catch(e){
-
+									throw e;
 								}
-								mark.on('change', me.render, me);
-								me.model = mark;
-								me.render();
 							},
 							error : function(model,res){
 								console.log(res);
@@ -240,8 +259,14 @@
 			}
 		},
 		render : function(){
-			var me = this;
-			require(['dxy-plugins/replacedview/vote/views/mobile.view'], function(tpl){
+			var me = this,
+				view;
+			if(ReplacedView.platform==='mobile'){
+				view = 'dxy-plugins/replacedview/vote/views/mobile.view'
+			}else{
+				view = 'dxy-plugins/replacedview/vote/views/h5.view';
+			}
+			require([view], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({
 		  			votes: me.model.get('group').attach.models, 
 		  			group: me.model.get('group'),
@@ -255,7 +280,7 @@
 		events : {
 			'click .vote-multiple.user_not_voted li' : 'multipleCheck',
 			'click .vote-single.user_not_voted li' : 'singleCheck',
-			'click .user_not_voted .user-vote' : 'userVote'
+			'click .user_not_voted .J-user-vote' : 'userVote'
 		},
 		multipleCheck : function(e){
 			var target = $(e.currentTarget),
@@ -323,6 +348,12 @@
 				}else{
 					var dtds =[];
 					if(vote.attach.user_voted){
+						me.showAlertBox({
+							title : '您已投票',
+							button_title : '好吧',
+							cls : 'global-alert',
+							container : $('body')
+						});
 						return;
 					}
 					_.each(vote.attach.attach.models, function(opt){
@@ -332,18 +363,58 @@
 					});
 					$.when.apply(null, dtds).then(function(res, textStatus, jqXHR){
 						vote.attach.user_voted = true;
-						_.each(vote.attach.attach.models, function(opt){
-							if(opt.checked){
-								opt.total++;
-								vote.vote_total++;
+						if(res.error){
+							if(!window.__voted){
+								ReplacedView.renderAll();
+								return;
 							}
-						});
-						me.model.get('group').user_voted = true;
-						me.render();
+							return;
+						}
+						try{
+							var mark = me.model;
+							xhr = mark.get('group').getVotesStat().then(function(res){
+								if(res.data){
+									_.each(res.data.items, function(item, i){
+										var vote = mark.get('group').attach.findByAttachId(item.vote_id),
+											opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
+										if(!vote.vote_total){
+											vote.vote_total = 0;
+										}
+										if(!opt.total){
+											opt.total = 0;
+										}
+										vote.vote_total += item.count;
+										opt.total += item.count;
+									});
+									me.model.get('group').user_voted = true;
+									me.render();
+								}else{
+									_.each(vote.attach.attach.models, function(opt){
+										if(opt.checked){
+											opt.total++;
+											vote.vote_total++;
+										}
+									});
+									me.model.get('group').user_voted = true;
+									me.render();
+								}
+							}, function(res){
+								_.each(vote.attach.attach.models, function(opt){
+									if(opt.checked){
+										opt.total++;
+										vote.vote_total++;
+									}
+								});
+								me.model.get('group').user_voted = true;
+								me.render();
+							});
+						}catch(e){
+							throw e;
+						}						
 					}, function(res){
 						if(!window.__voted){
 							me.showAlertBox({
-								title : '请登陆',
+								title : '投票失败',
 								button_title : '好吧',
 								cls : 'global-alert',
 								container : $('body')
@@ -358,6 +429,10 @@
 			$('.msg-mark, .editor-alert-box').remove();
 		},
 		showAlertBox : function(opt){
+			if(ReplacedView.platform === 'mobile'){
+				alert(opt.title);
+				return;
+			}
 			var me = this;
 			this.removeAlertBox();
 			$('<div class="msg-mark"></div>').appendTo($('body'));
@@ -381,6 +456,41 @@
 			});
 		}
 	});
+	var VoteMobileView = VoteAppView.extend({
+		checkLogin : function(){
+			var dtd = $.Deferred();
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id=2232&type=0'
+			}).then(function(res){
+				if(res.success === false){
+					dtd.reject();
+				}else{
+					dtd.resolve();
+				}
+			}, function(){
+				dtd.reject();
+			});
+			return dtd;
+		},
+		showLoginBox : function(){
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id=2232&type=0',
+				data : {
+					need_login : 1
+				}
+			});
+		},
+		userVote : function(){
+			var me = this;
+			this.checkLogin().then(function(){
+				VoteAppView.prototype.userVote.apply(me, arguments);
+			}, function(){
+				me.showLoginBox();
+			});
+		}
+	});
 
 	window.VoteReplacedView = ReplacedView.register('vote', {
 		toWechatView : function(){
@@ -393,6 +503,18 @@
 				me = this,
 				dtd = $.Deferred(),
 				view = new VoteAppView(this);
+			view.on('render', function(){
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
+			});
+			return dtd;
+		},
+		toMobileView : function(){
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
+				view = new VoteMobileView(this);
 			view.on('render', function(){
 				ele.appendChild(view.el);
 				me.ele = ele;

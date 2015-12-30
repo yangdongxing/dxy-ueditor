@@ -1,0 +1,156 @@
+.mobile-drug-view-wraper{
+  margin-left: -20px!important;
+  margin-right: -20px!important;
+  margin-bottom: 0px!important;
+  padding: 25px 20px;
+  background-color: rgb(251,251,251);
+  display: table;
+  width: 100%;
+}
+.mobile-drug-view-wraper .mobile-drug-view-body{
+  display: table-cell;
+  vertical-align: middle;
+  padding-left: 45px;
+  background-image: url('http://assets.dxycdn.com/app/dxydoctor/img/editor/mobile-drug.png');
+  background-repeat: no-repeat;
+  background-size: 30px;
+  background-position-y: 50%;
+}
+.mobile-drug-view-wraper .tag{
+    padding: 3px 7px;
+    color: #42a2e1;
+    background-color: #efeeee;
+    border-radius: 7px;
+    display: inline-block;
+}
+.mobile-drug-view-wraper .arrow{
+    height: 30px;
+    width: 16px;
+    background-image: url('http://assets.dxycdn.com/app/dxydoctor/img/editor/mobile-drug-arrow.png');
+    background-repeat: no-repeat;
+    background-size: 48px;
+    background-position: -16px 50%;
+    float: right;
+}
+.mobile-drug-view-wraper .mobile-drug-view-body h4{
+  margin-bottom: 10px;
+}
+.mobile-drug-view-wraper .mobile-drug-view-footer{
+  display: table-cell;
+  vertical-align: middle;
+  width: 25%;
+}
+.editor-vote-group{
+  background-color: rgb(249,249,249)!important;
+  margin-left: -20px!important;
+  margin-right: -20px!important;
+  padding: 0px 20px!important;
+  margin-bottom: 40px!important;
+}
+.editor-vote-group .editor-vote-wraper div{
+  margin: 0px;
+}
+.vote-opt-wraper{
+   
+}
+.vote-opt-wraper a, .vote-expired-tip{
+  margin-left: -20px;
+  margin-right: -20px;
+  margin-bottom: 0px;
+  text-align: center;
+  background-color: rgb(75,199,186);
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: #fff!important;
+  display: block;
+}
+.editor-vote-group h4{
+  padding-top: 20px;
+}
+.editor-vote-group h4 span{
+  background-color: rgb(235,235,235);
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 5px;
+  margin-right: 5px;
+  font-weight: normal;
+}
+.editor-vote-group .vote-body ul{
+  list-style: none;
+  padding: 25px 0px 15px 0px;
+  margin: 0px!important;
+}
+.editor-vote-group .vote-body ul li{
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+.editor-vote-group .vote-body ul li .vote-value{
+  width: 80%;
+  display: inline-block;
+}
+.editor-vote-group .vote-body ul li .vote-state{
+  float: right;
+}
+.editor-vote-group .vote-body ul li .vote-option-main{
+  display: inline-block;
+  width: 85%;
+  line-height: 30px;
+}
+.editor-vote-group .vote-body ul li .vote-option-main .img{
+  float: left;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+.editor-vote-group .vote-body ul li .vote-option-main .img img{
+  margin-bottom: 0px;
+  width: 30px;
+  height: 30px;
+}
+.editor-vote-group .vote-body ul li .vote-option-main .vote-option-value{
+  display: inline-block;
+  width: 80%;
+}
+.editor-vote-group .vote-body ul li .vote-option-sub{
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  float: right;
+}
+.editor-vote-wraper.vote-single.user_not_voted .vote-body li .vote-option-sub{
+  background-image: url('./img/mobile-single-unchecked.png');
+  background-repeat: no-repeat;
+  background-size: 30px;
+}
+.editor-vote-wraper.vote-single.user_not_voted .vote-body li .active .vote-option-sub{
+  background-image: url('./img/mobile-single-checked.png');
+}
+.editor-vote-wraper.vote-multiple.user_not_voted .vote-body li .vote-option-sub{
+  background-image: url('./img/mobile-muli-unchecked.png');
+  background-repeat: no-repeat;
+  background-size: 30px;
+}
+.editor-vote-wraper.vote-multiple.user_not_voted .vote-body li .active .vote-option-sub{
+  background-image: url('./img/mobile-muli-checked.png');
+}
+.editor-vote-wraper .status-bar{
+    height: 4px;
+    width: 100%;
+    background-color: #eee;
+    border-radius: 4px;
+    background-color: rgb(82,82,82);
+}
+.editor-vote-wraper .checked .status-bar{
+  background-color: rgb(75,199,186);
+}
+.editor-vote-wraper .checked  > p{
+  color: rgb(75,199,186);
+}
+.editor-vote-wraper .checked .vote-state{
+  color: rgb(75,199,186);
+}
+.editor-vote-wraper .vote-state{
+  color : rgb(113,113,113);
+}
+.editor-vote-group.user_voted .user-vote{
+  background-color: rgb(206,206,206);
+}

@@ -1195,7 +1195,7 @@ $(document).ready(function(){
 						if(view){
 							view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
                             view.toWechatView();
-                            if(!view.ele.innerHTML){
+                            if(!view.ele || !view.ele.innerHTML){
                                 node.parentNode.removeChild(node);
                             }else{
                                 node.innerHTML(view.ele.innerHTML);

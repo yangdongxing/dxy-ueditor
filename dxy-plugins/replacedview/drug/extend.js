@@ -5,13 +5,12 @@
 		},
 		initialize : function(view){
 			this.view = view;
-			this.el = view.ele;
 			this.render();
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
-				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+			require(['dxy-plugins/replacedview/drug/views/app.view', 'MarkModel'], function(v, m){
+				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
 						return;
@@ -31,19 +30,18 @@
 		  	return this;
 		}
 	});
-	var WebView = Backbone.View.extend({
+	var MobileView = Backbone.View.extend({
 		events: {
 
 		},
 		initialize : function(view){
 			this.view = view;
-			this.el = view.ele;
 			this.render();
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
-				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+			require(['dxy-plugins/replacedview/drug/views/mobile.view', 'MarkModel'], function(v, m){
+				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
 						return;
@@ -52,7 +50,8 @@
 					me.el.innerHTML = t({
 					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
 					  	is_medicare : res.data.items[0].is_medicare,
-					  	drug_company : res.data.items[0].company
+					  	drug_company : res.data.items[0].company,
+					  	drug_url : 'http://yao.dxy.com/drug/'+res.data.items[0].id+'.htm'
 					});
 					me.trigger('render');
 				}, function(res){
@@ -67,22 +66,28 @@
 		},
 		toWebView : function(){
 			return this.toAppView();
-			var ele = this.createWrapNode(true),
-				me = this,
-				dtd = $.Deferred();
-			var tpl = '<span>'+this.data.drug_name+'</span>';
-			ele.innerHTML = tpl;
-			this.ele = ele;
-			setTimeout(function(){
-				dtd.resolve();
-			},0);
-			return dtd;
 		},
 		toAppView : function(){
-			var dtd = $.Deferred(),
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
 				view = new AppView(this);
 			view.on('render', function(){
-				dtd.resolve();
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
+			});
+			return dtd;
+		},
+		toMobileView : function(){
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
+				view = new MobileView(this);
+			view.on('render', function(){
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
 			});
 			return dtd;
 		},

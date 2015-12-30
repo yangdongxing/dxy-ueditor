@@ -109,7 +109,20 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 
 ## replacedview
 ### 已有组件
-`drug` `vote`
+`drug` `vote` `annotation`
+### 组件结构
+
+	name-- extend.js //注册视图，实现界面渲染逻辑。
+		|- toolbar.js //注册ui，注册名应与extend.js中注册名一致
+		|- model.js //定义Backbone model
+		|- views--
+		|        |-*.view //定义不同界面模板
+		|-style--
+		|        |-mobile.css //定义hybird视图样式。（目前其他视图样式写在dxydoctor/dest/css/dxydoctor/editor-custom.css中，为了会根据不同平台视图提出）
+		|-dialog--
+				 |-编辑器bootstrap弹出框模板
+		
+
 ### 如何添加自定义内容（如插入药品信息）
 
 1. 在replacedview目录下新建目录，并在新建的目录下新建dialog目录
@@ -127,6 +140,9 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 			toAppView : function(){
 				//返回自定义内容在web上的视图元素
 			},
+			toMobileView: function(){
+				//返回hybird视图
+			},
 			toEditor : function(){
 				//返回自定义内容在编辑器上的视图元素
 			},
@@ -141,6 +157,8 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 4. 在dialog目录下新建modal.tpl进行弹出视图的编写,最外层元素的id应该是 `dxy-{你注册视图提供的类型名}-modal`, 必须提供id为 `confirm-{你注册视图提供的类型名}`的元素，自动绑定`onModalConfirm`
 5. 由于页面已经引入了underscore和backbone库，推荐使用backbone来创建动态界面，使用underscore模板渲染界面。（例子见`replacedview/vote`）
 6. 任何以`.view`命名的模板，将会自动包装成require模块，模块名为路径名。
+7. `mobile.css`设置hybird视图样式
+8. `model.js` 定义 Backbone model
 
 ### RelpacedView类
 属性：
@@ -166,6 +184,7 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 	toWebView(): 返回web视图元素
 	toAppView(): 返回移动视图元素
 	toEditorView() : 返回编辑器视图元素
+	toMobileView() : 返回hybird视图元素
 	toAppropriateView() : 自动检测不同的平台，并返回最接近的视图
 	mount(target|range): 将当期视图替换目标元素或所选范围
 	serialize(obj) : ...

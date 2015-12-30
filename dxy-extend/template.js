@@ -12,7 +12,7 @@ define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl 
 '	</div>'+
 '	<%}%>'+
 '';return tpl;});
-define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
+define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
 '	<div class="m-drug-view-img">'+
 '		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+
 '	</div>'+
@@ -21,20 +21,18 @@ define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a hre
 '		<p><%=drug_company%></p>'+
 '	</div>'+
 '</a>';return tpl;});
-define("dxy-plugins/replacedview/drug/web.view", function(){var tpl = '<div class=\'web-drug-view-wraper\'>'+
-'	<div>'+
-'		<img src=\'\'>'+
-'	</div>'+
-'	<div class=\'web-drug-view-body\'>'+
+define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '<a class=\'mobile-drug-view-wraper\' href="<%=drug_url%>" target="_black">'+
+'	<div class=\'mobile-drug-view-body\'>'+
 '		<h4><%=drug_name%></h4>'+
 '		<p><%=drug_company%></p>'+
 '	</div>'+
-'	<div class="web-drug-view-footer">'+
+'	<div class="mobile-drug-view-footer">'+
+'		<span class="arrow"></span>'+
 '		<%if(is_medicare){%>'+
 '		<span class="tag">医保</span>'+
 '		<%}%>'+
 '	</div>'+
-'</div>';return tpl;});
+'</a>';return tpl;});
 define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
 ''+
 '<%_.each(marks, function(mark){%>'+
@@ -177,15 +175,10 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '<%})%>'+
 ''+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(true){%>'+
-'<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
+define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
 '<%if(expired){%>'+
 '<a href="javascript:;" class="vote-expired-tip user-vote">'+
 '	投票已过期'+
-'</a>'+
-'<%}else if(!isLogin){%>'+
-'<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="vote-expired-tip user-vote">'+
-'	请登录后再投票'+
 '</a>'+
 '<%}%>'+
 '<%_.each(votes, function(vote, i){%>'+
@@ -257,14 +250,66 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '	</div>'+
 '<%}%>'+
 '<%})%>'+
+'<div class="vote-opt-wraper">'+
 '<%if(!expired && isLogin){%>'+
-'<a href="javascript:;" class="user-vote">'+
+'<a href="javascript:;" class="user-vote J-user-vote">'+
 '	<%if(group.user_voted){print(\'你已投票\')}else if(isLogin){print(\'我要投票\')}%>'+
+'</a>'+
+'<%}else if(!isLogin){%>'+
+'<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="user-vote">'+
+'	登录'+
 '</a>'+
 '<%}%>'+
 '</div>'+
-'<%}else{%><%}%>'+
-'';return tpl;});
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
+'<%_.each(votes, function(vote, i){%>'+
+'	<div class="editor-vote-wraper <%if(+vote.attach.get(\'type\')===0){print(\'vote-single\')}else{print(\'vote-multiple\')}%> <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'		<h4><span>投票</span><%=vote.attach.get(\'title\')%></h4>'+
+'		<div class="vote-body">'+
+'			<ul>'+
+'				<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
+'						<%if(group.user_voted){%>'+
+'						<p>'+
+'							<span class="vote-value"><%=opt.attach.get(\'value\')%></span><span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
+'						</p>'+
+'						<div class="status-bar" style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;">'+
+'						</div>'+
+'						<%}else{%>'+
+'						<div class="<%if(opt.checked){print(\'active\')}%>">'+
+'							<div class="vote-option-main">'+
+'								<%if(opt.attach.get(\'img\')){%>'+
+'								<span class="img">'+
+'									<img src="<%=opt.attach.get(\'img\')%>">'+
+'								</span>'+
+'								<%}%>'+
+'								<span class="vote-option-value"><%=opt.attach.get(\'value\')%></span>'+
+'							</div>'+
+'							<div class="vote-option-sub">'+
+'								'+
+'							</div>'+
+'						</div>'+
+'						<%}%>'+
+'					</li>'+
+'				<%})%>'+
+'			</ul>'+
+'		</div>'+
+'	</div>'+
+'<%})%>'+
+'<%if(expired){%>'+
+'<a href="javascript:;" class="vote-expired-tip user-vote">'+
+'	投票已过期'+
+'</a>'+
+'<%}%>'+
+'<div class="vote-opt-wraper">'+
+'<%if(!expired){%>'+
+'<a href="javascript:;" class="user-vote J-user-vote">'+
+'	<%if(group.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'</a>'+
+'<%}%>'+
+'</div>'+
+'</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl = '<%if(list && list.length>0){%>'+
 '<ul class="search-list">'+
 '	<%_.each(list, function(item,i){%>'+

@@ -182,6 +182,9 @@
 		toAppView : function(){
 			throw new Error('you should provide toAppView in the config');
 		},
+		toMobileView : function(){
+			throw new Error('you should provide toAppView in the config');
+		},
 		toEditorView : function(){
 			throw new Error('you should provide toAppView in the config');
 		},
@@ -215,6 +218,9 @@
 						ReplacedView.platform = 'pc';
 					}
 				}else{
+					ReplacedView.platform = 'h5';
+				}
+				if(window.DXYJSBridge){
 					ReplacedView.platform = 'mobile';
 				}
 			}
@@ -223,8 +229,10 @@
 					return this.toWebView(ele);
 				case 'editor' :
 					return this.toEditorView(ele);
-				case 'mobile' :
+				case 'h5' :
 					return this.toAppView(ele);
+				case 'mobile':
+					return this.toMobileView(ele);
 			}
 		},
 		mount : function(ele){

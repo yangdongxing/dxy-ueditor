@@ -48,19 +48,75 @@
     }
     return g.Date;
 });
-define('AnnotationModel', ['DxyModel'], function(dxy){
-	var API_HOST = 'http://'+document.domain+'/';
-	var AnnotationModel = dxy.Model.extend({
-		urlRoot : API_HOST + 'admin/i/card/annotation'
-	});
-	window.M = AnnotationModel;
-	return {
-		AnnotationModel : AnnotationModel
-	}
-});
+var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
+(function(){
+// 	window.DXYJSBridge = {};
+// window.DXYJSBridge.invoke = function(a, options, callback){
+// 	if(options.url.indexOf('functionmarker')!==-1){
+// 		setTimeout(function(){
+// 			callback({
+// 				code : 200,
+// 				data : {"data":{"items":[{"id":150,"status":1,"title":"测试排序","content":"默认内容","s_time":"2015-12-23 11:08:22","e_time":"2015-12-31 00:00:00","votes":[{"id":258,"group_id":150,"vote_id":255,"vote_type":0,"vote_title":"选择分数1","vote_content":"默认内容","sort":2,"nodes":[{"id":797,"vote_id":255,"node_id":807,"node_value":"1","sort":3},{"id":798,"vote_id":255,"node_id":808,"node_value":"2","sort":2},{"id":799,"vote_id":255,"node_id":809,"node_value":"3","sort":1}]},{"id":259,"group_id":150,"vote_id":256,"vote_type":1,"vote_title":"选择分数2","vote_content":"默认内容","sort":1,"nodes":[{"id":800,"vote_id":256,"node_id":810,"node_value":"1","sort":3},{"id":801,"vote_id":256,"node_id":811,"node_value":"2","sort":2},{"id":802,"vote_id":256,"node_id":812,"node_value":"函数阿达","sort":1}]}]}]}}
+// 			});
+// 		}, 1000);
+// 	}else if(options.url.indexOf('result')!==-1){
+// 		setTimeout(function(){
+// 			callback({
+// 				code : 200,
+// 				data : {"data":{"total_items":2,"items_per_page":5,"current_item_count":2,"total_pages":1,"page_index":1,"start_index":1,"items":[{"id":103,"group_id":150,"vote_id":256,"node_id":811,"user_id":1,"creator":1,"modifier":1,"create_time":"2015-12-23 13:14:14","modify_time":"2015-12-23 13:14:14"},{"id":102,"group_id":150,"vote_id":255,"node_id":807,"user_id":1,"creator":1,"modifier":1,"create_time":"2015-12-23 13:14:14","modify_time":"2015-12-23 13:14:14"}]}}
+// 			});
+// 		}, 1000);
+// 	}else if(options.url.indexOf('stat')!==-1){
+// 		setTimeout(function(){
+// 			callback({
+// 				code : 200,
+// 				data : {"data":{"total_items":6,"items_per_page":100,"current_item_count":6,"total_pages":1,"page_index":1,"start_index":1,"items":[{"id":715,"group_id":150,"vote_id":256,"node_id":812,"count":0},{"id":714,"group_id":150,"vote_id":256,"node_id":811,"count":1},{"id":713,"group_id":150,"vote_id":256,"node_id":810,"count":0},{"id":712,"group_id":150,"vote_id":255,"node_id":809,"count":0},{"id":711,"group_id":150,"vote_id":255,"node_id":808,"count":0},{"id":710,"group_id":150,"vote_id":255,"node_id":807,"count":1}]}}
+// 			});
+// 		}, 1000);
+// 	}
+// };
+	var ajax = Backbone.ajax;
+	Backbone.ajax = function(options){
+		function preProressUrl(url){
+			return url.replace('/view/i/','/app/i/').replace('/user/i/', '/app/i/user/');
+		}
+		if(window.DXYJSBridge){
+			var dtd = $.Deferred(),
+				xhr = dtd.promise();
+			options.url = preProressUrl(options.url);
+			DXYJSBridge.invoke("getServerData", {
+			    "url": options.url,
+			    "method": options.type.toLowerCase(),
+			    "params" : options.data || {}
+			}, function(res){
+			    if(res){
+			       if(res.code===200){
+			       		xhr.statusCode = 200;
+			       		xhr.readyState = 4;
+			       		xhr.responseText = JSON.stringify(res.data);
+			       		options.success && options.success(res.data, 200, xhr)
+			       		dtd.resolve(res.data);
+			       }else{
+			       		xhr.statusCode = parseInt(res.code);
+			       		xhr.readyState = 4;
+			       		xhr.responseText = JSON.stringify(res.data);
+			       		options.error && options.error(xhr, res.data);
+			       		dtd.reject(res.data);
+			       }
+			    }else{
+			    	options.error && options.error(xhr);
+			    	dtd.reject({});
+			    }
+			});
+			return xhr;
+		}else{
+			return ajax.apply(null, arguments);
+		}
+	};
+})();
+
 define('MarkModel', function(){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://'+document.domain+'/';
 	var MarkModel = Backbone.Model.extend({
 		sync : function(method, model, options){
 			switch(method){
@@ -82,8 +138,28 @@ define('MarkModel', function(){
 			}
 		}
 	});
+	var UserMarkModel = Backbone.Model.extend({
+		sync : function(method, model, options){
+			switch(method){
+				case 'read':
+					options.url = API_HOST + 'view/i/functionmarker/single?obj_id='+this.get('obj_id')+'&type='+this.get('type');
+					break;
+			}
+			return Backbone.sync(method, model, options);
+		},
+		parse : function(resp){
+			if(resp.data){
+				return {
+					attach : resp.data.items[0]
+				}
+			}else{
+				return {};
+			}
+		}
+	});
 	return {
-		MarkModel : MarkModel
+		MarkModel : MarkModel,
+		UserMarkModel : UserMarkModel
 	};
 });
 
@@ -329,9 +405,18 @@ define('DxyCollection', function(){
 		Collection : Collection
 	}
 });
+define('AnnotationModel', ['DxyModel'], function(dxy){
+	var API_HOST = 'http://'+document.domain+'/';
+	var AnnotationModel = dxy.Model.extend({
+		urlRoot : API_HOST + 'admin/i/card/annotation'
+	});
+	window.M = AnnotationModel;
+	return {
+		AnnotationModel : AnnotationModel
+	}
+});
 define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -559,7 +644,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				});
 				return res.slice(0,-1);
 			}
-			return $.get(API_HOST+'admin/i/userprofile/tag/pick?'+process(ids));
+			return Backbone.ajax({
+				type : 'GET',
+				url : API_HOST+'admin/i/userprofile/tag/pick?'+process(ids)
+			});
 		}
 	});
 	var DeseaseTagsModel = DxyCollection.Collection.extend({
@@ -573,7 +661,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				});
 				return res.slice(0,-1);
 			}
-			return $.get(API_HOST+'admin/i/common/disease/pick?'+process(ids));
+			return Backbone.ajax({
+				type : 'GET',
+				url : API_HOST+'admin/i/common/disease/pick?'+process(ids)
+			});
 		}
 	});
 	var SymptomTagsModel = DxyCollection.Collection.extend({
@@ -587,7 +678,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				});
 				return res.slice(0,-1);
 			}
-			return $.get(API_HOST+'admin/i/common/symptom/pick?'+process(ids));
+			return Backbone.ajax({
+				type : 'GET',
+				url : API_HOST+'admin/i/common/symptom/pick?'+process(ids)
+			});
 		}
 	});
 	var NodeLinkModel = Backbone.Model.extend({
@@ -862,16 +956,14 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			}
 		},
 		getUserVotes : function(){
-			var xhr = $.ajax({
-				async: false,
+			var xhr = Backbone.ajax({
 				url : API_HOST+'user/i/vote/result/list?group_id='+this.get('id'),
 				type : 'GET'
 			});
 			return xhr;
 		},
 		getVotesStat : function(){
-			var xhr = $.ajax({
-				async: false,
+			var xhr = Backbone.ajax({
 				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
 				type : 'GET'
 			});
@@ -1363,10 +1455,14 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			return Backbone.sync(method, model, options);
 		},
 		userChooseVoteOption : function(nid, vid, gid){
-			return $.post(API_HOST+'user/i/vote/result/add', {
-				node_id : nid,
-				vote_id : vid,
-				group_id : gid
+			return Backbone.ajax({
+				type : 'POST',
+				url : API_HOST+'user/i/vote/result/add',
+				data : {
+					node_id : nid,
+					vote_id : vid,
+					group_id : gid
+				}
 			});
 		}
 	});
@@ -1575,6 +1671,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		toAppView : function(){
 			throw new Error('you should provide toAppView in the config');
 		},
+		toMobileView : function(){
+			throw new Error('you should provide toAppView in the config');
+		},
 		toEditorView : function(){
 			throw new Error('you should provide toAppView in the config');
 		},
@@ -1608,6 +1707,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 						ReplacedView.platform = 'pc';
 					}
 				}else{
+					ReplacedView.platform = 'h5';
+				}
+				if(window.DXYJSBridge){
 					ReplacedView.platform = 'mobile';
 				}
 			}
@@ -1616,8 +1718,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					return this.toWebView(ele);
 				case 'editor' :
 					return this.toEditorView(ele);
-				case 'mobile' :
+				case 'h5' :
 					return this.toAppView(ele);
+				case 'mobile':
+					return this.toMobileView(ele);
 			}
 		},
 		mount : function(ele){
@@ -1813,7 +1917,7 @@ define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl 
 '	</div>'+
 '	<%}%>'+
 '';return tpl;});
-define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
+define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
 '	<div class="m-drug-view-img">'+
 '		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+
 '	</div>'+
@@ -1822,20 +1926,18 @@ define("dxy-plugins/replacedview/drug/mobile.view", function(){var tpl = '<a hre
 '		<p><%=drug_company%></p>'+
 '	</div>'+
 '</a>';return tpl;});
-define("dxy-plugins/replacedview/drug/web.view", function(){var tpl = '<div class=\'web-drug-view-wraper\'>'+
-'	<div>'+
-'		<img src=\'\'>'+
-'	</div>'+
-'	<div class=\'web-drug-view-body\'>'+
+define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '<a class=\'mobile-drug-view-wraper\' href="<%=drug_url%>" target="_black">'+
+'	<div class=\'mobile-drug-view-body\'>'+
 '		<h4><%=drug_name%></h4>'+
 '		<p><%=drug_company%></p>'+
 '	</div>'+
-'	<div class="web-drug-view-footer">'+
+'	<div class="mobile-drug-view-footer">'+
+'		<span class="arrow"></span>'+
 '		<%if(is_medicare){%>'+
 '		<span class="tag">医保</span>'+
 '		<%}%>'+
 '	</div>'+
-'</div>';return tpl;});
+'</a>';return tpl;});
 define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
 ''+
 '<%_.each(marks, function(mark){%>'+
@@ -1978,15 +2080,10 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '<%})%>'+
 ''+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<%if(true){%>'+
-'<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
+define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
 '<%if(expired){%>'+
 '<a href="javascript:;" class="vote-expired-tip user-vote">'+
 '	投票已过期'+
-'</a>'+
-'<%}else if(!isLogin){%>'+
-'<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="vote-expired-tip user-vote">'+
-'	请登录后再投票'+
 '</a>'+
 '<%}%>'+
 '<%_.each(votes, function(vote, i){%>'+
@@ -2058,14 +2155,66 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '	</div>'+
 '<%}%>'+
 '<%})%>'+
+'<div class="vote-opt-wraper">'+
 '<%if(!expired && isLogin){%>'+
-'<a href="javascript:;" class="user-vote">'+
+'<a href="javascript:;" class="user-vote J-user-vote">'+
 '	<%if(group.user_voted){print(\'你已投票\')}else if(isLogin){print(\'我要投票\')}%>'+
+'</a>'+
+'<%}else if(!isLogin){%>'+
+'<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="user-vote">'+
+'	登录'+
 '</a>'+
 '<%}%>'+
 '</div>'+
-'<%}else{%><%}%>'+
-'';return tpl;});
+'</div>';return tpl;});
+define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
+'<%_.each(votes, function(vote, i){%>'+
+'	<div class="editor-vote-wraper <%if(+vote.attach.get(\'type\')===0){print(\'vote-single\')}else{print(\'vote-multiple\')}%> <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
+'		<h4><span>投票</span><%=vote.attach.get(\'title\')%></h4>'+
+'		<div class="vote-body">'+
+'			<ul>'+
+'				<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
+'						<%if(group.user_voted){%>'+
+'						<p>'+
+'							<span class="vote-value"><%=opt.attach.get(\'value\')%></span><span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
+'						</p>'+
+'						<div class="status-bar" style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;">'+
+'						</div>'+
+'						<%}else{%>'+
+'						<div class="<%if(opt.checked){print(\'active\')}%>">'+
+'							<div class="vote-option-main">'+
+'								<%if(opt.attach.get(\'img\')){%>'+
+'								<span class="img">'+
+'									<img src="<%=opt.attach.get(\'img\')%>">'+
+'								</span>'+
+'								<%}%>'+
+'								<span class="vote-option-value"><%=opt.attach.get(\'value\')%></span>'+
+'							</div>'+
+'							<div class="vote-option-sub">'+
+'								'+
+'							</div>'+
+'						</div>'+
+'						<%}%>'+
+'					</li>'+
+'				<%})%>'+
+'			</ul>'+
+'		</div>'+
+'	</div>'+
+'<%})%>'+
+'<%if(expired){%>'+
+'<a href="javascript:;" class="vote-expired-tip user-vote">'+
+'	投票已过期'+
+'</a>'+
+'<%}%>'+
+'<div class="vote-opt-wraper">'+
+'<%if(!expired){%>'+
+'<a href="javascript:;" class="user-vote J-user-vote">'+
+'	<%if(group.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+
+'</a>'+
+'<%}%>'+
+'</div>'+
+'</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl = '<%if(list && list.length>0){%>'+
 '<ul class="search-list">'+
 '	<%_.each(list, function(item,i){%>'+
@@ -2335,13 +2484,12 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 		},
 		initialize : function(view){
 			this.view = view;
-			this.el = view.ele;
 			this.render();
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
-				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+			require(['dxy-plugins/replacedview/drug/views/app.view', 'MarkModel'], function(v, m){
+				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
 						return;
@@ -2361,19 +2509,18 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 		  	return this;
 		}
 	});
-	var WebView = Backbone.View.extend({
+	var MobileView = Backbone.View.extend({
 		events: {
 
 		},
 		initialize : function(view){
 			this.view = view;
-			this.el = view.ele;
 			this.render();
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/mobile.view', 'MarkModel'], function(v, m){
-				var mark = new m.MarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
+			require(['dxy-plugins/replacedview/drug/views/mobile.view', 'MarkModel'], function(v, m){
+				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
 						return;
@@ -2382,7 +2529,8 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 					me.el.innerHTML = t({
 					  	drug_name : res.data.items[0].name_cn+'('+res.data.items[0].name_common+')',
 					  	is_medicare : res.data.items[0].is_medicare,
-					  	drug_company : res.data.items[0].company
+					  	drug_company : res.data.items[0].company,
+					  	drug_url : 'http://yao.dxy.com/drug/'+res.data.items[0].id+'.htm'
 					});
 					me.trigger('render');
 				}, function(res){
@@ -2397,22 +2545,28 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 		},
 		toWebView : function(){
 			return this.toAppView();
-			var ele = this.createWrapNode(true),
-				me = this,
-				dtd = $.Deferred();
-			var tpl = '<span>'+this.data.drug_name+'</span>';
-			ele.innerHTML = tpl;
-			this.ele = ele;
-			setTimeout(function(){
-				dtd.resolve();
-			},0);
-			return dtd;
 		},
 		toAppView : function(){
-			var dtd = $.Deferred(),
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
 				view = new AppView(this);
 			view.on('render', function(){
-				dtd.resolve();
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
+			});
+			return dtd;
+		},
+		toMobileView : function(){
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
+				view = new MobileView(this);
+			view.on('render', function(){
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
 			});
 			return dtd;
 		},
@@ -2517,6 +2671,9 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 	var IS_PC = isPC();
 	var isLogin = (function(){
 		try{
+			if(window.isLogin){
+				return true;
+			}
 			if(+window.GDATA.userId){
 				return true;
 			}else{
@@ -2526,6 +2683,10 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			return false;
 		}
 	})();
+	window.setUserLogin = function(login){
+		isLogin = login;
+		ReplacedView.renderAll();
+	};
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -2685,20 +2846,28 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 						var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
 						mark.fetch({
 							success:function(model, res){
+								var i = 2;
+								function fin(){
+									if(i===0){
+										mark.on('change', me.render, me);
+										me.model = mark;
+										me.render();
+									}
+								}
 								if(res.error){
 									console.log(res);
 									return;
 								}
 								try{
-									var xhr = mark.get('group').getUserVotes();
-									if(xhr.readyState===4 && xhr.status===200){
-										var res = JSON.parse(xhr.responseText);
+									var xhr = mark.get('group').getUserVotes().then(function(res){
+										i--;
 										var votes = [];
 										if(res.error){
 											if(res.error.code==101){
 												votes = [];
 											}else{
 												console.log(res);
+												fin();
 												return;
 											}
 										}else{
@@ -2711,14 +2880,17 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 											mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
 											mark.get('group').user_voted = true;
 										});
-									}
+										fin();
+									}, function(res){
+										i--;
+										fin();
+									});
 								}catch(e){
-
+									throw e;
 								}
 								try{
-									xhr = mark.get('group').getVotesStat();
-									if(xhr.readyState===4 && xhr.status===200){
-										var res = JSON.parse(xhr.responseText);
+									xhr = mark.get('group').getVotesStat().then(function(res){
+										i--;
 										if(res.data){
 											_.each(res.data.items, function(item, i){
 												var vote = mark.get('group').attach.findByAttachId(item.vote_id),
@@ -2733,13 +2905,14 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 												opt.total += item.count;
 											});
 										}
-									}
+										fin();
+									}, function(res){
+										i--;
+										fin();
+									});
 								}catch(e){
-
+									throw e;
 								}
-								mark.on('change', me.render, me);
-								me.model = mark;
-								me.render();
 							},
 							error : function(model,res){
 								console.log(res);
@@ -2753,8 +2926,14 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			}
 		},
 		render : function(){
-			var me = this;
-			require(['dxy-plugins/replacedview/vote/views/mobile.view'], function(tpl){
+			var me = this,
+				view;
+			if(ReplacedView.platform==='mobile'){
+				view = 'dxy-plugins/replacedview/vote/views/mobile.view'
+			}else{
+				view = 'dxy-plugins/replacedview/vote/views/h5.view';
+			}
+			require([view], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({
 		  			votes: me.model.get('group').attach.models, 
 		  			group: me.model.get('group'),
@@ -2768,7 +2947,7 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 		events : {
 			'click .vote-multiple.user_not_voted li' : 'multipleCheck',
 			'click .vote-single.user_not_voted li' : 'singleCheck',
-			'click .user_not_voted .user-vote' : 'userVote'
+			'click .user_not_voted .J-user-vote' : 'userVote'
 		},
 		multipleCheck : function(e){
 			var target = $(e.currentTarget),
@@ -2836,6 +3015,12 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 				}else{
 					var dtds =[];
 					if(vote.attach.user_voted){
+						me.showAlertBox({
+							title : '您已投票',
+							button_title : '好吧',
+							cls : 'global-alert',
+							container : $('body')
+						});
 						return;
 					}
 					_.each(vote.attach.attach.models, function(opt){
@@ -2845,18 +3030,58 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 					});
 					$.when.apply(null, dtds).then(function(res, textStatus, jqXHR){
 						vote.attach.user_voted = true;
-						_.each(vote.attach.attach.models, function(opt){
-							if(opt.checked){
-								opt.total++;
-								vote.vote_total++;
+						if(res.error){
+							if(!window.__voted){
+								ReplacedView.renderAll();
+								return;
 							}
-						});
-						me.model.get('group').user_voted = true;
-						me.render();
+							return;
+						}
+						try{
+							var mark = me.model;
+							xhr = mark.get('group').getVotesStat().then(function(res){
+								if(res.data){
+									_.each(res.data.items, function(item, i){
+										var vote = mark.get('group').attach.findByAttachId(item.vote_id),
+											opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
+										if(!vote.vote_total){
+											vote.vote_total = 0;
+										}
+										if(!opt.total){
+											opt.total = 0;
+										}
+										vote.vote_total += item.count;
+										opt.total += item.count;
+									});
+									me.model.get('group').user_voted = true;
+									me.render();
+								}else{
+									_.each(vote.attach.attach.models, function(opt){
+										if(opt.checked){
+											opt.total++;
+											vote.vote_total++;
+										}
+									});
+									me.model.get('group').user_voted = true;
+									me.render();
+								}
+							}, function(res){
+								_.each(vote.attach.attach.models, function(opt){
+									if(opt.checked){
+										opt.total++;
+										vote.vote_total++;
+									}
+								});
+								me.model.get('group').user_voted = true;
+								me.render();
+							});
+						}catch(e){
+							throw e;
+						}						
 					}, function(res){
 						if(!window.__voted){
 							me.showAlertBox({
-								title : '请登陆',
+								title : '投票失败',
 								button_title : '好吧',
 								cls : 'global-alert',
 								container : $('body')
@@ -2871,6 +3096,10 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			$('.msg-mark, .editor-alert-box').remove();
 		},
 		showAlertBox : function(opt){
+			if(ReplacedView.platform === 'mobile'){
+				alert(opt.title);
+				return;
+			}
 			var me = this;
 			this.removeAlertBox();
 			$('<div class="msg-mark"></div>').appendTo($('body'));
@@ -2894,6 +3123,41 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 			});
 		}
 	});
+	var VoteMobileView = VoteAppView.extend({
+		checkLogin : function(){
+			var dtd = $.Deferred();
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id=2232&type=0'
+			}).then(function(res){
+				if(res.success === false){
+					dtd.reject();
+				}else{
+					dtd.resolve();
+				}
+			}, function(){
+				dtd.reject();
+			});
+			return dtd;
+		},
+		showLoginBox : function(){
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id=2232&type=0',
+				data : {
+					need_login : 1
+				}
+			});
+		},
+		userVote : function(){
+			var me = this;
+			this.checkLogin().then(function(){
+				VoteAppView.prototype.userVote.apply(me, arguments);
+			}, function(){
+				me.showLoginBox();
+			});
+		}
+	});
 
 	window.VoteReplacedView = ReplacedView.register('vote', {
 		toWechatView : function(){
@@ -2906,6 +3170,18 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 				me = this,
 				dtd = $.Deferred(),
 				view = new VoteAppView(this);
+			view.on('render', function(){
+				ele.appendChild(view.el);
+				me.ele = ele;
+				dtd.resolve(ele);
+			});
+			return dtd;
+		},
+		toMobileView : function(){
+			var ele = this.createWrapNode(true),
+				me = this,
+				dtd = $.Deferred(),
+				view = new VoteMobileView(this);
 			view.on('render', function(){
 				ele.appendChild(view.el);
 				me.ele = ele;

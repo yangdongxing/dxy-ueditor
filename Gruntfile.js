@@ -27,8 +27,12 @@ module.exports = function (grunt) {
                 dest : 'dxy-plugins/modals/dxy-plugin-modals.tpl'
             },
             model : {
-                src : ['dxy-plugins/**/model.js'],
+                src : ['dxy-plugins/replacedview/model.js', 'dxy-plugins/**/model.js'],
                 dest : 'models.js'
+            },
+            mobilecss : {
+               src : ['dxy-plugins/**/mobile.css'],
+                dest : 'ueditor.dxy.plugin.mobile.css' 
             }
         },
         watch: {
@@ -51,6 +55,10 @@ module.exports = function (grunt) {
             replacedview : {
                 files : ['dxy-plugins/**/*.view'],
                 tasks : ['require_html']
+            },
+            mobilecss : {
+                files : ['dxy-plugins/**/mobile.css'],
+                tasks : ['concat:mobilecss']
             }
         },
         require_html: {

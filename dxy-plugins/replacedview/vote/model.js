@@ -1,6 +1,5 @@
 define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
 	Backbone.emulateJSON = true;
-	var API_HOST = 'http://'+document.domain+'/';
 	function fomat(date, fmt){
 		var o = {   
 			"YYYY" : date.getFullYear(),
@@ -228,7 +227,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				});
 				return res.slice(0,-1);
 			}
-			return $.get(API_HOST+'admin/i/userprofile/tag/pick?'+process(ids));
+			return Backbone.ajax({
+				type : 'GET',
+				url : API_HOST+'admin/i/userprofile/tag/pick?'+process(ids)
+			});
 		}
 	});
 	var DeseaseTagsModel = DxyCollection.Collection.extend({
@@ -242,7 +244,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				});
 				return res.slice(0,-1);
 			}
-			return $.get(API_HOST+'admin/i/common/disease/pick?'+process(ids));
+			return Backbone.ajax({
+				type : 'GET',
+				url : API_HOST+'admin/i/common/disease/pick?'+process(ids)
+			});
 		}
 	});
 	var SymptomTagsModel = DxyCollection.Collection.extend({
@@ -256,7 +261,10 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				});
 				return res.slice(0,-1);
 			}
-			return $.get(API_HOST+'admin/i/common/symptom/pick?'+process(ids));
+			return Backbone.ajax({
+				type : 'GET',
+				url : API_HOST+'admin/i/common/symptom/pick?'+process(ids)
+			});
 		}
 	});
 	var NodeLinkModel = Backbone.Model.extend({
@@ -531,16 +539,14 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			}
 		},
 		getUserVotes : function(){
-			var xhr = $.ajax({
-				async: false,
+			var xhr = Backbone.ajax({
 				url : API_HOST+'user/i/vote/result/list?group_id='+this.get('id'),
 				type : 'GET'
 			});
 			return xhr;
 		},
 		getVotesStat : function(){
-			var xhr = $.ajax({
-				async: false,
+			var xhr = Backbone.ajax({
 				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
 				type : 'GET'
 			});
@@ -1032,10 +1038,14 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			return Backbone.sync(method, model, options);
 		},
 		userChooseVoteOption : function(nid, vid, gid){
-			return $.post(API_HOST+'user/i/vote/result/add', {
-				node_id : nid,
-				vote_id : vid,
-				group_id : gid
+			return Backbone.ajax({
+				type : 'POST',
+				url : API_HOST+'user/i/vote/result/add',
+				data : {
+					node_id : nid,
+					vote_id : vid,
+					group_id : gid
+				}
 			});
 		}
 	});

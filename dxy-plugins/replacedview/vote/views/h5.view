@@ -1,0 +1,87 @@
+<div class="editor-vote-group <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>" >
+<%if(expired){%>
+<a href="javascript:;" class="vote-expired-tip user-vote">
+	投票已过期
+</a>
+<%}%>
+<%_.each(votes, function(vote, i){%>
+<%if(+vote.attach.get('type')===0){%>
+	<div class="editor-vote-wraper vote-single <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+		<div class="vote-type"></div>
+		<h4><%=vote.attach.get('title')%></h4>
+		<div class="vote-body">
+			<ul>
+				<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
+						<%if(group.user_voted){%>
+						<p>
+							<%=opt.attach.get('value')%>
+						</p>
+						<div style="height:10px;">
+							<p class="vote-state-bar">
+								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
+							</p>
+							<span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
+						</div>
+						<%}else{%>
+						<div class="<%if(opt.checked){print('active')}%>">
+							<%if(opt.attach.get('img')){%>
+							<span class="img">
+								<img src="<%=opt.attach.get('img')%>">
+							</span>
+							<%}%>
+							<span><%=opt.attach.get('value')%></span>
+						</div>
+						<%}%>
+					</li>
+				<%})%>
+			</ul>
+		</div>
+	</div>
+<%}else{%>
+	<div class="editor-vote-wraper vote-multiple <%if(!group.user_voted){print('user_not_voted')}else{print('user_voted')}%>">
+		<div class="vote-type"></div>
+		<h4><%=vote.attach.get('title')%></h4>
+		<div class="vote-body">
+			<ul>
+				<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
+						<%if(group.user_voted){%>
+						<p>
+							<%=opt.attach.get('value')%>
+						</p>
+						<div style="height:10px;">
+							<p class="vote-state-bar">
+								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
+							</p>
+							<span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
+						</div>
+						<%}else{%>
+						<div class="<%if(opt.checked){print('active')}%>">
+							<%if(opt.attach.get('img')){%>
+							<span class="img">
+								<img src="<%=opt.attach.get('img')%>">
+							</span>
+							<%}%>
+							<span><%=opt.attach.get('value')%></span>
+						</div>
+						<%}%>
+					</li>
+				<%})%>
+			</ul>
+		</div>
+	</div>
+<%}%>
+<%})%>
+<div class="vote-opt-wraper">
+<%if(!expired && isLogin){%>
+<a href="javascript:;" class="user-vote J-user-vote">
+	<%if(group.user_voted){print('你已投票')}else if(isLogin){print('我要投票')}%>
+</a>
+<%}else if(!isLogin){%>
+<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="user-vote">
+	登录
+</a>
+<%}%>
+</div>
+</div>

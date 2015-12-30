@@ -1,0 +1,12 @@
+<a class='mobile-drug-view-wraper' href="<%=drug_url%>" target="_black">
+	<div class='mobile-drug-view-body'>
+		<h4><%=drug_name%></h4>
+		<p><%=drug_company%></p>
+	</div>
+	<div class="mobile-drug-view-footer">
+		<span class="arrow"></span>
+		<%if(is_medicare){%>
+		<span class="tag">医保</span>
+		<%}%>
+	</div>
+</a>

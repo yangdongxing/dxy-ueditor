@@ -1,0 +1,42 @@
+.mobile-drug-view-wraper{
+  margin-left: -20px!important;
+  margin-right: -20px!important;
+  margin-bottom: 0px!important;
+  padding: 25px 20px;
+  background-color: rgb(251,251,251);
+  display: table;
+  width: 100%;
+}
+.mobile-drug-view-wraper .mobile-drug-view-body{
+  display: table-cell;
+  vertical-align: middle;
+  padding-left: 45px;
+  background-image: url('http://assets.dxycdn.com/app/dxydoctor/img/editor/mobile-drug.png');
+  background-repeat: no-repeat;
+  background-size: 30px;
+  background-position-y: 50%;
+}
+.mobile-drug-view-wraper .tag{
+    padding: 3px 7px;
+    color: #42a2e1;
+    background-color: #efeeee;
+    border-radius: 7px;
+    display: inline-block;
+}
+.mobile-drug-view-wraper .arrow{
+    height: 30px;
+    width: 16px;
+    background-image: url('http://assets.dxycdn.com/app/dxydoctor/img/editor/mobile-drug-arrow.png');
+    background-repeat: no-repeat;
+    background-size: 48px;
+    background-position: -16px 50%;
+    float: right;
+}
+.mobile-drug-view-wraper .mobile-drug-view-body h4{
+  margin-bottom: 10px;
+}
+.mobile-drug-view-wraper .mobile-drug-view-footer{
+  display: table-cell;
+  vertical-align: middle;
+  width: 25%;
+}
