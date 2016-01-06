@@ -73,6 +73,7 @@
 	</div>
 <%}%>
 <%})%>
+<%if(!expired){%>
 <div class="vote-opt-wraper">
 <%if(!expired && isLogin){%>
 <a href="javascript:;" class="user-vote J-user-vote">
@@ -80,8 +81,9 @@
 </a>
 <%}else if(!isLogin){%>
 <a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="user-vote">
-	登录
+	登录并投票
 </a>
 <%}%>
 </div>
+<%}%>
 </div>

@@ -4,7 +4,8 @@ var styles = 'h2{'+
 '	font-size: 20px;'+
 '	color : #262626;'+
 '	line-height: 1.75;'+
-'	margin-bottom: 0px;'+
+'	margin-bottom: 15px;'+
+'	margin-top: 10px;'+
 '}'+
 'p{'+
 '	font-size: 17px;'+
@@ -20,9 +21,16 @@ var styles = 'h2{'+
 '}'+
 'ul, ol{'+
 '	margin: 0 0 !important;'+
+'	font-size: inherit;'+
+'	padding-left: 30px!important;'+
 '}'+
 'strong{'+
 '	color : #262626;'+
+'}'+
+'blockquote{'+
+'	margin: 0;'+
+'    padding-left: 10px;'+
+'    border-left: 3px solid #dbdbdb;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles);

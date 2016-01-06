@@ -33,12 +33,12 @@
 		</div>
 	</div>
 <%})%>
+<div class="vote-opt-wraper">
 <%if(expired){%>
 <a href="javascript:;" class="vote-expired-tip user-vote">
 	投票已过期
 </a>
 <%}%>
-<div class="vote-opt-wraper">
 <%if(!expired){%>
 <a href="javascript:;" class="user-vote J-user-vote">
 	<%if(group.user_voted){print('已投票')}else{print('我要投票')}%>

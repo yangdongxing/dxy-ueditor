@@ -336,69 +336,37 @@
 				}
 				return;
 			}
-			_.each(me.model.get('group').attach.models, function(vote, i){
-				tag = false;
-				_.each(vote.attach.attach.models, function(opt){
-					if(opt.checked){
-						tag = true;
-					}
-				});
-				if(!tag){
-					return;
-				}else{
-					var dtds =[];
-					if(vote.attach.user_voted){
+			var xhr = me.model.get('group').userVote();
+			if(xhr){
+				xhr.then(function(res){
+					if(res.error){
 						me.showAlertBox({
-							title : '您已投票',
+							title : '投票失败',
 							button_title : '好吧',
 							cls : 'global-alert',
 							container : $('body')
 						});
 						return;
 					}
-					_.each(vote.attach.attach.models, function(opt){
-						if(opt.checked){
-							dtds.push(me.model.userChooseVoteOption(opt.get('node_id'), vote.get('vote_id'), vote.get('group_id')));
-						}
-					});
-					$.when.apply(null, dtds).then(function(res, textStatus, jqXHR){
-						vote.attach.user_voted = true;
-						if(res.error){
-							if(!window.__voted){
-								ReplacedView.renderAll();
-								return;
-							}
-							return;
-						}
-						try{
-							var mark = me.model;
-							xhr = mark.get('group').getVotesStat().then(function(res){
-								if(res.data){
-									_.each(res.data.items, function(item, i){
-										var vote = mark.get('group').attach.findByAttachId(item.vote_id),
-											opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
-										if(!vote.vote_total){
-											vote.vote_total = 0;
-										}
-										if(!opt.total){
-											opt.total = 0;
-										}
-										vote.vote_total += item.count;
-										opt.total += item.count;
-									});
-									me.model.get('group').user_voted = true;
-									me.render();
-								}else{
-									_.each(vote.attach.attach.models, function(opt){
-										if(opt.checked){
-											opt.total++;
-											vote.vote_total++;
-										}
-									});
-									me.model.get('group').user_voted = true;
-									me.render();
-								}
-							}, function(res){
+					try{
+						var mark = me.model;
+						xhr = mark.get('group').getVotesStat().then(function(res){
+							if(res.data){
+								_.each(res.data.items, function(item, i){
+									var vote = mark.get('group').attach.findByAttachId(item.vote_id),
+										opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
+									if(!vote.vote_total){
+										vote.vote_total = 0;
+									}
+									if(!opt.total){
+										opt.total = 0;
+									}
+									vote.vote_total += item.count;
+									opt.total += item.count;
+								});
+								me.model.get('group').user_voted = true;
+								me.render();
+							}else{
 								_.each(vote.attach.attach.models, function(opt){
 									if(opt.checked){
 										opt.total++;
@@ -407,23 +375,41 @@
 								});
 								me.model.get('group').user_voted = true;
 								me.render();
+							}
+						}, function(res){
+							_.each(vote.attach.attach.models, function(opt){
+								if(opt.checked){
+									opt.total++;
+									vote.vote_total++;
+								}
 							});
-						}catch(e){
-							throw e;
-						}						
-					}, function(res){
-						if(!window.__voted){
-							me.showAlertBox({
-								title : '投票失败',
-								button_title : '好吧',
-								cls : 'global-alert',
-								container : $('body')
-							});
-						}
-						window.__voted = true;
+							me.model.get('group').user_voted = true;
+							me.render();
+						});
+					}catch(e){
+						me.showAlertBox({
+							title : '投票失败',
+							button_title : '好吧',
+							cls : 'global-alert',
+							container : $('body')
+						});
+					}
+				}, function(){
+					me.showAlertBox({
+						title : '投票失败',
+						button_title : '好吧',
+						cls : 'global-alert',
+						container : $('body')
 					});
-				}
-			});
+				});
+			}else{
+				me.showAlertBox({
+					title : '请填完当前组内的所有选项后再投票',
+					button_title : '好吧',
+					cls : 'global-alert',
+					container : $('body')
+				});
+			}
 		},
 		removeAlertBox : function(){
 			$('.msg-mark, .editor-alert-box').remove();
@@ -461,7 +447,7 @@
 			var dtd = $.Deferred();
 			Backbone.ajax({
 				type : 'GET',
-				url : 'http://dxy.com/app/i/user/likes/single?obj_id=2232&type=0'
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id='+window.pid+'&type=0'
 			}).then(function(res){
 				if(res.success === false){
 					dtd.reject();
@@ -476,7 +462,7 @@
 		showLoginBox : function(){
 			Backbone.ajax({
 				type : 'GET',
-				url : 'http://dxy.com/app/i/user/likes/single?obj_id=2232&type=0',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id='+window.pid+'&type=0',
 				data : {
 					need_login : 1
 				}

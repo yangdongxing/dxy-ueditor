@@ -923,8 +923,8 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '      <div class="modal-body">'+
 '        <form>'+
 '          <div class="form-group row">'+
-'            <label class="control-label col-md-6"><a>如何获取药品ID></a></label>'+
-'            <label class="control-label col-md-6"><a>查找药品ID></a></label>'+
+'            <label class="control-label col-md-6"><a href="http://wiki.dxy.net/pages/viewpage.action?pageId=58262720" target="_black">如何获取药品ID></a></label>'+
+'            <label class="control-label col-md-6"><a href="http://drugs.dxy.cn/index.htm?TAG=DXYSeditor" target="_black">查找药品ID></a></label>'+
 '          </div>'+
 '          <div class="input-group" style="margin-bottom:15px;">'+
 '            <input type="text" class="form-control" id="drug-id" placeholder="请输入5位药品数字ID">'+
@@ -1394,12 +1394,12 @@ $(document).ready(function(){
 			}
 		}, 'styleSet');
 
-		//段落后空行
+		//段落后空行, 移除img alt属性
 		me.addWechatOutputRule(function(root){
 			if(loadCount!==2){
 				throw new Error('cssparser or sizzer not loaded');
 			}
-			UE.utils.each(Y('p, h2, ul, ol, blockquote', root), function(ele){
+			UE.utils.each(Y('p, img, ul, ol, blockquote', root), function(ele){
 				if(ele.parentNode.type==='root' || ele.parentNode.tagName==='blockquote'){
 					if(ele.innerText()===''){
 						return;
@@ -1415,6 +1415,14 @@ $(document).ready(function(){
 	     				tagName:'p',
 	     				 attrs:{style:'line-height:1.5;font-size:17px;'}
 	     			}), ele);
+				}
+				if(ele.tagName==='img' && (ele.parentNode.tagName==='p')){
+					ele.setAttr('alt', '');
+					ele.parentNode.parentNode.insertAfter(new UE.uNode({
+	     				type:'element',
+	     				tagName:'p',
+	     				 attrs:{style:'line-height:1.5;font-size:17px;'}
+	     			}), ele.parentNode);
 				}
 			});
 		}, 'structEdit');
@@ -1534,7 +1542,8 @@ var styles = 'h2{'+
 '	font-size: 20px;'+
 '	color : #262626;'+
 '	line-height: 1.75;'+
-'	margin-bottom: 0px;'+
+'	margin-bottom: 15px;'+
+'	margin-top: 10px;'+
 '}'+
 'p{'+
 '	font-size: 17px;'+
@@ -1550,9 +1559,16 @@ var styles = 'h2{'+
 '}'+
 'ul, ol{'+
 '	margin: 0 0 !important;'+
+'	font-size: inherit;'+
+'	padding-left: 30px!important;'+
 '}'+
 'strong{'+
 '	color : #262626;'+
+'}'+
+'blockquote{'+
+'	margin: 0;'+
+'    padding-left: 10px;'+
+'    border-left: 3px solid #dbdbdb;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles);

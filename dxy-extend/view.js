@@ -291,13 +291,31 @@
 		if(typeof obj==='string'){
 			return obj;
 		}
-		return window.encodeURIComponent(JSON.stringify(obj));
+		var res = '';
+		for(var prop in obj){
+			if(obj.hasOwnProperty(prop)){
+				res += (prop + '=' + obj[prop]+'&');
+			}
+		}
+		return res.slice(0, -1);
 	};
 	ReplacedView.deSerialize = function(str){
 		if(typeof str === 'object'){
 			return str;
 		}
-		return JSON.parse(window.decodeURIComponent(str));
+		try{
+			return JSON.parse(window.decodeURIComponent(str));
+		}catch(e){
+
+		}
+		var items = str.split('&'),
+			res = {},
+			item;
+		for(var i=0, len=items? items.length: 0; i<len; i++){
+			item = items[i].split('=');
+			res[item[0]] = item[1];
+		}
+		return res;
 	};
 	ReplacedView.isReplacedView = function(node){
 		return node.nodeType===1 && node.getAttribute('data-type') && node.getAttribute('data-params') && node.className.indexOf('dxy-meta-replaced-view')!==-1 && ReplacedView.custom[node.getAttribute('data-type')];

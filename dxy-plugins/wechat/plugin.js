@@ -66,12 +66,12 @@
 			}
 		}, 'styleSet');
 
-		//段落后空行
+		//段落后空行, 移除img alt属性
 		me.addWechatOutputRule(function(root){
 			if(loadCount!==2){
 				throw new Error('cssparser or sizzer not loaded');
 			}
-			UE.utils.each(Y('p, h2, ul, ol, blockquote', root), function(ele){
+			UE.utils.each(Y('p, img, ul, ol, blockquote', root), function(ele){
 				if(ele.parentNode.type==='root' || ele.parentNode.tagName==='blockquote'){
 					if(ele.innerText()===''){
 						return;
@@ -87,6 +87,14 @@
 	     				tagName:'p',
 	     				 attrs:{style:'line-height:1.5;font-size:17px;'}
 	     			}), ele);
+				}
+				if(ele.tagName==='img' && (ele.parentNode.tagName==='p')){
+					ele.setAttr('alt', '');
+					ele.parentNode.parentNode.insertAfter(new UE.uNode({
+	     				type:'element',
+	     				tagName:'p',
+	     				 attrs:{style:'line-height:1.5;font-size:17px;'}
+	     			}), ele.parentNode);
 				}
 			});
 		}, 'structEdit');

@@ -82,8 +82,8 @@
       <div class="modal-body">
         <form>
           <div class="form-group row">
-            <label class="control-label col-md-6"><a>如何获取药品ID></a></label>
-            <label class="control-label col-md-6"><a>查找药品ID></a></label>
+            <label class="control-label col-md-6"><a href="http://wiki.dxy.net/pages/viewpage.action?pageId=58262720" target="_black">如何获取药品ID></a></label>
+            <label class="control-label col-md-6"><a href="http://drugs.dxy.cn/index.htm?TAG=DXYSeditor" target="_black">查找药品ID></a></label>
           </div>
           <div class="input-group" style="margin-bottom:15px;">
             <input type="text" class="form-control" id="drug-id" placeholder="请输入5位药品数字ID">

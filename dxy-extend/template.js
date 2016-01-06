@@ -250,6 +250,7 @@ define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div
 '	</div>'+
 '<%}%>'+
 '<%})%>'+
+'<%if(!expired){%>'+
 '<div class="vote-opt-wraper">'+
 '<%if(!expired && isLogin){%>'+
 '<a href="javascript:;" class="user-vote J-user-vote">'+
@@ -257,10 +258,11 @@ define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div
 '</a>'+
 '<%}else if(!isLogin){%>'+
 '<a href="https://account.dxy.com/login?redirect_uri=<%=window.location.href%>" class="user-vote">'+
-'	登录'+
+'	登录并投票'+
 '</a>'+
 '<%}%>'+
 '</div>'+
+'<%}%>'+
 '</div>';return tpl;});
 define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
 '<%_.each(votes, function(vote, i){%>'+
@@ -297,12 +299,12 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '		</div>'+
 '	</div>'+
 '<%})%>'+
+'<div class="vote-opt-wraper">'+
 '<%if(expired){%>'+
 '<a href="javascript:;" class="vote-expired-tip user-vote">'+
 '	投票已过期'+
 '</a>'+
 '<%}%>'+
-'<div class="vote-opt-wraper">'+
 '<%if(!expired){%>'+
 '<a href="javascript:;" class="user-vote J-user-vote">'+
 '	<%if(group.user_voted){print(\'已投票\')}else{print(\'我要投票\')}%>'+

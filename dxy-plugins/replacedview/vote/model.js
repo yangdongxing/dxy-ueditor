@@ -119,12 +119,14 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				list = value.split('$$');
 				_.each(list, function(item){
 					if(item.indexOf('=')===-1){
-						me.set('value', item, {silent:true});
+						me.attributes.value = item;
 					}else{
-						me.set(item.split('=')[0], item.split('=')[1], {silent:true});
+						me.attributes[item.split('=')[0]] =  item.split('=')[1];
 					}
 				});
 			}
+			me._previousAttributes = _.clone(me.attributes);
+			me.changed = {};
 		},
 		processPostData : function(data){
 			var img = data.img;
@@ -340,7 +342,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 	var VoteModel = Backbone.Model.extend({
 		constructor : function(data){
 			var me = this;
-			this.attach = new NodeLinksModel(data.nodes);
+			this.attach = new NodeLinksModel(data.nodes||[]);
 			this.attach.parent = this;
 			delete data.nodes;
 			data.type = data.type===undefined? 0 : data.type;
@@ -410,6 +412,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			}else{
 				return resp;
 			}
+
 		},
 		addOption : function(){
 			var	nodes = this.attach,
@@ -537,6 +540,43 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			}else{
 				return resp;
 			}
+		},
+		processVoteData : function(){
+			var res = 'group_id=' + this.get('id')+'&';
+			_.each(this.attach.models, function(vote){
+				var vote_id = vote.attach.get('id');
+				_.each(vote.attach.attach.models, function(node){
+					if(!node.checked){
+						return;
+					}
+					var node_id = node.attach.get('id');
+					res += ('vote_id='+vote_id+'&node_id='+node_id+'&');
+				});
+			});
+			return res.slice(0,-1);
+		},
+		userVote : function(){
+			var me = this;
+			try{
+				_.each(me.attach.models, function(vote, i){
+					var tag = false;
+					_.each(vote.attach.attach.models, function(opt){
+						if(opt.checked){
+							tag = true;
+						}
+					});
+					if(!tag){
+						throw new Error();
+					}
+				});
+			}catch(e){
+				return;
+			}
+			return Backbone.ajax({
+				url : API_HOST + 'user/i/vote/result/batch_add',
+				type : 'POST',
+				data : me.processVoteData()
+			});
 		},
 		getUserVotes : function(){
 			var xhr = Backbone.ajax({
@@ -935,6 +975,50 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			}
 			return dtd;
 		},
+		gen2 : function(opt){
+			var me = this;
+			if(!this.get('obj_id')){
+				opt.error('require obj_id');
+				return;
+			}
+			Backbone.$.get(API_HOST+'admin/i/vote/group/single_all?id='+this.get('obj_id')).then(function(res){
+				if(res.error){
+					opt.error('加载投票数据失败');
+					return;
+				}
+				if(res.data && res.data.items && res.data.items[0]){
+					var votelinks, 
+					res = res.data.items[0];
+					me.addGroup(new VoteGroupModel({}));
+					votelinks = res.group_vote_links;
+					delete res.group_vote_links;
+					me.get('group').attributes = res;
+					me.get('group').attach.id = me.get('group').get('id');
+					_.each(votelinks, function(votelink){
+						var vote = votelink.vote,
+							nodelinks = vote.vote_node_links;
+						delete votelink.vote;
+						votelink = new VoteGroupLinkModel(votelink);
+						delete vote.vote_node_links;
+						me.get('group').attach.add(votelink);
+						votelink.addNode(new VoteModel({}));
+						votelink.attach.attributes = vote;
+						_.each(nodelinks, function(nodelink){
+							var node = nodelink.node;
+							delete nodelink.node;
+							nodelink = new NodeLinkModel(nodelink);
+							votelink.attach.attach.add(nodelink);
+							nodelink.addNode(new NodeModel({}));
+							nodelink.attach.attributes = node;
+							nodelink.attach.processInData();
+						});
+					});
+					opt.success();
+				}
+			}, function(res){
+				opt.error('加载投票数据失败');
+			});
+		},
 		gen : function(opt){
 			if(!this.get('obj_id')){
 				opt.error('require obj_id');
@@ -956,6 +1040,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 						}
 					}
 				});
+				this.get('group').changed = {};
 				this.get('group').attach.id = this.get('group').get('id');
 				this.get('group').attach.fetch({
 					async: false,
@@ -989,6 +1074,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 							}
 						}
 					});
+					votelink.attach.changed = {};
 					votelink.attach.attach.id = votelink.attach.get('id');
 					votelink.attach.attach.fetch({
 						async: false,
