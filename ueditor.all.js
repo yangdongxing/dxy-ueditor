@@ -8627,7 +8627,8 @@ var filterWord = UE.filterWord = function () {
         'src':1,
         '_src':1,
         '_href':1,
-        'cdata_data':1
+        'cdata_data':1,
+        'data-params' :1
     };
 
     var notTransTagName = {
@@ -8698,7 +8699,9 @@ var filterWord = UE.filterWord = function () {
             //源码模式下输入html标签，不能做转换处理，直接输出
             arr.push(node.data)
         }else{
-            arr.push(notTransTagName[node.parentNode.tagName] ? utils.html(node.data) : node.data.replace(/[ ]{2}/g,' &nbsp;'))
+            //!yansSun 文本节点转义
+            arr.push(utils.html(node.data));
+            // arr.push(notTransTagName[node.parentNode.tagName] ? utils.html(node.data) : node.data.replace(/[ ]{2}/g,' &nbsp;'))
         }
 
     }

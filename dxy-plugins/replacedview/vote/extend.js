@@ -168,95 +168,11 @@
 	});
 
 	var VoteAppView = Backbone.View.extend({
-		initialize : function(view){
-			try{
-				var me = this;
-				me.view = view;
-				require(['VoteModel'], function(m){
-					if(!view.data.group_id){
-						return;
-					}else{
-						var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
-						mark.fetch({
-							success:function(model, res){
-								var i = 2;
-								function fin(){
-									if(i===0){
-										mark.on('change', me.render, me);
-										me.model = mark;
-										me.render();
-									}
-								}
-								if(res.error){
-									console.log(res);
-									return;
-								}
-								try{
-									var xhr = mark.get('group').getUserVotes().then(function(res){
-										i--;
-										var votes = [];
-										if(res.error){
-											if(res.error.code==101){
-												votes = [];
-											}else{
-												console.log(res);
-												fin();
-												return;
-											}
-										}else{
-											votes = res.data.items;
-										}
-										_.each(votes, function(vote){
-											var vote_id = vote.vote_id,
-												node_id = vote.node_id;
-											mark.get('group').attach.findByAttachId(vote_id).attach.attach.findByAttachId(node_id).checked = true;
-											mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
-											mark.get('group').user_voted = true;
-										});
-										fin();
-									}, function(res){
-										i--;
-										fin();
-									});
-								}catch(e){
-									throw e;
-								}
-								try{
-									xhr = mark.get('group').getVotesStat().then(function(res){
-										i--;
-										if(res.data){
-											_.each(res.data.items, function(item, i){
-												var vote = mark.get('group').attach.findByAttachId(item.vote_id),
-													opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
-												if(!vote.vote_total){
-													vote.vote_total = 0;
-												}
-												if(!opt.total){
-													opt.total = 0;
-												}
-												vote.vote_total += item.count;
-												opt.total += item.count;
-											});
-										}
-										fin();
-									}, function(res){
-										i--;
-										fin();
-									});
-								}catch(e){
-									throw e;
-								}
-							},
-							error : function(model,res){
-								console.log(res);
-								return;
-							}
-						});
-					}
-				});
-			}catch(e){
-				console.log(e);
-			}
+		initialize : function(view, mark){
+			this.view = view;
+			mark.on('change', this.render, this);
+			this.model = mark;
+			this.render();
 		},
 		render : function(){
 			var me = this,
@@ -478,7 +394,163 @@
 		}
 	});
 
+	var SingleButtonVoteAppView =  VoteAppView.extend({
+		render : function(){
+			var me = this,
+				view;
+			if(ReplacedView.platform==='mobile'){
+				view = 'dxy-plugins/replacedview/vote/views/singlebutton/mobile.view'
+			}else{
+				view = 'dxy-plugins/replacedview/vote/views/singlebutton/mobile.view';
+			}
+			_.each(me.model.get('group').attach.models, function(vote, i){
+				var vote_total = vote.vote_total;
+				var total = 0;
+				_.each(vote.attach.attach.models,function(opt,j, all){
+					var opt_total = opt.total;
+					var percent = opt_total/vote_total;
+					if(isNaN(percent)){
+						percent = 0.5;
+					}
+					var width =  Math.round(100/(all.length+1))+Math.round(100/(all.length+1)*percent);
+					opt.width = width;
+					total +=  width;
+				});
+				vote.attach.attach.models[0].width += (100-total);
+			});
+			require([view], function(tpl){
+		  		me.el.innerHTML = _.template(tpl)({
+		  			votes: me.model.get('group').attach.models, 
+		  			group: me.model.get('group'),
+		  			expired : new Date()>new Date(me.model.get('group').get('e_time')),
+		  			isLogin : isLogin,
+		  			bgcolors : ['rgb(65,178,166)','rgb(254,150,126)','rgb(65,178,166)','rgb(254,150,126)','rgb(65,178,166)','rgb(254,150,126)']
+		  		});
+				me.trigger('render');
+		  	});
+			return me;
+		},
+		events : {
+			'click .user_not_voted .editor-vote-option' : 'singleCheck',
+		},
+		singleCheck : function(e){
+			var target = $(e.currentTarget),
+				id = target.data('id'),
+				options = this.model.find(target.data('model')).models,
+				tag = false,
+				me = this;
+			_.each(options, function(opt, i){
+				if(i===+id){
+					opt.checked = true;
+				}else{
+					opt.checked = false;
+				}
+			});
+			try{
+			_.each(me.model.get('group').attach.models, function(vote, i){
+				tag = false;
+				_.each(vote.attach.attach.models, function(opt){
+					if(opt.checked){
+						tag = true;
+					}
+				});
+				if(!tag){
+					throw new Error();
+				}
+			});
+			}catch(e){
+				return;
+			}
+			this.userVote();
+		},
+	});
+
 	window.VoteReplacedView = ReplacedView.register('vote', {
+		genMark : function(){
+			var view = this,
+				dtd = $.Deferred();
+			require(['VoteModel'], function(m){
+				var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
+				mark.fetch({
+					success:function(model, res){
+						var i = 2;
+						function fin(){
+							if(i===0){
+								dtd.resolve(mark);
+							}
+						}
+						if(res.error){
+							console.log(res);
+							dtd.reject();
+							return;
+						}
+						try{
+							var xhr = mark.get('group').getUserVotes().then(function(res){
+								i--;
+								var votes = [];
+								if(res.error){
+									if(res.error.code==101){
+										votes = [];
+									}else{
+										console.log(res);
+										fin();
+										return;
+									}
+								}else{
+									votes = res.data.items;
+								}
+								_.each(votes, function(vote){
+									var vote_id = vote.vote_id,
+										node_id = vote.node_id;
+									mark.get('group').attach.findByAttachId(vote_id).attach.attach.findByAttachId(node_id).checked = true;
+									mark.get('group').attach.findByAttachId(vote_id).attach.user_voted = true;
+									mark.get('group').user_voted = true;
+								});
+								fin();
+							}, function(res){
+								i--;
+								fin();
+							});
+						}catch(e){
+							dtd.reject();
+							console.error(e);
+							return;
+						}
+						try{
+							xhr = mark.get('group').getVotesStat().then(function(res){
+								i--;
+								if(res.data){
+									_.each(res.data.items, function(item, i){
+										var vote = mark.get('group').attach.findByAttachId(item.vote_id),
+											opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
+										if(!vote.vote_total){
+											vote.vote_total = 0;
+										}
+										if(!opt.total){
+											opt.total = 0;
+										}
+										vote.vote_total += item.count;
+										opt.total += item.count;
+									});
+								}
+								fin();
+							}, function(res){
+								i--;
+								fin();
+							});
+						}catch(e){
+							dtd.reject();
+							console.error(e);
+						}
+					},
+					error : function(model,res){
+						console.log(res);
+						dtd.reject();
+					}
+				});
+			});
+			return dtd;
+		},
 		toWechatView : function(){
 		},
 		toWebView : function(){
@@ -488,11 +560,20 @@
 			var ele = this.createWrapNode(true),
 				me = this,
 				dtd = $.Deferred(),
-				view = new VoteAppView(this);
-			view.on('render', function(){
+				show_type = me.data.show_type,
+				view;
+			this.genMark().then(function(mark){
+				var show_type = mark.get('group').get('show_type');
+				if(!show_type || show_type==0){
+					view = new VoteAppView(me, mark);
+				}else if(show_type==1){
+					view = new SingleButtonVoteAppView(me, mark);
+				}
 				ele.appendChild(view.el);
 				me.ele = ele;
 				dtd.resolve(ele);
+			}, function(){
+				dtd.reject();
 			});
 			return dtd;
 		},
@@ -500,11 +581,20 @@
 			var ele = this.createWrapNode(true),
 				me = this,
 				dtd = $.Deferred(),
-				view = new VoteMobileView(this);
-			view.on('render', function(){
+				show_type = me.data.show_type,
+				view;
+			this.genMark().then(function(mark){
+				var show_type = mark.get('group').get('show_type');
+				if(!show_type || show_type==0){
+					view = new VoteMobileView(me, mark);
+				}else if(show_type==1){
+					view = new SingleButtonVoteAppView(me, mark);
+				}
 				ele.appendChild(view.el);
 				me.ele = ele;
 				dtd.resolve(ele);
+			}, function(){
+				dtd.reject();
 			});
 			return dtd;
 		},

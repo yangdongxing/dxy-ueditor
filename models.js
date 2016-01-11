@@ -275,6 +275,7 @@ define('DxyCollection', function(){
 			var items_per_page = options.items_per_page || this.items_per_page;
 			var search = options.q || this.q;
 			var base = this.urlRoot;
+			var args = options.args || this.args;
 			if(!base){
 				throw new Error('Dxy Collection require urlRoot defined');
 			}
@@ -284,6 +285,13 @@ define('DxyCollection', function(){
 					case 'read' :
 						if(search){
 							options.url = base + 'search?q='+search+'&items_per_page='+items_per_page+'&page_index='+page_index;
+						}else if(args){
+							options.url = base + 'list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
+							for(var prop in args){
+								if(args.hasOwnProperty(prop)){
+									options.url += ('&'+prop+'='+args[prop]);
+								}
+							}
 						}else{
 							options.url = base + 'list' + '?page_index='+page_index+'&items_per_page='+items_per_page;
 						}
@@ -940,9 +948,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				return;
 			}
 			return Backbone.ajax({
-				url : API_HOST + 'user/i/vote/result/batch_add',
+				url : API_HOST + 'user/i/vote/result/batch_add?'+ me.processVoteData(),
 				type : 'POST',
-				data : me.processVoteData()
+				data : {}
 			});
 		},
 		getUserVotes : function(){

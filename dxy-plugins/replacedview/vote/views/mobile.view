@@ -8,7 +8,7 @@
 					<li data-id="<%=j%>"  class="<%if(opt.checked){print('checked')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">
 						<%if(group.user_voted){%>
 						<p>
-							<span class="vote-value"><%=opt.attach.get('value')%></span><span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
+							<span class="vote-value"><%=opt.attach.get('value')%></span><span class="vote-state"><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
 						</p>
 						<div class="status-bar" style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;">
 						</div>

@@ -21,7 +21,7 @@
 							<p class="vote-state-bar">
 								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
 							</p>
-							<span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
+							<span class="vote-state"><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
 						</div>
 						<%}else{%>
 						<div class="<%if(opt.checked){print('active')}%>">
@@ -54,7 +54,7 @@
 							<p class="vote-state-bar">
 								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%>%;display:inline-block;padding-right: 0px;"></span>
 							</p>
-							<span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
+							<span class="vote-state"><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%>%</span>
 						</div>
 						<%}else{%>
 						<div class="<%if(opt.checked){print('active')}%>">

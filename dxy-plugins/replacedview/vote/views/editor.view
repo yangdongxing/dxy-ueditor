@@ -1,6 +1,7 @@
 <div class="editor-vote-container">
 <p>
 	<span class="tag">投票</span>
+	<span class="tag"><%if(group.get('show_type')==0){print('默认类型')}else if(group.get('show_type')==1){print('横排单选')}%></span>
 	<span class="tag"><%if(group.get('status')=='0'){print('禁用')}else if(group.get('status')=='1'){print('正常')}else{print('删除')}%></span>
 	<span class="tag"><%if(new Date()<new Date(group.get('e_time')) && new Date()>=new Date(group.get('s_time'))){print('进行中')}else if(new Date()>new Date(group.get('e_time'))){print('已过期')}else{print('未开始')}%></span>
 </p>

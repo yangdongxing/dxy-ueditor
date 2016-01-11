@@ -573,9 +573,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 				return;
 			}
 			return Backbone.ajax({
-				url : API_HOST + 'user/i/vote/result/batch_add',
+				url : API_HOST + 'user/i/vote/result/batch_add?'+ me.processVoteData(),
 				type : 'POST',
-				data : me.processVoteData()
+				data : {}
 			});
 		},
 		getUserVotes : function(){

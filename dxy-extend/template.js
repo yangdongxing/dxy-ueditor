@@ -103,6 +103,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-container">'+
 '<p>'+
 '	<span class="tag">投票</span>'+
+'	<span class="tag"><%if(group.get(\'show_type\')==0){print(\'默认类型\')}else if(group.get(\'show_type\')==1){print(\'横排单选\')}%></span>'+
 '	<span class="tag"><%if(group.get(\'status\')==\'0\'){print(\'禁用\')}else if(group.get(\'status\')==\'1\'){print(\'正常\')}else{print(\'删除\')}%></span>'+
 '	<span class="tag"><%if(new Date()<new Date(group.get(\'e_time\')) && new Date()>=new Date(group.get(\'s_time\'))){print(\'进行中\')}else if(new Date()>new Date(group.get(\'e_time\'))){print(\'已过期\')}else{print(\'未开始\')}%></span>'+
 '</p>'+
@@ -198,7 +199,7 @@ define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div
 '							<p class="vote-state-bar">'+
 '								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
 '							</p>'+
-'							<span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
+'							<span class="vote-state"><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
 '						</div>'+
 '						<%}else{%>'+
 '						<div class="<%if(opt.checked){print(\'active\')}%>">'+
@@ -231,7 +232,7 @@ define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div
 '							<p class="vote-state-bar">'+
 '								<span style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;display:inline-block;padding-right: 0px;"></span>'+
 '							</p>'+
-'							<span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
+'							<span class="vote-state"><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
 '						</div>'+
 '						<%}else{%>'+
 '						<div class="<%if(opt.checked){print(\'active\')}%>">'+
@@ -274,7 +275,7 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '					<li data-id="<%=j%>"  class="<%if(opt.checked){print(\'checked\')}%>" data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>">'+
 '						<%if(group.user_voted){%>'+
 '						<p>'+
-'							<span class="vote-value"><%=opt.attach.get(\'value\')%></span><span class="vote-state"><%if(vote.vote_total){print(Math.floor(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
+'							<span class="vote-value"><%=opt.attach.get(\'value\')%></span><span class="vote-state"><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%>%</span>'+
 '						</p>'+
 '						<div class="status-bar" style="width:<%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%>%;">'+
 '						</div>'+
@@ -319,3 +320,60 @@ define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl
 '	<%})%>'+
 '</ul>'+
 '<%}%>';return tpl;});
+define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(){var tpl = '<div class="editor-button-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> <%if(!expired){print(\'not_expired\')}else{print(\'expired\')}%>">'+
+'<%if(group.user_voted){%>'+
+'<%if(expired){%>'+
+''+
+'<%_.each(votes, function(vote, i){%>'+
+'	<div class="editor-vote-wraper clearfix">'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<div class="editor-vote-option <%if(opt.checked){print(\'checked\')}%>" style="<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<span class="user-check"><%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%></span>'+
+'				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%></i>%</span>'+
+'			</div>'+
+'		<%})%>'+
+'	</div>'+
+'<%})%>'+
+''+
+'<%}else{%>'+
+''+
+'<%_.each(votes, function(vote, i){%>'+
+'	<div class="editor-vote-wraper clearfix">'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<div class="editor-vote-option <%if(opt.checked){print(\'checked\')}%>" style="<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<span class="user-check"><%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%></span>'+
+'				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%></i>%</span>'+
+'			</div>'+
+'		<%})%>'+
+'	</div>'+
+'<%})%>'+
+''+
+'<%}%>'+
+'<%}else{%>'+
+'<%if(expired){%>'+
+''+
+'<%_.each(votes, function(vote, i){%>'+
+''+
+'<%})%>'+
+''+
+'<%}else{%>'+
+''+
+'<%_.each(votes, function(vote, i){%>'+
+'	<table class="editor-vote-wraper clearfix">'+
+'		<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option" style="<%if(j==0){print(\'padding-right:6px\')}else if(j==vote.attach.attach.models.length-1){print(\'padding-left:6px\')}else{print(\'padding-right:6px;padding-left:6px\')}%>"  data-model="group-attach-<%=i%>-attach-attach" data-id="<%=j%>" >'+
+'				<div>'+
+'					<span style="background-color: <%=bgcolors[j]%>"><%=opt.attach.get(\'value\')%></span>'+
+'				</div>'+
+'			</td>'+
+'		<%})%>'+
+'		</tr>'+
+'	</table>'+
+'<%})%>'+
+''+
+'<%}%>'+
+'<%}%>'+
+'</div>';return tpl;});

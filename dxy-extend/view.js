@@ -308,6 +308,7 @@
 		}catch(e){
 
 		}
+		str = str.replace(/&amp;/g, '&');
 		var items = str.split('&'),
 			res = {},
 			item;
