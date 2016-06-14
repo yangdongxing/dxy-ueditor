@@ -1,0 +1,11 @@
+<section class="laiwen-user-question clearfix">
+	<%if(img.value){%>
+		<section class="avatar">
+			<img src="<%=img.value%>">
+		</section>
+	<%}%>
+	<section class="dialog">
+		<section class="view-wraper"><%=content.value%></section>
+	</section>
+	<section class="clear">&nbsp;</section>
+</section>

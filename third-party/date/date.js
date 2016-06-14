@@ -1,6 +1,6 @@
 (function(root, factory) {
     root.Date = factory(root);
-})(this, function(g){
+})(window, function(g){
     var D,
         staticMethods = ['UTC','apply','bind','call','constructor','hasOwnProperty','isPrototypeOf','now','parse','propertyIsEnumerable','toLocaleString', 'toString', 'valueOf'];
     if(!g.Date.tag){
@@ -33,7 +33,6 @@
             }
         };
         g.Date.tag = 'hehe';
-        g.Date.name = 'Date';
         for(var i=0,len=staticMethods.length; i<len; i++){
             g.Date[staticMethods[i]] = (function(methodName){
                 return function(){

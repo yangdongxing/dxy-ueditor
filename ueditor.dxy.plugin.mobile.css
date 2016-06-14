@@ -81,8 +81,8 @@
   margin: 0px!important;
 }
 .editor-vote-group .vote-body ul li{
-  padding-top: 25px;
-  padding-bottom: 25px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 .editor-vote-group .vote-body ul li .vote-value{
   width: 80%;
@@ -121,7 +121,7 @@
   background-repeat: no-repeat;
   background-size: 30px;
 }
-.editor-vote-wraper.vote-single.user_not_voted .vote-body li .active .vote-option-sub{
+.editor-vote-wraper.vote-single.user_not_voted .vote-body li.checked .vote-option-sub{
   background-image: url('./img/mobile-single-checked.png');
 }
 .editor-vote-wraper.vote-multiple.user_not_voted .vote-body li .vote-option-sub{
@@ -129,8 +129,11 @@
   background-repeat: no-repeat;
   background-size: 30px;
 }
-.editor-vote-wraper.vote-multiple.user_not_voted .vote-body li .active .vote-option-sub{
+.editor-vote-wraper.vote-multiple.user_not_voted .vote-body li.checked .vote-option-sub{
   background-image: url('./img/mobile-muli-checked.png');
+}
+.editor-vote-wraper.vote-multiple.user_voted .vote-body li .vote-option-sub{
+  background-image: none!important;
 }
 .editor-vote-wraper .status-bar{
     height: 4px;
@@ -153,4 +156,7 @@
 }
 .editor-vote-group.user_voted .user-vote{
   background-color: rgb(206,206,206);
+}
+.mobile-drug-view-body p{
+  margin-bottom: 0px!important;
 }

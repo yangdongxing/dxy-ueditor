@@ -635,8 +635,7 @@
 })();
 UE.plugin.register('editorstyle', function(){
 var editor = this;
-var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Avenir", "Hiragino Sans GB", "Noto Sans S Chinese", "Microsoft Yahei", "Microsoft Sans Serif", "WenQuanYi Micro Hei", "sans-serif";padding: 20px;}'+
-'img{max-width: 100%;}'+
+var styles = 'img{max-width: 100%;}'+
 'h4, h5, h6, hr, dl, dt, dd, ul, ol, li, pre, form, fieldset, legend, button, input, textarea, th, td{'+
 '	margin: 0px;'+
 '	padding: 0px;'+
@@ -735,6 +734,66 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '.editor-vote-wraper img{'+
 '    width: 50px!important;'+
 '    height: 50px!important;'+
+'}'+
+'.clear{'+
+'    clear : both;'+
+'    height: 0px;'+
+'}'+
+'.laiwen-user-question{'+
+'    clear: both;'+
+'    margin-bottom: 20px;'+
+'}'+
+'.laiwen-user-question .dialog{'+
+'   padding: 15px 20px;'+
+'    float: right;'+
+'    background-color: #4bc7ba;'+
+'    color: #fff;'+
+'    border-radius: 15px 0px 15px 15px;'+
+'    min-width: 10%;'+
+'    max-width: 80%;'+
+'    word-break: break-word;'+
+'    box-sizing: border-box;'+
+'}'+
+'.laiwen-user-question .avatar{'+
+'    float : right;'+
+'    margin-left: 16px;'+
+'}'+
+'.laiwen-user-question .avatar img{'+
+'    width : 40px;'+
+'    height: 40px;'+
+'    border-radius : 50%;'+
+'}'+
+'.laiwen-user-question p{'+
+'    color: #fff;'+
+'    margin-bottom: 0px;'+
+'}'+
+'.laiwen-doctor-answer p{'+
+'     color: #000;'+
+'    margin-bottom: 0px;'+
+'}'+
+'.laiwen-doctor-answer{'+
+'    margin-bottom: 20px;'+
+'}'+
+'.laiwen-doctor-answer .dialog{'+
+'    float : left;'+
+'    min-width: 10%;'+
+'    max-width: 80%;'+
+'    word-break: break-word;'+
+'    box-sizing: border-box;'+
+'    margin-left: 16px;'+
+'    background-color: rgb(184,221,234);'+
+'    color: #000;'+
+'    border-radius: 0px 15px 15px 15px;'+
+'    padding: 15px 20px;'+
+'    position: relative;'+
+'}'+
+'.laiwen-doctor-answer .avatar{'+
+'    float : left;'+
+'}'+
+'.laiwen-doctor-answer .avatar img{'+
+'    width : 40px;'+
+'    height: 40px;'+
+'    border-radius : 50%;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles, true);
@@ -761,12 +820,37 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 	};
 })();
 (function(){
+	baidu.editor.ui.customview = function (editor) {
+		var name = 'customview',
+			title = '插入组合视图';
+	    var btn = new UE.ui.Button({
+	        name: name,
+	        title: title
+	    });
+
+	    btn.addListener('click', function(){
+	        editor.execCommand('editview', name);
+	    });
+	        
+	    return btn;
+	};
+})();
+(function(){
     var domUtils = baidu.editor.dom.domUtils;
     var utils = baidu.editor.utils;
     var editorui = baidu.editor.ui;
     var _Dialog = editorui.Dialog;
     UE.plugin.register('editview', function (){
         var me = this;
+
+        me.on('aftersetcontent', function(){
+            $(me.body).find('.dxy-custom-view').each(function(i,e){
+                $(e).on('dblclick',function(event){
+                    UE.getEditor('editor-box').execCommand('editview', 'customview');
+                });
+            });
+        });
+
         return {
             bindEvents:{
                 'ready': function(){
@@ -775,7 +859,7 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
             },
             commands: {
                 'editview': {
-                    execCommand : function(cmd, opt){
+                    execCommand : function(cmd, opt, target){
                     	var type = opt, view;
                     	if(!type){
                     		throw new Error('exec editview command require 2 arguments');
@@ -834,6 +918,50 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 					node.setStyle('font-family', '');
 				}
 			});
+		});
+	});
+})();
+(function(){
+	UE.plugin.register('keyboardmonitor', function(){
+		var me = this;
+		var domUtils = baidu.editor.dom.domUtils;
+		function findRootParentNotBody(ele){
+			ele = $(ele);
+			var cur = ele.parent(),
+				prev = ele;
+			while(cur && cur[0] && cur[0].tagName!=='BODY'){
+				prev = cur;
+				cur = cur.parent();
+			}
+			return prev;
+		}
+		me.addListener('keydown', function (type, e) {
+			var range = me.selection.getRange(),
+                    cur = range.getCommonAncestor(true),
+                    target = domUtils.findParent(cur, function(node){
+                    	if(node.className && (node.className.indexOf('dxy-meta-replaced-view')!==-1 || node.className.indexOf('dxy-custom-view')!==-1)){
+                    		return true;
+                    	}else{
+                    		return false;
+                    	}
+                    }, true);
+            if(target){
+            	if($(target).css('display') === 'inline'){
+            		return;
+            	}
+            	e.preventDefault();
+	            return false;
+            }
+			if(e.keyCode === 46 || e.keyCode === 8){
+				if(range.startOffset===0){
+					target = $(findRootParentNotBody(cur)).prev();
+					if(target && target.length>0 && target.attr('class') &&  (target.attr('class').indexOf('dxy-meta-replaced-view')!==-1||target.attr('class').indexOf('dxy-custom-view')!==-1)){
+						target.remove();
+						e.preventDefault();
+	                	return false;
+					}
+				}
+			}
 		});
 	});
 })();
@@ -898,6 +1026,25 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '    </div>'+
 '  </div>'+
 '</div>'+
+'<div class="modal fade" id="dxy-customview-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-customview-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">插入组合视图</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'        <div id="dxy-customview-content">'+
+'          '+
+'        </div>'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>'+
+'        <button class="btn btn-primary" type="button" id="confirm-customview">确认修改</button>'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
+'</div>'+
 '<div class="modal fade" id="dxy-annotation-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-annotation-modal">'+
 '  <div class="modal-dialog" role="document">'+
 '    <div class="modal-content">'+
@@ -951,6 +1098,25 @@ var modals = '<div class="modal fade" id="dxy-bubbletalk-modal" tabindex="-1" ro
 '        <h4 class="modal-title">插入标记</h4>'+
 '      </div>'+
 '      <div class="modal-body">'+
+'      </div>'+
+'    </div>'+
+'  </div>'+
+'</div>'+
+'<div class="modal fade" id="dxy-video-modal" tabindex="-1" role="dialog" aria-labelledby="dxy-video-modal">'+
+'  <div class="modal-dialog" role="document">'+
+'    <div class="modal-content">'+
+'      <div class="modal-header">'+
+'        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'+
+'        <h4 class="modal-title">插入视频卡</h4>'+
+'      </div>'+
+'      <div class="modal-body">'+
+'        <div id="dxy-video-content">'+
+'          '+
+'        </div>'+
+'      </div>'+
+'      <div class="modal-footer">'+
+'        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>'+
+'        <button class="btn btn-primary" type="button" id="confirm-video">确认修改</button>'+
 '      </div>'+
 '    </div>'+
 '  </div>'+
@@ -1046,7 +1212,7 @@ $(document).ready(function(){
             content = content.replace(/％/ig, '%');
             content = content.replace(/／/ig, '/');
             content = content.replace(/~/ig, '～');
-            content = content.replace(/(\d+)([-+*\/]+)/ig, "$1 $2").replace(/([-+*\/]+)(\d+)/ig, "$1 $2");
+            content = content.replace(/(\d+)([-+*\/]+)(\d+)/ig, "$1 $2 $3");
         }
         return content;
     }
@@ -1111,6 +1277,10 @@ $(document).ready(function(){
 				if(node.tagName === 'div' && node.getAttr('class')==='dxy-linkedit-box'){
 					node.parentNode.removeChild(node, false);
 				}
+
+				if(node.getAttr('class')==='mark-close'){
+					node.parentNode.removeChild(node, false);
+				}
 			});
 		});
 	});
@@ -1169,7 +1339,7 @@ $(document).ready(function(){
 					var view = ReplacedView.getInstance(node.getAttr('data-type'));
 					if(view){
 						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
-                        if(!view.isWraper){
+                        if(!view.isWraper && !view.isBlock){
                             node.setStyle('display','none');
                         }
 						node.innerHTML(view.toMetaView(node).innerHTML);
@@ -1271,16 +1441,24 @@ $(document).ready(function(){
 						break;
 					case 'annotation':
 						item.name = '插入注释卡';
-						if(document.domain!=='dxy.us'){
-							continue;
-						}
+						break;
+					case 'video':
+						item.name = '插入视频卡';
 						break;
 					default:
 						continue;
 				}
 				ctx.marks.push(item);
 			}
-			require(['dxy-plugins/replacedview/mark.view'], function(tpl){
+			ctx.marks.push({
+				name : '插入视图卡',
+				id : 'customview'
+			});
+			// ctx.marks.push({
+			// 	name : '插入视频卡',
+			// 	id : 'videocard'
+			// });
+			LocalModule.require(['dxy-plugins/replacedview/mark.view'], function(tpl){
 				me.$el.html(_.template(tpl)(ctx));
 			});
 		},
@@ -1290,7 +1468,11 @@ $(document).ready(function(){
 		run : function(e){
 			var id = $(e.currentTarget).data('id');
 			$('#dxy-mark-modal').modal('hide');
-			this.editor.execCommand('replacedview', id);
+			if(id==='customview'){
+				this.editor.execCommand('editview', 'customview');
+			}else{
+				this.editor.execCommand('replacedview', id);
+			}
 		}
 	});
 	baidu.editor.ui.mark = function(editor) {
@@ -1305,6 +1487,22 @@ $(document).ready(function(){
 	    	var v = new MarkView(editor);
 	    	$('#dxy-mark-modal .modal-body').html($(v.el));
 	        $('#dxy-mark-modal').modal('show');
+	    });
+	        
+	    return btn;
+	};
+})();
+(function(){
+	baidu.editor.ui.drug = function (editor) {
+		var name = 'video',
+			title = '插入视频卡';
+	    var btn = new UE.ui.Button({
+	        name: name,
+	        title: title
+	    });
+
+	    btn.addListener('click', function(){
+	        editor.execCommand('replacedview', name);
 	    });
 	        
 	    return btn;
@@ -1569,6 +1767,57 @@ var styles = 'h2{'+
 '	margin: 0;'+
 '    padding-left: 10px;'+
 '    border-left: 3px solid #dbdbdb;'+
+'}'+
+'.clear{'+
+'    clear : both;'+
+'    height: 0px;'+
+'}'+
+'.laiwen-user-question{'+
+'    clear: both;'+
+'    margin-bottom: 20px;'+
+'}'+
+'.laiwen-user-question .dialog{'+
+'   padding: 15px 20px;'+
+'    float: right;'+
+'    background-color: #4bc7ba;'+
+'    color: #fff;'+
+'    border-radius: 15px 0px 15px 15px;'+
+'    min-width: 10%;'+
+'    max-width: 80%;'+
+'    word-break: break-word;'+
+'    box-sizing: border-box;'+
+'}'+
+'.laiwen-user-question p{'+
+'    color: #fff;'+
+'    margin-bottom: 0px;'+
+'}'+
+'.laiwen-doctor-answer p{'+
+'     color: #000;'+
+'    margin-bottom: 0px;'+
+'}'+
+'.laiwen-doctor-answer{'+
+'    margin-bottom: 20px;'+
+'}'+
+'.laiwen-doctor-answer .dialog{'+
+'    float : left;'+
+'    min-width: 10%;'+
+'    max-width: 80%;'+
+'    word-break: break-word;'+
+'    box-sizing: border-box;'+
+'    margin-left: 16px;'+
+'    background-color: rgb(184,221,234);'+
+'    color: #000;'+
+'    border-radius: 0px 15px 15px 15px;'+
+'    padding: 15px 20px;'+
+'    position: relative;'+
+'}'+
+'.laiwen-doctor-answer .avatar{'+
+'    float : left;'+
+'}'+
+'.laiwen-doctor-answer .avatar img{'+
+'    width : 40px;'+
+'    height: 40px;'+
+'    border-radius : 50%;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles);

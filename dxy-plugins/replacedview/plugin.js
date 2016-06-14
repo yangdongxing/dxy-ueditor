@@ -20,7 +20,7 @@
 					var view = ReplacedView.getInstance(node.getAttr('data-type'));
 					if(view){
 						view.data = ReplacedView.deSerialize(node.getAttr('data-params'));
-                        if(!view.isWraper){
+                        if(!view.isWraper && !view.isBlock){
                             node.setStyle('display','none');
                         }
 						node.innerHTML(view.toMetaView(node).innerHTML);

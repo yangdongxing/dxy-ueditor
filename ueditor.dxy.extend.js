@@ -1,6 +1,85 @@
+(function(){
+	if(window.LocalModule){
+		return;
+	}
+
+	var modules = {};
+	var tasks = [];
+
+	function isAllLoaded(requires){
+		for(var i=0, len=requires.length; i<len; i++){
+			if(!modules[requires[i]]){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function getModules(requires){
+		var res = [];
+		for(var i=0, len=requires.length; i<len; i++){
+			if(modules[requires[i]]){
+				res.push(modules[requires[i]]);
+			}
+		}
+		return res;
+	}
+
+	function checkTask(){
+		var task;
+		for(var i=0,len=tasks.length;i<len; i++){
+			task = tasks[i];
+			if(!task){
+				continue;
+			}
+			if(isAllLoaded(task.requires)){
+				task.callback.apply(null,getModules(task.requires));
+				tasks[i] = null;
+			}
+		}
+	}
+
+	function _define(moduleName, requires, callback){
+		if(typeof requires === 'function'){
+			callback = requires;
+			requires = [];
+		}
+		if(!isAllLoaded(requires)){
+			for(var i=0,len=requires.length; i<len; i++){
+				for(var j=0,jlen = tasks.length; j<jlen; j++){
+					if(requires.indexOf(tasks[j].name)!==-1 && tasks[j].requires.indexOf(moduleName)!==-1){
+						throw new Error('module "'+moduleName+'" and "'+tasks[j].name+'" has circular references');
+					}
+				}
+			}
+		}
+		_require(requires, function(){
+			modules[moduleName] = callback.apply(null, arguments);
+		}, moduleName);
+	}
+
+	function _require(requires, callback, _moduleName){
+		if(isAllLoaded(requires)){
+			callback.apply(null, getModules(requires));
+		}else{
+			tasks.push({
+				requires : requires,
+				callback : callback,
+				name : _moduleName
+			});
+		}
+		checkTask();
+	}
+
+	window.LocalModule = {
+		define : _define,
+		require : _require
+	};
+
+})();
 (function(root, factory) {
     root.Date = factory(root);
-})(this, function(g){
+})(window, function(g){
     var D,
         staticMethods = ['UTC','apply','bind','call','constructor','hasOwnProperty','isPrototypeOf','now','parse','propertyIsEnumerable','toLocaleString', 'toString', 'valueOf'];
     if(!g.Date.tag){
@@ -33,7 +112,6 @@
             }
         };
         g.Date.tag = 'hehe';
-        g.Date.name = 'Date';
         for(var i=0,len=staticMethods.length; i<len; i++){
             g.Date[staticMethods[i]] = (function(methodName){
                 return function(){
@@ -48,7 +126,86 @@
     }
     return g.Date;
 });
-var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
+(function(){
+	if(window.LocalModule){
+		return;
+	}
+
+	var modules = {};
+	var tasks = [];
+
+	function isAllLoaded(requires){
+		for(var i=0, len=requires.length; i<len; i++){
+			if(!modules[requires[i]]){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function getModules(requires){
+		var res = [];
+		for(var i=0, len=requires.length; i<len; i++){
+			if(modules[requires[i]]){
+				res.push(modules[requires[i]]);
+			}
+		}
+		return res;
+	}
+
+	function checkTask(){
+		var task;
+		for(var i=0,len=tasks.length;i<len; i++){
+			task = tasks[i];
+			if(!task){
+				continue;
+			}
+			if(isAllLoaded(task.requires)){
+				task.callback.apply(null,getModules(task.requires));
+				tasks[i] = null;
+			}
+		}
+	}
+
+	function _define(moduleName, requires, callback){
+		if(typeof requires === 'function'){
+			callback = requires;
+			requires = [];
+		}
+		if(!isAllLoaded(requires)){
+			for(var i=0,len=requires.length; i<len; i++){
+				for(var j=0,jlen = tasks.length; j<jlen; j++){
+					if(requires.indexOf(tasks[j].name)!==-1 && tasks[j].requires.indexOf(moduleName)!==-1){
+						throw new Error('module "'+moduleName+'" and "'+tasks[j].name+'" has circular references');
+					}
+				}
+			}
+		}
+		_require(requires, function(){
+			modules[moduleName] = callback.apply(null, arguments);
+		}, moduleName);
+	}
+
+	function _require(requires, callback, _moduleName){
+		if(isAllLoaded(requires)){
+			callback.apply(null, getModules(requires));
+		}else{
+			tasks.push({
+				requires : requires,
+				callback : callback,
+				name : _moduleName
+			});
+		}
+		checkTask();
+	}
+
+	window.LocalModule = {
+		define : _define,
+		require : _require
+	};
+
+})();
+var API_HOST = 'http://'+(window.location.host||'dxy.com')+'/';
 (function(){
 // 	window.DXYJSBridge = {};
 // window.DXYJSBridge.invoke = function(a, options, callback){
@@ -115,7 +272,7 @@ var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
 	};
 })();
 
-define('MarkModel', function(){
+LocalModule.define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var MarkModel = Backbone.Model.extend({
 		sync : function(method, model, options){
@@ -163,7 +320,7 @@ define('MarkModel', function(){
 	};
 });
 
-define('DxyModel', function(){
+LocalModule.define('DxyModel', function(){
 	var backbone = Backbone;
 	var Model = backbone.Model.extend({
 		initialize : function(attrs){
@@ -233,8 +390,8 @@ define('DxyModel', function(){
 				if(!opt){
 					opt = {};
 				}
-				opt.patch = true;
 			}
+			opt.data = attr;
 			return backbone.Model.prototype.save.call(this, attr, opt);
 		},
 		set : function(key, val, options){
@@ -280,7 +437,7 @@ define('DxyModel', function(){
 		Model : Model
 	}
 });
-define('DxyCollection', function(){
+LocalModule.define('DxyCollection', function(){
 	var backbone = Backbone;
 	var Collection = backbone.Collection.extend({
 		constructor : function(items, opt){
@@ -373,7 +530,7 @@ define('DxyCollection', function(){
 					_.extend(model, resp.data);
 				}
 			}
-			return Backbone.sync(method, model, options);
+			return Backbone.sync.apply(this, arguments);
 		},
 		goto : function(page){
 			page = parseInt(page);
@@ -394,9 +551,9 @@ define('DxyCollection', function(){
 					dtd.reject(res);
 					return;
 				}
-				dtd.resolve.apply(arguments);
+				dtd.resolve.call(null, res);
 			}, function(res){
-				dtd.reject.apply(arguments);
+				dtd.reject.call(null, res);
 			});
 			return dtd;
 		},
@@ -413,17 +570,21 @@ define('DxyCollection', function(){
 		Collection : Collection
 	}
 });
-define('AnnotationModel', ['DxyModel'], function(dxy){
-	var API_HOST = 'http://'+document.domain+'/';
+LocalModule.define('AnnotationModel', ['DxyModel'], function(dxy){
+	var API_HOST = 'http://'+(window.location.host||'dxy.com')+'/';
 	var AnnotationModel = dxy.Model.extend({
 		urlRoot : API_HOST + 'admin/i/card/annotation'
 	});
+	var AnnotationUserModel = dxy.Model.extend({
+		urlRoot : API_HOST + 'view/i/functionmarker'
+	});
 	window.M = AnnotationModel;
 	return {
-		AnnotationModel : AnnotationModel
+		AnnotationModel : AnnotationModel,
+		AnnotationUserModel : AnnotationUserModel
 	}
 });
-define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
+LocalModule.define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
 	Backbone.emulateJSON = true;
 	function fomat(date, fmt){
 		var o = {   
@@ -482,9 +643,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					dtd.reject(res);
 					return;
 				}
-				dtd.resolve.apply(arguments);
+				dtd.resolve.call(null, res);
 			}, function(res){
-				dtd.reject.apply(arguments);
+				dtd.reject.call(null, res);
 			});
 			return dtd;
 		},
@@ -538,6 +699,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		},
 		processInData : function(){
 			var value = this.get('value'),
+				params = this.get('params'),
 				list,
 				me = this;
 			if(value){
@@ -550,6 +712,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					}
 				});
 			}
+			if(params){
+				if(typeof params === 'string'){
+					params = JSON.parse(params);
+				}
+				me.attributes.params = params;
+			}
 			me._previousAttributes = _.clone(me.attributes);
 			me.changed = {};
 		},
@@ -558,6 +726,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			if(img){
 				delete data.img;
 				data.value = data.value + '$$img='+ img; 
+			}
+			if(data.params &&  !(typeof data.params === 'string')){
+				data.params = JSON.stringify(data.params);
 			}
 			return data;
 		},
@@ -698,10 +869,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		constructor : function(data){
 			var id = data.node_id,
 				value = data.node_value || '',
+				params = data.node_params || '{}',
 				me = this;
 			var node = {
 				id : id,
-				value : value
+				value : value,
+				params : params
 			};
 			this.total = 0;
 			this.attach = new NodeModel(node);
@@ -1010,9 +1183,15 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			});
 			return xhr;
 		},
-		getVotesStat : function(){
+		getVotesStat : function(admin){
+			var url;
+			if(admin){
+				url = API_HOST+'admin/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100';
+			}else{
+				url = API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100';
+			}
 			var xhr = Backbone.ajax({
-				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
+				url : url,
 				type : 'GET'
 			});
 			return xhr;
@@ -1392,7 +1571,6 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					dtd.resolve();
 				},0);
 			}catch(e){
-				alert(e.message);
 				console.log(e);
 				setTimeout(function(){
 					dtd.reject();
@@ -1720,7 +1898,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 	ReplacedView.prototype = {
 		createWrapNode : function(plain){
 			var me = this;
-			var ele = document.createElement('p');
+			var ele = document.createElement('section');
 			ele.style.display = 'block';
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
@@ -1736,14 +1914,62 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			}
 			return ele;
 		},
+		// todo: 移除contenteditable, 测试删除bug
+		createEditorWraperNode : function(){
+			var me = this;
+			var ele = document.createElement('section');
+			var close = document.createElement('span');
+			close.innerHTML = 'X';
+			close.className = 'mark-close';
+			close.onclick = function(){
+				$(ele).remove();
+			};
+			ele.style.display = 'block';
+			ele.className = CLASS_NAME;
+			ele.setAttribute('data-type', this.type);
+			ele.setAttribute('data-params', this.serialize(this.data));
+			// ele.setAttribute('contenteditable', false);
+			ele.ondblclick = function(e){
+				e = e || window.event;
+				var editor = UE.getEditor('editor-box'),
+					range = editor.selection.getRange();
+				range.selectNode(e.target).select();
+				UE.getEditor('editor-box').execCommand('replacedview', me.type);
+			};
+			// ele.appendChild(close);
+			return ele;
+		},
 		createInlineWrapNode : function(plain){
 			var me = this;
 			var ele = document.createElement('span');
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
-			if(!plain){
+			if(true){
 				ele.ondblclick = function(e){
+					if(!window.UE){
+						return;
+					}
+					e = e || window.event;
+					var editor = UE.getEditor('editor-box'),
+						range = editor.selection.getRange();
+					range.selectNode(e.target).select();
+					UE.getEditor('editor-box').execCommand('replacedview', me.type);
+				};
+			}
+			return ele;
+		},
+		createBlockWrapNode : function(){
+			var me = this;
+			var ele = document.createElement('section');
+			ele.className = CLASS_NAME;
+			ele.setAttribute('data-type', this.type);
+			ele.setAttribute('data-params', this.serialize(this.data));
+			if(true){
+				ele.ondblclick = function(e){
+					if(!window.UE){
+						return;
+					}
 					e = e || window.event;
 					var editor = UE.getEditor('editor-box'),
 						range = editor.selection.getRange();
@@ -1785,6 +2011,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					ele.appendChild(UE.getEditor('editor-box').selection.getRange().cloneContents());
 				}
 				ele.style.display = 'inline';
+			}else if(this.isBlock){
+				ele = this.createBlockWrapNode();
+				if(e){
+					ele.innerHTML = typeof e.innerHTML === 'string' ? e.innerHTML : e.innerHTML();
+				}
+				ele.style.display = 'block';
 			}else{
 				ele = this.createWrapNode();
 				ele.style.display = 'none';
@@ -1926,12 +2158,14 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 	ReplacedView.renderAll = function(){
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
-			view.toAppropriateView(ele).then(function(){
-				if(!view.isWraper){
-					view.ele.style.display = 'block';
-				}
-				view.mount(ele);
-			});
+			if(view){
+				view.toAppropriateView(ele).then(function(){
+					if(!view.isWraper){
+						view.ele.style.display = 'block';
+					}
+					view.mount(ele);
+				});
+			}
 		});
 	};
 	ReplacedView.custom = {};
@@ -1993,6 +2227,21 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 						modal.modal('hide');
 						me.toEditorView().then(function(){
 							me.mount(UE.getEditor('editor-box').selection.getRange());
+							var domUtils = baidu.editor.dom.domUtils;
+							var range = UE.getEditor('editor-box').selection.getRange(),
+								cur = range.getCommonAncestor(true),
+			                    target = domUtils.findParent(cur, function(node){
+			                    	if(node.className && node.className.indexOf('dxy-meta-replaced-view')!==-1){
+			                    		return true;
+			                    	}else{
+			                    		return false;
+			                    	}
+			                    }, true);
+		                	// if($(target).next()[0]){
+		                	// 	range.setStartBefore($(target).next()[0]);
+		                	// 	range.setCursor();
+		                	// 	UE.getEditor('editor-box').focus();
+		                	// }
 						});
 					}, function(){
 						me.saving = false;
@@ -2015,12 +2264,83 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 	};
 	g.ReplacedView = ReplacedView;
 	g.EditView = EditView;
-})(this);
-define("dxy-plugins/replacedview/annotation/views/dialog.view", function(){var tpl = '<div class="input-group">'+
-'  <input type="text" class="form-control" id="annotation-value"  placeholder="请输入注释">'+
+})(window);
+LocalModule.define("dxy-plugins/editview/customview/customviews/doctor_question/views/page.view", function(){var tpl = '<section class="laiwen-doctor-answer clearfix">'+
+'	<section class="avatar">'+
+'		<img src="<%=img.value%>">'+
+'	</section>'+
+'	<section class="dialog">'+
+'		<section class="view-wraper"><%=content.value%></section>'+
+'	</section>'+
+'	<section class="clear">&nbsp;</section>'+
+'</section>';return tpl;});
+LocalModule.define("dxy-plugins/editview/customview/customviews/user_answer/views/page.view", function(){var tpl = '<section class="laiwen-user-question clearfix">'+
+'	<%if(img.value){%>'+
+'		<section class="avatar">'+
+'			<img src="<%=img.value%>">'+
+'		</section>'+
+'	<%}%>'+
+'	<section class="dialog">'+
+'		<section class="view-wraper"><%=content.value%></section>'+
+'	</section>'+
+'	<section class="clear">&nbsp;</section>'+
+'</section>';return tpl;});
+LocalModule.define("dxy-plugins/editview/customview/views/config.view", function(){var tpl = '<div class="clearfix">'+
+'  <form class="form-horizontal">'+
+'  <%_.each(_.keys(config), function(key){%>'+
+'    <div class="form-group">'+
+'      <label for="inputEmail3" class="col-sm-3 control-label"><%=config[key].title%></label>'+
+'      <div class="col-sm-9">'+
+'        <input type="text" class="form-control input-<%=key%>" value="<%=config[key].value%>" placeholder="<%=config[key].placeholder%>">'+
+'      </div>'+
+'    </div>'+
+'  <%})%>'+
+'  </form>'+
+'  <button class="btn btn-primary pull-right confirm-config" type="button">确认修改</button>'+
+'<div>';return tpl;});
+LocalModule.define("dxy-plugins/editview/customview/views/dashboard.view", function(){var tpl = '<div class="btn-group-vertical customview-dashboard-controll" role="group">'+
+'	<%_.each(styles, function(style){%>'+
+'	<button type="button" class="btn btn-default view-button" data-name="<%=style.viewname%>"><%=style.title%></button>'+
+'	<%})%>'+
+'</div>'+
+'<div class="views-container" style="display:inline-block;">'+
+'	'+
+'</div>'+
+'<div class="col-md-12 view-trash" style="margin-top:20px;text-align:center;">'+
+'  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>'+
+'  拖动到这删除'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl = '	<%if(annotation){%>'+
-'	<div><%=annotation.get(\'value\')%></div>'+
+LocalModule.define("dxy-plugins/replacedview/annotation/views/dialog.view", function(){var tpl = '<div class="form-group">'+
+'	<textarea class="form-control" id="annotation-value"  placeholder="请输入注释" rows=\'5\'><%=value%></textarea>'+
+'</div>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/annotation/views/mobile_pop.view", function(){var tpl = '	<div class=\'arrow\'>'+
+'	</div>'+
+'	<%if(annotation){%>'+
+'		<%if(url){%>'+
+'			<a href="<%=url%>" target="_black" class="annotation-header">'+
+'				<span class="annotation-title"><%=title%></span>'+
+'				<span class="more"></span>'+
+'			</a>'+
+'		<%}else{%>'+
+'			<div class="annotation-header">'+
+'				<span class="annotation-title"><%=title%></span>'+
+'			</div>'+
+'		<%}%>'+
+'		<div class="annotation-content"><%=slice(annotation.get(\'value\'))%></div>'+
+'	<%}else{%>'+
+'		<div class="loading">加载中...</div>'+
+'	<%}%>'+
+'	<%if(error){%>'+
+'		<div>'+
+'			<%=error%>'+
+'		</div>'+
+'	<%}%>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl = '	<%if(arrow){%>'+
+'	<div class=\'arrow\'>'+
+'	</div>'+
+'	<%}%>'+
+'	<%if(annotation){%>'+
+'	<div class="annotation-content"><%=annotation.get(\'value\')%></div>'+
 '	<%}else{%>'+
 '	<div class="loading">加载中...</div>'+
 '	<%}%>'+
@@ -2029,8 +2349,12 @@ define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl 
 '		<%=error%>'+
 '	</div>'+
 '	<%}%>'+
-'';return tpl;});
-define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
+'	<%if(url){%>'+
+'	<div class="more">'+
+'		<a href="<%=url%>" target="_black">查看更多<span></span></a>'+
+'	</div>'+
+'	<%}%>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
 '	<div class="m-drug-view-img">'+
 '		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+
 '	</div>'+
@@ -2039,7 +2363,7 @@ define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a 
 '		<p><%=drug_company%></p>'+
 '	</div>'+
 '</a>';return tpl;});
-define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '<a class=\'mobile-drug-view-wraper\' href="<%=drug_url%>" target="_black">'+
+LocalModule.define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '<a class=\'mobile-drug-view-wraper\' href="<%=drug_url%>" target="_black">'+
 '	<div class=\'mobile-drug-view-body\'>'+
 '		<h4><%=drug_name%></h4>'+
 '		<p><%=drug_company%></p>'+
@@ -2051,7 +2375,7 @@ define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '
 '		<%}%>'+
 '	</div>'+
 '</a>';return tpl;});
-define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
+LocalModule.define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
 ''+
 '<%_.each(marks, function(mark){%>'+
 ''+
@@ -2061,11 +2385,26 @@ define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%
 '<%})%>'+
 ''+
 '<%}%>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box <%if(cls){print(cls)}%>">'+
+LocalModule.define("dxy-plugins/replacedview/video/views/main.view", function(){var tpl = '<div>'+
+'<div class="form-group">'+
+'  <input type="text" class="form-control" id="video-id"  placeholder="请输入腾讯视频id或链接" value="<%=value%>">'+
+' </div>'+
+' <div class="form-group">'+
+' <div class="qq-upload-button" style="position: relative; overflow: hidden; direction: ltr;width: 100px;" >'+
+' 	<p>上传视频截图</p>'+
+' 	<input type="file" name="file" id="video-cover" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">'+
+' </div>'+
+'  <p class="help-block">手机上不自动播放视频，挑一张精彩的视频截图更能吸引用户点击播放。</p>'+
+' </div>'+
+' <div class="form-group">'+
+' <img src="<%=cover%>" style="width:100%;">'+
+' </div>'+
+'</div>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box <%if(cls){print(cls)}%>">'+
 '	<p><%=title%></p>'+
 '	<a href="javascript:;"><%=button_title%></a>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
 '  <div class="tab-content">'+
 '    <div role="tabpanel" class="tab-pane" id="add-vote">'+
 '    '+
@@ -2118,7 +2457,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '    </div>'+
 '  </div>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-container">'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-container">'+
 '<p>'+
 '	<span class="tag">投票</span>'+
 '	<span class="tag"><%if(group.get(\'show_type\')==0){print(\'默认类型\')}else if(group.get(\'show_type\')==1){print(\'横排单选\')}%></span>'+
@@ -2194,7 +2533,7 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '<%})%>'+
 ''+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
 '<%if(expired){%>'+
 '<a href="javascript:;" class="vote-expired-tip user-vote">'+
 '	投票已过期'+
@@ -2283,7 +2622,7 @@ define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div
 '</div>'+
 '<%}%>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
 '<%_.each(votes, function(vote, i){%>'+
 '	<div class="editor-vote-wraper <%if(+vote.attach.get(\'type\')===0){print(\'vote-single\')}else{print(\'vote-multiple\')}%> <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<h4><span>投票</span><%=vote.attach.get(\'title\')%></h4>'+
@@ -2331,42 +2670,102 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '<%}%>'+
 '</div>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl = '<%if(list && list.length>0){%>'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl = '<%if(list && list.length>0){%>'+
 '<ul class="search-list">'+
 '	<%_.each(list, function(item,i){%>'+
 '	<li data-id="<%=i%>"><%=item.get(\'title\')%></li>'+
 '	<%})%>'+
 '</ul>'+
 '<%}%>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(){var tpl = '<div class="editor-button-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> <%if(!expired){print(\'not_expired\')}else{print(\'expired\')}%>">'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(){var tpl = '<div class="editor-button-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> <%if(!expired){print(\'not_expired\')}else{print(\'expired\')}%>">'+
 '<%if(group.user_voted){%>'+
 '<%if(expired){%>'+
 ''+
 '<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
+'	<div class="editor-vote-wraper clearfix">'+
+'	<table>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<span class="user-check">'+
+'					<%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%>'+
+'				</span>'+
+'				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	<tr style="height:10px;"></tr>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option-stat <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<div class="right-answer"><span class="arrow"></span>正确答案</div>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	</table>'+
+'	</div>'+
+'<%})%>'+
+''+
+'<%if(false){%>'+
+'<%_.each(votes, function(vote, i){%>'+
+'	<p><%=vote.attach.get(\'title\')%></p>'+
 '	<div class="editor-vote-wraper clearfix">'+
 '		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
 '			<div class="editor-vote-option <%if(opt.checked){print(\'checked\')}%>" style="<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
 '				<span class="user-check"><%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%></span>'+
 '				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
-'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%></i>%</span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
 '			</div>'+
 '		<%})%>'+
 '	</div>'+
 '<%})%>'+
+'<%}%>'+
 ''+
 '<%}else{%>'+
 ''+
 '<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
+'	<div class="editor-vote-wraper clearfix">'+
+'	<table>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<span class="user-check">'+
+'					<%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%>'+
+'				</span>'+
+'				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	<tr style="height:10px;"></tr>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option-stat <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<div class="right-answer"><span class="arrow"></span>正确答案</div>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	</table>'+
+'	</div>'+
+'<%})%>'+
+''+
+'<%if(false){%>'+
+'<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
 '	<div class="editor-vote-wraper clearfix">'+
 '		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
 '			<div class="editor-vote-option <%if(opt.checked){print(\'checked\')}%>" style="<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
 '				<span class="user-check"><%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%></span>'+
 '				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
-'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%></i>%</span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
 '			</div>'+
 '		<%})%>'+
 '	</div>'+
 '<%})%>'+
+'<%}%>'+
 ''+
 '<%}%>'+
 '<%}else{%>'+
@@ -2379,6 +2778,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 '<%}else{%>'+
 ''+
 '<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
 '	<table class="editor-vote-wraper clearfix">'+
 '		<tr>'+
 '		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
@@ -2466,6 +2866,355 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		}
 	});
 })(this);
+LocalModule.require(['CustomView', 'dxy-plugins/editview/customview/customviews/doctor_question/views/page.view'], function(CustomView, PageTpl){
+	CustomView.register('doctor_question', {
+		title : '医生回答',
+		confirmConfig : function(){
+			this.isNew = false;
+			this.config.content.value = this.$el.find('.input-content').val();
+			this.config.img.value = this.$el.find('.input-img').val();
+			if(localStorage && this.config.img){
+				localStorage.setItem('doctor_avator', this.config.img.value);
+			}
+			this.toStaticView();
+		},
+		getInitConfig : function(){
+			var img;
+			if(localStorage){
+				img = localStorage.getItem('doctor_avator');
+			}
+			return {
+				'img' : {
+					title : '医生头像',
+					value : img || 'http://img.dxycdn.com/dotcom/2015/09/14/23/9u7rkbqx.png',
+					placeholder : '输入图片链接'
+				},
+				'content' : {
+					title : '医生回答',
+					value : '医生回答',
+					placeholder : '输入文字'
+				}
+			}
+		},
+		getConfig : function(){
+			var config = this.getInitConfig();
+			config.img.value = $(this._ele).find('img').attr('src');
+			config.content.value = $(this._ele).find('.view-wraper').text();
+			return config;
+		},
+		getTemplate : function(){
+			return PageTpl;
+		},
+		inEditor : function(){
+			throw new Error('you should provide inEditor in the config');
+		}
+	});
+});
+LocalModule.require(['CustomView', 'dxy-plugins/editview/customview/customviews/user_answer/views/page.view'], function(CustomView, PageTpl){
+	CustomView.register('user_answer', {
+		title : '用户提问',
+		confirmConfig : function(){
+			this.isNew = false;
+			this.config.content.value = this.$el.find('.input-content').val();
+			this.config.img.value = this.$el.find('.input-img').val();
+			if(localStorage && this.config.img){
+				localStorage.setItem('user_avator', this.config.img.value);
+			}
+			this.toStaticView();
+		},
+		getInitConfig : function(){
+			var img;
+			if(localStorage){
+				img = localStorage.getItem('user_avator');
+			}
+			return {
+				'img' : {
+					'title' : '用户头像',
+					'value' : img || '',
+					'placeholder' : '输入图片链接'
+				},
+				'content' : {
+					'title' : '用户提问',
+					'value' : '用户提问',
+					'placeholder' : '输入文字'
+				}
+			}
+		},
+		getConfig : function(){
+			var config = this.getInitConfig();
+			config.content.value = $(this._ele).find('.view-wraper').text();
+			config.img.value = $(this._ele).find('img').attr('src');
+			return config;
+		},
+		getTemplate : function(){
+			return PageTpl;
+		},
+		inEditor : function(){
+			throw new Error('you should provide inEditor in the config');
+		},
+		priority : 1
+	});
+});
+LocalModule.define('CustomView', ['dxy-plugins/editview/customview/views/config.view'], function(ConfigTpl){
+	var BaseView = Backbone.View.extend({
+		className : 'custom-style-view',
+		attributes : {
+			draggable : "true"
+		},
+		events : {
+			'dblclick' : 'toConfigView',
+			'click .confirm-config' : 'confirmConfig' 
+		},
+		initialize : function(option){
+			this.type = option.type;
+			this._ele = option._ele;
+			this.isNew = true;
+			this.config = this.getInitConfig();
+			if(this._ele){
+				this.isNew = false;
+				this.config = this.getConfig();
+			}
+			this.toStaticView();
+		},
+		toStaticView : function(){
+			this.$el.attr('draggable', 'true');
+			var template = this.getTemplate();
+			this.$el.html(_.template(template)(this.config));
+			this.$el.children().attr('data-type', this.type);
+		},
+		toConfigView : function(){
+			this.$el.removeAttr('draggable');
+			var template = this.getConfigTemplate();
+			this.$el.html(_.template(template)({
+				config : this.config
+			}));
+		},
+		confirmConfig : function(){
+			throw new Error('you should provide confirmConfig in the config');
+		},
+		getInitConfig : function(){
+			throw new Error('you should provide getInitConfig in the config');
+		},
+		getConfig : function(){
+			throw new Error('you should provide getConfig in the config');
+		},
+		getTemplate : function(){
+			throw new Error('you should provide getTemplate in the config');
+		},
+		inEditor : function(){
+			throw new Error('you should provide inEditor in the config');
+		},
+		getConfigTemplate : function(){
+			return ConfigTpl;
+		}
+	});
+	var CustomView = {
+		customs : {},
+		register : function(name, config){
+			if(!config.title){
+				throw new Error('you should provide title in the config');
+			}
+			this.customs[name] = BaseView.extend(config);
+			this.customs[name].title = config.title;
+			this.customs[name].viewname = name;
+			this.customs[name].priority = config.priority;
+		},
+		instance : function(name, ele){
+			var ins;
+			if(!this.customs[name]){
+				throw new Error('can not find CustomView '+name);
+			}
+			if(ele){
+				ins = new this.customs[name]({
+					_ele : ele,
+					type : name
+				});
+			}else{
+				ins =  new this.customs[name]({
+					type : name
+				});
+			}
+			return ins;
+		},
+		BaseView : BaseView
+	};
+	return CustomView;
+});
+
+LocalModule.require(['dxy-plugins/editview/customview/views/dashboard.view', 'CustomView'], function(DashboardTpl, CustomView){
+	var DashboardView = Backbone.View.extend({
+		events: {
+			'click .view-button' : 'insertView',
+			'dragstart .custom-style-view' : 'drag',
+			'dragover .custom-style-view,.view-trash' : 'allowDrop',
+			'drop .custom-style-view' : 'drop',
+			'dragleave .custom-style-view,.view-trash' : 'dragLeave',
+			'drop .view-trash' : 'dropToTrash'
+		},
+		className : 'clearfix',
+		initialize : function(view){
+			var me = this;
+			this.view = view;
+			this.styleviews = [];
+			this.render();
+		},
+		template : function(){
+			return _.template(DashboardTpl);
+		},
+		render: function(){
+			var styles = this.sortViewButton(CustomView.customs);
+			this.$el.html(this.template()({
+				styles : styles
+			}));
+			if(this.view.ele){
+				this.insertExistViews(this.view.ele);
+			}
+		},
+		sortViewButton : function(styles){
+			var temp = [], res = [];
+			_.each(styles, function(style, key){
+				var priority = style.priority || 0;
+				if(!temp[priority]){
+					temp[priority] = [];
+				}
+				temp[priority].push(style);
+			});
+			temp.reverse();
+			_.each(temp, function(group){
+				res = res.concat(group);
+			});
+			return res;
+		},
+		insertExistViews : function(ele){
+			var me = this;
+			$(ele).children().each(function(index, viewele){
+				var view = CustomView.instance($(viewele).data('type'), viewele);
+				me.styleviews.push(view);
+				me.$el.find('.views-container').append(view.el);
+			});
+		},
+		insertView : function(e){
+			var name = $(e.target).data('name'),
+				view = CustomView.instance(name);
+			this.styleviews.push(view);
+			this.$el.find('.views-container').append(view.el);
+		},
+		removeView : function(index){
+			var view = this.styleviews[index];
+			if(view){
+				view.$el.remove();
+				this.styleviews.splice(index, 1);
+			}
+		},
+		moveView : function(from, to){
+			var fromView = this.styleviews[from];
+			if(fromView){
+				if(to<=0){
+					to = 0
+					fromView.$el.insertBefore(this.styleviews[to].$el);
+					this.styleviews.splice(from, 1);
+					this.styleviews.unshift(fromView);
+					return;
+				}
+				if(to>=this.styleviews.length-1){
+					to = this.styleviews.length-1;
+					fromView.$el.insertAfter(this.styleviews[to].$el);
+					this.styleviews.splice(from, 1);
+					this.styleviews.push(fromView);
+					return;
+				}
+				if(to<from){
+					fromView.$el.insertBefore(this.styleviews[to].$el);
+					this.styleviews.splice(from, 1);
+					this.styleviews.splice(to-1, 0, fromView);
+				}else{
+					fromView.$el.insertAfter(this.styleviews[to].$el);
+					this.styleviews.splice(from, 1);
+					this.styleviews.splice(to+1, 0, fromView);
+				}
+			}
+		},
+		toEditor : function(){
+			var wraper = $('<section class="dxy-custom-view" data-type="customview"></section>');
+			_.each(this.styleviews, function(view){
+				view.toStaticView();
+				wraper.append(view.$el.html());
+			});
+			wraper.on('dblclick',function(e){
+				UE.getEditor('editor-box').execCommand('editview', 'customview');
+			});
+			return wraper;
+		},
+		allowDrop : function(e){
+			e.preventDefault();
+			e.stopPropagation();
+			$(e.currentTarget).css('border','1px dashed #aaa');
+		},
+		dragLeave : function(e){
+			$(e.currentTarget).css('border','none');
+		},
+		drag : function(e){
+			var me = this;
+			me._drap_from = undefined;
+			_.each(this.styleviews, function(view, i){
+				if(view.el === e.currentTarget){
+					me._drap_from = i;
+				}
+			});
+		},
+		drop : function(e){
+			var me = this;
+			me._drag_to = undefined;
+			_.each(this.styleviews, function(view, i){
+				if(view.el === e.currentTarget){
+					me._drag_to = i;
+				}
+			});
+			this.moveView(this._drap_from, this._drag_to);
+			$(e.currentTarget).css('border','none');
+		},
+		dropToTrash : function(e){
+			this.removeView(this._drap_from);
+			$(e.currentTarget).css('border','none');
+		}
+	});
+
+	EditView.register('customview', {
+		onModalShow : function(){
+			this.dashboard = new DashboardView(this);
+			this.modal.find('#dxy-customview-content').html(this.dashboard.el);
+		},
+		onModalConfirm : function(){
+			try{
+				var domUtils = baidu.editor.dom.domUtils;
+				var ele = this.dashboard.toEditor(),
+					range = UE.getEditor('editor-box').selection.getRange(),
+					cur = range.getCommonAncestor(true),
+					target = domUtils.findParent(cur, function(node){
+                    	if(node.className && node.className.indexOf('dxy-custom-view')!==-1){
+                    		return true;
+                    	}else{
+                    		return false;
+                    	}
+                    }, true);
+                if(target){
+                	$(target).replaceWith(ele[0]);
+                }else{
+                	range.enlarge(true).trimBoundary().deleteContents().insertNode(ele[0]);
+                }
+			}catch(e){
+				alert('发生未知错误,请联系');
+				console.log(e);
+			}
+			return true;
+		},	
+		modalInit : function(){
+			
+		}
+	},{
+		isEmptySupport : true
+	});
+});
 (function(){
 	function isPC(){  
         	var userAgentInfo = navigator.userAgent;  
@@ -2486,19 +3235,34 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		initialize : function(view){
 			var me = this;
 			this.view = view;
-			require(['AnnotationModel'], function(m){
-				me.annotation = new m.AnnotationModel({});
-				me.render();
-			});
+			if(view.data && view.data.obj_id){
+				LocalModule.require(['AnnotationModel'], function(m){
+					me.annotation = new m.AnnotationModel({
+						id : view.data.obj_id
+					});
+					me.annotation.fetch().then(function(){
+						me.render();
+					}, function(){
+						alert('加载注释数据失败');
+					});
+				});
+			}else{
+				LocalModule.require(['AnnotationModel'], function(m){
+					me.annotation = new m.AnnotationModel({});
+					me.render();
+				});
+			}
 		},
 		changeValue : function(e){
 			this.annotation.set('value', $('#annotation-value').val());
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/annotation/views/dialog.view'], function(v){
+			LocalModule.require(['dxy-plugins/replacedview/annotation/views/dialog.view'], function(v){
 				var t = _.template(v);
-				me.el.innerHTML = t({});
+				me.el.innerHTML = t({
+					value : me.annotation.get('value')
+				});
 				me.trigger('render');
 			});
 		  	return this;
@@ -2514,19 +3278,35 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			var me = this;
 			this.annotationId = annotationId;
 			this.target = target;
+			if($(target).parent().attr('href')){
+				this.href = $(target).parent().attr('href');
+				$(target).parent().removeAttr('href');
+			}
 		},
 		init : function(){
 			var me = this;
-			require(['AnnotationModel'], function(m){
-				me.annotation = new m.AnnotationModel({
-					id : me.annotationId
-				});
-				me.annotation.fetch().then(function(){
-					me.render();
-				}, function(){
-					me.error = '加载失败:(';
-					me.render();
-				});
+			LocalModule.require(['AnnotationModel'], function(m){
+				if(window.UE){
+					me.annotation = new m.AnnotationModel({
+						id : me.annotationId
+					});
+					me.annotation.fetch().then(function(){
+						me.render();
+					}, function(){
+						me.error = '加载失败:(';
+						me.render();
+					});
+				}else{
+					me.annotation = new m.AnnotationUserModel({
+						
+					});
+					me.annotation.fetch({data : {type : 3, obj_id : me.annotationId}}).then(function(){
+						me.render();
+					}, function(){
+						me.error = '加载失败:(';
+						me.render();
+					});
+				}
 			});
 		},
 		show : function(){
@@ -2540,34 +3320,124 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			this.$el.hide();
 		},
 		getDocumentPosition : function(ele){
-			var p = $(ele).offset(),
-				left = p.left,
-				top = p.top,
-				scrollLeft = $('body').scrollLeft(),
-				scrollTop = $('body').scrollTop(),
-				left = left + scrollLeft,
-				top = top + scrollTop;
-			return {
-				left : left,
-				top : top
-			};
+			return $(ele).offset();
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/annotation/views/pop.view'], function(v){
+			LocalModule.require(['dxy-plugins/replacedview/annotation/views/pop.view'], function(v){
 				var t = _.template(v);
 				me.el.innerHTML = t({
 					annotation : me.annotation,
-					error : me.error
+					error : me.error,
+					url : me.href,
+					arrow : !isPC()
  				});
 				var p = me.getDocumentPosition(me.target);
 				if(isPC()){
-					me.$el.css('left', parseInt(me.$el.outerWidth()/2) + 'px');
-					me.$el.css('top', '-'+ parseInt(me.$el.outerHeight())+'px');
+					var bodyWidth = parseFloat($('.pg-article-detail').css('width'));
+					var boxWidth = 200;
+					var targetWidth = parseFloat($(me.target).css('width'));
+					if(bodyWidth-p.left<boxWidth){
+						me.$el.css('left', p.left+targetWidth-boxWidth + 'px');
+						me.$el.css('top', 1.5*parseFloat($(me.target).css('height'))+p.top+'px');
+					}else{
+						me.$el.css('left', p.left + 'px');
+						me.$el.css('top', 1.5*parseFloat($(me.target).css('height'))+p.top+'px');
+					}
 				}else{
-					me.$el.css('top', '-'+ parseInt(me.$el.outerHeight())+'px');
+					var bodyWidth = parseFloat($('body').css('width'));
+					var boxWidth = 200;
+					var targetWidth = parseFloat($(me.target).css('width'));
+					if(bodyWidth-p.left<boxWidth){
+						me.$el.css('left', p.left+targetWidth-boxWidth + 'px');
+						me.$el.find('.arrow').css('right', '5px');
+						me.$el.css('top', 1.5*parseFloat($(me.target).css('height'))+p.top+'px');
+					}else{
+						me.$el.css('left', p.left + 'px');
+						me.$el.find('.arrow').css('left', '5px');
+						me.$el.css('top', 1.5*parseFloat($(me.target).css('height'))+p.top+'px');
+					}
 				}
-				$(me.target).append(me.$el);
+				$('body').append(me.$el);
+				me.trigger('render');
+			});
+		  	return this;
+		}
+	});
+
+	var MobilePopView = Backbone.View.extend({
+		className : 'editor-mobile-pop-container',
+		events: {
+
+		},
+		initialize : function(annotationId, target){
+			var me = this;
+			this.annotationId = annotationId;
+			this.target = target;
+			this.title = $(target).text();
+			if($(target).parent().attr('href')){
+				this.href = $(target).parent().attr('href');
+				$(target).parent().removeAttr('href');
+			}
+		},
+		init : function(){
+			var me = this;
+			LocalModule.require(['AnnotationModel'], function(m){
+				me.annotation = new m.AnnotationUserModel({
+						
+				});
+				me.annotation.fetch({data : {type : 3, obj_id : me.annotationId}}).then(function(){
+					me.render();
+				}, function(){
+					me.error = '加载失败:(';
+					me.render();
+				});
+			});
+		},
+		show : function(){
+			if(!this.annotation){
+				this.init();
+			}else{
+				this.render();
+			}
+			this.$el.show();
+		},
+		hide : function(){
+			this.$el.hide();
+		},
+		getDocumentPosition : function(ele){
+			return $(ele).offset();
+		},
+		render: function() {
+			var me = this;
+			LocalModule.require(['dxy-plugins/replacedview/annotation/views/mobile_pop.view'], function(v){
+				var t = _.template(v);
+				me.el.innerHTML = t({
+					annotation : me.annotation,
+					error : me.error,
+					url : me.href,
+					title : me.title,
+					slice : function(content){
+						if(content.length>50){
+							return content.slice(0, 48) + '...';
+						}
+						return content;
+					}
+ 				});
+				var p = me.getDocumentPosition(me.target);
+				var bodyWidth = parseFloat($('body').css('width'));
+				var boxWidth = 200;
+				var targetWidth = parseFloat($(me.target).css('width'));
+				if(bodyWidth-p.left<boxWidth){
+					me.$el.css('left', p.left+targetWidth-boxWidth + 'px');
+					me.$el.find('.arrow').css('right', '5px');
+					me.$el.css('top', 1.2*parseFloat($(me.target).css('height'))+p.top+'px');
+				}else{
+					me.$el.css('left', p.left + 'px');
+					me.$el.find('.arrow').css('left', '5px');
+					me.$el.css('top', 1.2*parseFloat($(me.target).css('height'))+p.top+'px');
+				}
+				$('body').append(me.$el);
 				me.trigger('render');
 			});
 		  	return this;
@@ -2582,9 +3452,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			var ele = this.toMetaView(e),
 				dtd = $.Deferred();
 			this.bindEvent(ele);
-			setTimeout(function(){
-				dtd.resolve(ele);
-			},0);
+			dtd.resolve(ele);
 			return dtd;
 		},
 		toAppView : function(e){
@@ -2593,57 +3461,118 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		toEditorView : function(e){
 			var ele = this.toMetaView(e),
 				dtd = $.Deferred();
-			setTimeout(function(){
-				dtd.resolve(ele);
-			},0);
+			dtd.resolve(ele);
+			return dtd;
+		},
+		toMobileView : function(e){
+			var	dtd = $.Deferred();
+			this.bindMobileEvent(e);
 			return dtd;
 		},
 		onModalShow : function(){
 			this.annotation =  new AnnotationView(this);
 			$('#dxy-annotation-modal .modal-body').html($(this.annotation.el));
 		},
-		bindEvent : function(ele){
+		bindMobileEvent : function(ele){
 			var me = this;
-			$(ele).on('mouseover', function(){
-				console.log('over');
+			var hideTimer;
+			function show(){
+				$(ele).off('click', show);
 				if(!me.popview){
-					me.popview = new PopView(me.data.obj_id,ele);
+					me.popview = new MobilePopView(me.data.obj_id,ele);
+					// me.popview.$el.on('mouseover', function(){
+					// 	clearTimeout(hideTimer);
+					// });
+					// me.popview.$el.on('mouseout', function(){
+					// 	hideTimer = setTimeout(function(){
+					// 		me.popview.hide();
+					// 	},300);
+					// });
 				}
 				me.popview.show();
+				$(ele).on('click', hide);		
+			}
+			function hide(){
+				$(ele).off('click', hide);
+					me.popview.hide();
+				$(ele).on('click', show);
+			}
+			$(ele).on('click', show);
+			$('body').on('click', function(e){
+				if($(e.target).parent('.editor-mobile-pop-container').length==0 && e.target!==ele){
+					hide();
+				}
 			});
+		},
+		bindEvent : function(ele){
+			var me = this;
+			var hideTimer;
+			function show(){
+				if(!me.popview){
+					me.popview = new PopView(me.data.obj_id,ele);
+					me.popview.$el.on('mouseover', function(){
+						clearTimeout(hideTimer);
+					});
+					me.popview.$el.on('mouseout', function(){
+						hideTimer = setTimeout(function(){
+							me.popview.hide();
+						},300);
+					});
+				}
+				me.popview.show();				
+			}
+			$(ele).on('mouseover', show);
 			$(ele).on('mouseout', function(){
-				me.popview.hide();
+				hideTimer = setTimeout(function(){
+					me.popview.hide();
+				},300);
 			});
 		},
 		onModalConfirm : function(){
 			var me = this,
 				dtd = $.Deferred();
-			require(['MarkModel'], function(m){
+			LocalModule.require(['MarkModel'], function(m){
 				var annotation = me.annotation.annotation;
-				annotation.save().then(function(res){
-					var mark = new m.MarkModel({
-						obj_id : annotation.get('id'),
-						type : 3
-					});
-					mark.save({}, {data: mark.attributes}).then(function(res){
-						if(res.error){
-							alert(res.error.message);
-							dtd.reject();
-							return;
-						}
-						me.data.obj_id = annotation.get('id');
-						me.data.type_id = 3;
+				if(!annotation.get('value')){
+					return;
+				}
+				if(annotation.get('id')){
+					annotation.save({
+						value : annotation.get('value'),
+						id : annotation.get('id')
+					}).then(function(res){
 						dtd.resolve();
 					}, function(res){
-						alert('创建标记失败');
+						alert('更新注释失败');
 						dtd.reject();
 						console.log(res);
 					});
-				}, function(res){
-					alert('创建注释卡失败');
-					dtd.reject();
-					console.log(res);
-				});
+				}else{
+					annotation.save().then(function(res){
+						var mark = new m.MarkModel({
+							obj_id : annotation.get('id'),
+							type : 3
+						});
+						mark.save({}, {data: mark.attributes}).then(function(res){
+							if(res.error){
+								alert(res.error.message);
+								dtd.reject();
+								return;
+							}
+							me.data.obj_id = annotation.get('id');
+							me.data.type_id = 3;
+							dtd.resolve();
+						}, function(res){
+							alert('创建标记失败');
+							dtd.reject();
+							console.log(res);
+						});
+					}, function(res){
+						alert('创建注释卡失败');
+						dtd.reject();
+						console.log(res);
+					});
+				}
 			});
 			return dtd;
 		},
@@ -2661,7 +3590,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/views/app.view', 'MarkModel'], function(v, m){
+			LocalModule.require(['dxy-plugins/replacedview/drug/views/app.view', 'MarkModel'], function(v, m){
 				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
@@ -2692,7 +3621,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/views/mobile.view', 'MarkModel'], function(v, m){
+			LocalModule.require(['dxy-plugins/replacedview/drug/views/mobile.view', 'MarkModel'], function(v, m){
 				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
@@ -2744,11 +3673,11 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			return dtd;
 		},
 		toEditorView : function(callback){
-			var ele = this.createWrapNode(),
+			var ele = this.createEditorWraperNode(),
 				me = this,
 				dtd = $.Deferred();
 			ele.setAttribute('contenteditable', 'false');
-			require(['MarkModel'], function(m){
+			LocalModule.require(['MarkModel'], function(m){
 				var mark = new m.MarkModel({obj_id: me.data.obj_id, type: me.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
@@ -2756,11 +3685,11 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 						dtd.reject();
 						return;
 					}
-					var tpl = '';
+					var tpl = '<br>';
 					for(var prop in res.data.items[0]){
 						tpl += (res.data.items[0][prop]+'<br>');
 					}
-					ele.innerHTML = tpl;
+					$(ele).append($(tpl));
 					me.ele = ele;
 					dtd.resolve();
 				}, function(res){
@@ -2780,7 +3709,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			var me = this,
 				dtd = $.Deferred();
 			if(this.verifyDrugId()){
-				require(['MarkModel'], function(m){
+				LocalModule.require(['MarkModel'], function(m){
 					var mark = new m.MarkModel({obj_id: me.modal.find('#drug-id').val(), type: 1});
 					mark.save({},{data : mark.attributes}).then(function(res){
 						if(res.error){
@@ -2840,6 +3769,173 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 })();
 (function(){
 	var IMG_PREFIX = 'http://img.dxycdn.com/dotcom/';
+	if(document.domain === 'dxy.us'){
+		IMG_PREFIX = 'http://dxy.us/upload/public/';
+	}
+	var VideoView = Backbone.View.extend({
+		events: {
+			'change #video-cover' : 'changeCover'
+		},
+		initialize : function(view){
+			var me = this;
+			this.view = view;
+			if(view.data && view.data.id){
+				this.id = view.data.id;
+				this.cover = view.data.cover;
+			}else{
+				this.id = '';
+				this.cover = '';
+			}
+			this.render();
+		},
+		render: function() {
+			var me = this;
+			LocalModule.require(['dxy-plugins/replacedview/video/views/main.view'], function(v){
+				var t = _.template(v);
+				me.el.innerHTML = t({
+					value : me.id,
+					cover : me.cover
+				});
+				me.trigger('render');
+			});
+		  	return this;
+		},
+		changeCover : function(e){
+			var me = this;
+			var t = $(e.currentTarget);
+			var uploader = new ImageUploader({
+				el : t[0],
+				type : 'card_video_cover'
+			});
+			uploader.upload().then(function(e){
+				var res = JSON.parse(e.currentTarget.responseText);
+				var img = IMG_PREFIX + res.data.items[0].path;
+				me.cover = me.view.data.cover = img;
+				me.$el.find('img').attr('src', me.cover);
+			},function(e){
+				var res = JSON.parse(e.currentTarget.responseText);
+				alert('上传失败：'+res);
+			});
+		},
+		processValue : function(){
+			function uid(q){
+				if(q){
+					var pairs = q.split('&');
+					var pair;
+					for(var i=0,len=pairs.length;i<len; i++){
+						pair = pairs[i].split('=');
+						if(pair[0] && pair[0]=='vid'){
+							return pair[1];
+						}
+					}
+					return null;
+				}
+				return null;
+			}
+			var value = this.$el.find('#video-id').val();
+			var UrlReg = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+			var querystring;
+			if(value){
+				var match = UrlReg.exec(value);
+				if(match && match[1]){
+					var query = match[6];
+					if(query && uid(query)){
+						this.id = this.view.data.id = uid(query);
+					}else{
+						var path = match[5];
+						var name = path.slice(path.lastIndexOf('/')+1);
+						var m = /^(.+)\.html$/.exec(name);
+						if(m && m[1]){
+							this.id = this.view.data.id = m[1];
+						}else{
+							alert('格式无法识别，请联系佳奇');
+						}
+					}
+				}else{
+					this.id = this.view.data.id = value;
+				}
+			}
+		}
+	});
+
+
+	window.VideoReplacedView = ReplacedView.register('video', {
+		toWechatView : function(){
+			return this.toEditorView()
+		},
+		toWebView : function(e){
+		    var video = $('<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid='+this.data.id+'&tiny=0&auto=0" allowfullscreen></iframe>')[0];
+		    $(e).html(video);
+		    this.ele = e;
+		    return $.Deferred().resolve(e);
+		},
+		toAppView : function(e){
+			return this.toMobileView(e);
+			// e.id = this.data.id;
+			// var video = new tvp.VideoInfo();
+		 //       video.setVid(this.data.id);
+		 //       var player = new tvp.Player('100%', '200px');
+		 //       player.addParam("showcfg",0);
+		 //       player.addParam("autoplay", 0);
+		 //       player.addParam("showend",0);
+		 //       player.addParam("controls", "disable");
+		 //       player.setCurVideo(video);
+		 //       player.write(this.data.id);
+		 //    e.style.display = 'block';
+		 //    return $.Deferred();
+		},
+		toEditorView : function(e){
+			var ele = this.toMetaView(e),
+				dtd = $.Deferred();
+			ele.style.display = 'block';
+			ele.id = this.data.id;
+			var video = $('<iframe frameborder="0" width="640" height="498" src="http://v.qq.com/iframe/player.html?vid='+this.data.id+'&tiny=0&auto=0" allowfullscreen></iframe>');
+			$(ele).html(video);
+			dtd.resolve(ele);
+			return dtd;
+		},
+		toMobileView : function(e){
+			var dtd = $.Deferred();
+			var url = 'http://h5vv.video.qq.com/getinfo?vids='+this.data.id+'&otype=json&defaultfmt=auto&sdtfrom=v3010&_rnd='+new Date().getTime()+'&sphls=0&sb=1&platform=11001&charge=0';
+			var me = this;
+			$.ajax({
+				url: url,
+				type: "GET",
+				dataType: 'jsonp',
+				jsonp: 'callback',
+				success : function(json){
+					try{
+						var data = json.vl.vi[0];
+						var source = data.ul.ui[0].url + data.fn + '?vkey=' + data.fvkey;
+						var video = $('<video controls poster="'+me.data.cover+'" preload="metadata" width="100%" name="media"><source src="'+source+'" type="video/mp4"></source></video>');
+						me.ele = video[0];
+						dtd.resolve(video[0]);
+					}catch(e){
+						console.log('视频解析失败');
+					}
+				},
+				error : function(){
+					console.log('视频元信息获取失败');
+				}
+			});
+			return dtd;
+		},
+		onModalShow : function(){
+			this.video =  new VideoView(this);
+			$('#dxy-video-modal .modal-body').html($(this.video.el));
+		},
+		onModalConfirm : function(){
+			this.video.processValue();
+			if(!this.data.id){
+				alert('请输入视频id');
+				return false;
+			}
+			return true;
+		}
+	});
+})();
+(function(){
+	var IMG_PREFIX = 'http://img.dxycdn.com/dotcom/';
 	var UPLOAD_ACTION = 'http://dxy.com/admin/i/att/upload?type=column_content';
 	var IS_PC = isPC();
 	var isLogin = (function(){
@@ -2858,7 +3954,14 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 	})();
 	window.setUserLogin = function(login){
 		isLogin = login;
-		ReplacedView.renderAll();
+		function process(){
+			if(ReplacedView){
+				ReplacedView.renderAll();
+			}else{
+				setTimeout(process, 100);
+			}
+		}
+		setTimeout(process, 100);
 	};
 	function fomat(date, fmt){
 		var o = {   
@@ -2902,7 +4005,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			me.view = view;
 			console.log('init');
 			window.__hack = true;
-			require(['VoteModel'], function(m){
+			LocalModule.require(['VoteModel'], function(m){
 				me.model = new m.VoteMarkModel({});
 				me.searchModel = new m.VoteGroupsModel([]);
 				me.fetchVoteList();
@@ -2910,7 +4013,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		},
 		render: function() {
 		  	var me = this;
-		  	require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(tpl){
+		  	LocalModule.require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({mark: me.model, votelist : me.votelist, panel : me.currentPanel});
 		  		me.delegateEvents(me.events);
 				me.trigger('render');
@@ -2929,7 +4032,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 					$('#search-list-container').html('');
 					return;
 				}
-				require(['dxy-plugins/replacedview/vote/views/searchList.view'], function(tpl){
+				LocalModule.require(['dxy-plugins/replacedview/vote/views/searchList.view'], function(tpl){
 			  		$('#search-list-container')[0].innerHTML = _.template(tpl)({list: me.searchModel.models});
 			  	});
 			}, function(res){
@@ -2938,7 +4041,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 		},
 		fetchVoteList : function(){
 			var me =this;
-			require(['VoteModel'], function(m){
+			LocalModule.require(['VoteModel'], function(m){
 				var list = new m.VoteGroupsModel([],{items_per_page:8});
 				list.fetch().then(function(){
 					list.on('all', me.render, me);
@@ -2947,7 +4050,6 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 					me.render();
 				}, function(model, res){
 					console.log(res);
-					alert(res.error.message);
 				});
 			});
 		},
@@ -2988,7 +4090,6 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			this.votelist.goto(-1).then(function(){
 				me.votelist.fetching = false;
 			}, function(model,res){
-				alert(res.error.message);
 				me.votelist.fetching = false;
 			});
 		},
@@ -3001,7 +4102,6 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			this.votelist.goto(1).then(function(){
 				me.votelist.fetching = false;
 			}, function(model,res){
-				alert(res.error.message);
 				me.votelist.fetching = false;
 			});
 		},
@@ -3022,7 +4122,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			}else{
 				view = 'dxy-plugins/replacedview/vote/views/h5.view';
 			}
-			require([view], function(tpl){
+			LocalModule.require([view], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({
 		  			votes: me.model.get('group').attach.models, 
 		  			group: me.model.get('group'),
@@ -3039,16 +4139,29 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			'click .user_not_voted .J-user-vote' : 'userVote'
 		},
 		multipleCheck : function(e){
-			var target = $(e.currentTarget),
-				id = target.data('id'),
+			var target = $(e.currentTarget);
+			if(target[0].tagName!=='LI'){
+				target = target.parents('li');
+			}
+			var	id = target.data('id'),
 				options = this.model.find(target.data('model')).models;
 			options[+id].checked = !options[+id].checked;
-			this.model.trigger('change');
+			// if(options[+id].checked){
+			// 	target.addClass('checked');
+			// }else{
+			// 	target.removeClass('checked');
+			// }
+			this.render();
 		},
 		singleCheck : function(e){
-			var target = $(e.currentTarget),
-				id = target.data('id'),
+			var target = $(e.currentTarget);
+			if(target[0].tagName!=='LI'){
+				target = target.parents('li');
+			}
+			var	id = target.data('id'),
 				options = this.model.find(target.data('model')).models;
+			// target.parents('ul').find('li').removeClass('checked');
+			// target.addClass('checked');
 			_.each(options, function(opt, i){
 				if(i===+id){
 					opt.checked = true;
@@ -3056,7 +4169,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 					opt.checked = false;
 				}
 			});
-			this.model.trigger('change');
+			this.render();
 		},
 		userVote : function(e){
 			var tag = false,
@@ -3123,21 +4236,25 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 								me.model.get('group').user_voted = true;
 								me.render();
 							}else{
+								_.each(mark.get('group').attach.models, function(vote){
 								_.each(vote.attach.attach.models, function(opt){
 									if(opt.checked){
 										opt.total++;
 										vote.vote_total++;
 									}
 								});
+								});
 								me.model.get('group').user_voted = true;
 								me.render();
 							}
 						}, function(res){
+							_.each(mark.get('group').attach.models, function(vote){
 							_.each(vote.attach.attach.models, function(opt){
 								if(opt.checked){
 									opt.total++;
 									vote.vote_total++;
 								}
+							});
 							});
 							me.model.get('group').user_voted = true;
 							me.render();
@@ -3178,7 +4295,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			var me = this;
 			this.removeAlertBox();
 			$('<div class="msg-mark"></div>').appendTo($('body'));
-			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
+			LocalModule.require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
 				$(_.template(tpl)(opt)).appendTo($('body'));
 				$('.editor-alert-box a').click(function(){
 					me.removeAlertBox();
@@ -3190,7 +4307,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			this.removeAlertBox();
 			opt.index = opt.index || 0;
 			opt.container = opt.container || $($('.editor-vote-wraper',me.el)[opt.index]);
-			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
+			LocalModule.require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
 				$(_.template(tpl)(opt)).appendTo(opt.container);
 				$('.editor-alert-box a').click(function(){
 					me.removeAlertBox();
@@ -3235,6 +4352,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 	});
 
 	var SingleButtonVoteAppView =  VoteAppView.extend({
+		className : 'singlebutton-wraper',
 		render : function(){
 			var me = this,
 				view;
@@ -3247,6 +4365,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 				var vote_total = vote.vote_total;
 				var total = 0;
 				_.each(vote.attach.attach.models,function(opt,j, all){
+					console.log(opt);
 					var opt_total = opt.total;
 					var percent = opt_total/vote_total;
 					if(isNaN(percent)){
@@ -3258,7 +4377,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 				});
 				vote.attach.attach.models[0].width += (100-total);
 			});
-			require([view], function(tpl){
+			LocalModule.require([view], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({
 		  			votes: me.model.get('group').attach.models, 
 		  			group: me.model.get('group'),
@@ -3301,15 +4420,85 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			}catch(e){
 				return;
 			}
+			if(!isLogin){
+				window.location.href = 'https://account.dxy.com/login?redirect_uri='+window.location.href;
+				return;
+			}
+			this.userVote();
+		}
+	});
+
+	var SingleButtonVoteMobileView = SingleButtonVoteAppView.extend({
+		checkLogin : function(){
+			var dtd = $.Deferred();
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id='+window.pid+'&type=0'
+			}).then(function(res){
+				if(res.success === false){
+					dtd.reject();
+				}else{
+					dtd.resolve();
+				}
+			}, function(){
+				dtd.reject();
+			});
+			return dtd;
+		},
+		showLoginBox : function(){
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id='+window.pid+'&type=0',
+				data : {
+					need_login : 1
+				}
+			});
+		},
+		singleCheck : function(e){
+			var target = $(e.currentTarget),
+				id = target.data('id'),
+				options = this.model.find(target.data('model')).models,
+				tag = false,
+				me = this;
+			_.each(options, function(opt, i){
+				if(i===+id){
+					opt.checked = true;
+				}else{
+					opt.checked = false;
+				}
+			});
+			try{
+			_.each(me.model.get('group').attach.models, function(vote, i){
+				tag = false;
+				_.each(vote.attach.attach.models, function(opt){
+					if(opt.checked){
+						tag = true;
+					}
+				});
+				if(!tag){
+					throw new Error();
+				}
+			});
+			}catch(e){
+				return;
+			}
 			this.userVote();
 		},
+		userVote : function(){
+			var me = this;
+			this.checkLogin().then(function(){
+				VoteAppView.prototype.userVote.apply(me, arguments);
+			}, function(){
+				me.showLoginBox();
+			});
+		}
 	});
 
 	window.VoteReplacedView = ReplacedView.register('vote', {
 		genMark : function(){
 			var view = this,
 				dtd = $.Deferred();
-			require(['VoteModel'], function(m){
+			LocalModule.require(['VoteModel'], function(m){
 				var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
 				mark.fetch({
 					success:function(model, res){
@@ -3337,7 +4526,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 										return;
 									}
 								}else{
-									votes = res.data.items;
+									votes = res.data && res.data.items;
 								}
 								_.each(votes, function(vote){
 									var vote_id = vote.vote_id,
@@ -3363,6 +4552,9 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 									_.each(res.data.items, function(item, i){
 										var vote = mark.get('group').attach.findByAttachId(item.vote_id),
 											opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
+										if(!opt){
+											return;
+										}
 										if(!vote.vote_total){
 											vote.vote_total = 0;
 										}
@@ -3428,7 +4620,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 				if(!show_type || show_type==0){
 					view = new VoteMobileView(me, mark);
 				}else if(show_type==1){
-					view = new SingleButtonVoteAppView(me, mark);
+					view = new SingleButtonVoteMobileView(me, mark);
 				}
 				ele.appendChild(view.el);
 				me.ele = ele;
@@ -3439,25 +4631,23 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			return dtd;
 		},
 		toEditorView : function(){
-			var ele = this.createWrapNode(),
+			var ele = this.createEditorWraperNode(),
 				me = this,
 				dtd = $.Deferred();
-			ele.setAttribute('contenteditable', 'false');
-			require(['dxy-plugins/replacedview/vote/views/editor.view', 'VoteModel'], function(tpl, m){
+			// ele.setAttribute('contenteditable', 'false');
+			LocalModule.require(['dxy-plugins/replacedview/vote/views/editor.view', 'VoteModel'], function(tpl, m){
 				var mark = new m.VoteMarkModel({obj_id:me.data.group_id,type:10});
 				mark.fetch({
 					success:function(model, res){
 						if(res.error){
-							alert(res.error.message);
 							return;
 						}
-						ele.innerHTML = _.template(tpl)({group : mark.get('group'),votes: mark.get('group').attach.models});
+						$(ele).append($(_.template(tpl)({group : mark.get('group'),votes: mark.get('group').attach.models})));
 						me.ele = ele;
 						dtd.resolve(ele);
 					},
 					error : function(model,res){
 						console.log(res);
-						alert(res.error.message);
 					}
 				});
 				// var group = new m.VoteGroupModel({id: me.data.group_id});
@@ -3488,7 +4678,6 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 			var data, dtd = $.Deferred(),me =this;
 			me.vote.model.save({}, {data : {obj_id: window.group.get('id'), type: 10}}).then(function(res){
 				if(res.error){
-					alert(res.error.message);
 					dtd.reject();
 					return;
 				}

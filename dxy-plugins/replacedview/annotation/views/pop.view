@@ -1,10 +1,19 @@
+	<%if(arrow){%>
+	<div class='arrow'>
+	</div>
+	<%}%>
 	<%if(annotation){%>
-	<div><%=annotation.get('value')%></div>
+	<div class="annotation-content"><%=annotation.get('value')%></div>
 	<%}else{%>
 	<div class="loading">加载中...</div>
 	<%}%>
 	<%if(error){%>
 	<div>
 		<%=error%>
+	</div>
+	<%}%>
+	<%if(url){%>
+	<div class="more">
+		<a href="<%=url%>" target="_black">查看更多<span></span></a>
 	</div>
 	<%}%>

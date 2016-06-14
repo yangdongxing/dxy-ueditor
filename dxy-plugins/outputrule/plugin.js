@@ -11,6 +11,10 @@
 				if(node.tagName === 'div' && node.getAttr('class')==='dxy-linkedit-box'){
 					node.parentNode.removeChild(node, false);
 				}
+
+				if(node.getAttr('class')==='mark-close'){
+					node.parentNode.removeChild(node, false);
+				}
 			});
 		});
 	});

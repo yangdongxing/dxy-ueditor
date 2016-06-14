@@ -1,0 +1,22 @@
+	<div class='arrow'>
+	</div>
+	<%if(annotation){%>
+		<%if(url){%>
+			<a href="<%=url%>" target="_black" class="annotation-header">
+				<span class="annotation-title"><%=title%></span>
+				<span class="more"></span>
+			</a>
+		<%}else{%>
+			<div class="annotation-header">
+				<span class="annotation-title"><%=title%></span>
+			</div>
+		<%}%>
+		<div class="annotation-content"><%=slice(annotation.get('value'))%></div>
+	<%}else{%>
+		<div class="loading">加载中...</div>
+	<%}%>
+	<%if(error){%>
+		<div>
+			<%=error%>
+		</div>
+	<%}%>

@@ -1,8 +1,79 @@
-define("dxy-plugins/replacedview/annotation/views/dialog.view", function(){var tpl = '<div class="input-group">'+
-'  <input type="text" class="form-control" id="annotation-value"  placeholder="请输入注释">'+
+LocalModule.define("dxy-plugins/editview/customview/customviews/doctor_question/views/page.view", function(){var tpl = '<section class="laiwen-doctor-answer clearfix">'+
+'	<section class="avatar">'+
+'		<img src="<%=img.value%>">'+
+'	</section>'+
+'	<section class="dialog">'+
+'		<section class="view-wraper"><%=content.value%></section>'+
+'	</section>'+
+'	<section class="clear">&nbsp;</section>'+
+'</section>';return tpl;});
+LocalModule.define("dxy-plugins/editview/customview/customviews/user_answer/views/page.view", function(){var tpl = '<section class="laiwen-user-question clearfix">'+
+'	<%if(img.value){%>'+
+'		<section class="avatar">'+
+'			<img src="<%=img.value%>">'+
+'		</section>'+
+'	<%}%>'+
+'	<section class="dialog">'+
+'		<section class="view-wraper"><%=content.value%></section>'+
+'	</section>'+
+'	<section class="clear">&nbsp;</section>'+
+'</section>';return tpl;});
+LocalModule.define("dxy-plugins/editview/customview/views/config.view", function(){var tpl = '<div class="clearfix">'+
+'  <form class="form-horizontal">'+
+'  <%_.each(_.keys(config), function(key){%>'+
+'    <div class="form-group">'+
+'      <label for="inputEmail3" class="col-sm-3 control-label"><%=config[key].title%></label>'+
+'      <div class="col-sm-9">'+
+'        <input type="text" class="form-control input-<%=key%>" value="<%=config[key].value%>" placeholder="<%=config[key].placeholder%>">'+
+'      </div>'+
+'    </div>'+
+'  <%})%>'+
+'  </form>'+
+'  <button class="btn btn-primary pull-right confirm-config" type="button">确认修改</button>'+
+'<div>';return tpl;});
+LocalModule.define("dxy-plugins/editview/customview/views/dashboard.view", function(){var tpl = '<div class="btn-group-vertical customview-dashboard-controll" role="group">'+
+'	<%_.each(styles, function(style){%>'+
+'	<button type="button" class="btn btn-default view-button" data-name="<%=style.viewname%>"><%=style.title%></button>'+
+'	<%})%>'+
+'</div>'+
+'<div class="views-container" style="display:inline-block;">'+
+'	'+
+'</div>'+
+'<div class="col-md-12 view-trash" style="margin-top:20px;text-align:center;">'+
+'  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>'+
+'  拖动到这删除'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl = '	<%if(annotation){%>'+
-'	<div><%=annotation.get(\'value\')%></div>'+
+LocalModule.define("dxy-plugins/replacedview/annotation/views/dialog.view", function(){var tpl = '<div class="form-group">'+
+'	<textarea class="form-control" id="annotation-value"  placeholder="请输入注释" rows=\'5\'><%=value%></textarea>'+
+'</div>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/annotation/views/mobile_pop.view", function(){var tpl = '	<div class=\'arrow\'>'+
+'	</div>'+
+'	<%if(annotation){%>'+
+'		<%if(url){%>'+
+'			<a href="<%=url%>" target="_black" class="annotation-header">'+
+'				<span class="annotation-title"><%=title%></span>'+
+'				<span class="more"></span>'+
+'			</a>'+
+'		<%}else{%>'+
+'			<div class="annotation-header">'+
+'				<span class="annotation-title"><%=title%></span>'+
+'			</div>'+
+'		<%}%>'+
+'		<div class="annotation-content"><%=slice(annotation.get(\'value\'))%></div>'+
+'	<%}else{%>'+
+'		<div class="loading">加载中...</div>'+
+'	<%}%>'+
+'	<%if(error){%>'+
+'		<div>'+
+'			<%=error%>'+
+'		</div>'+
+'	<%}%>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl = '	<%if(arrow){%>'+
+'	<div class=\'arrow\'>'+
+'	</div>'+
+'	<%}%>'+
+'	<%if(annotation){%>'+
+'	<div class="annotation-content"><%=annotation.get(\'value\')%></div>'+
 '	<%}else{%>'+
 '	<div class="loading">加载中...</div>'+
 '	<%}%>'+
@@ -11,8 +82,12 @@ define("dxy-plugins/replacedview/annotation/views/pop.view", function(){var tpl 
 '		<%=error%>'+
 '	</div>'+
 '	<%}%>'+
-'';return tpl;});
-define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
+'	<%if(url){%>'+
+'	<div class="more">'+
+'		<a href="<%=url%>" target="_black">查看更多<span></span></a>'+
+'	</div>'+
+'	<%}%>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a href="<%=drug_url%>" class=\'m-drug-view-wraper\' target="_black">'+
 '	<div class="m-drug-view-img">'+
 '		<img src=\'http://assets.dxycdn.com/app/dxydoctor/img/editor/drug-icon.png\'>'+
 '	</div>'+
@@ -21,7 +96,7 @@ define("dxy-plugins/replacedview/drug/views/app.view", function(){var tpl = '<a 
 '		<p><%=drug_company%></p>'+
 '	</div>'+
 '</a>';return tpl;});
-define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '<a class=\'mobile-drug-view-wraper\' href="<%=drug_url%>" target="_black">'+
+LocalModule.define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '<a class=\'mobile-drug-view-wraper\' href="<%=drug_url%>" target="_black">'+
 '	<div class=\'mobile-drug-view-body\'>'+
 '		<h4><%=drug_name%></h4>'+
 '		<p><%=drug_company%></p>'+
@@ -33,7 +108,7 @@ define("dxy-plugins/replacedview/drug/views/mobile.view", function(){var tpl = '
 '		<%}%>'+
 '	</div>'+
 '</a>';return tpl;});
-define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
+LocalModule.define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%>'+
 ''+
 '<%_.each(marks, function(mark){%>'+
 ''+
@@ -43,11 +118,26 @@ define("dxy-plugins/replacedview/mark.view", function(){var tpl = '<%if(marks){%
 '<%})%>'+
 ''+
 '<%}%>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box <%if(cls){print(cls)}%>">'+
+LocalModule.define("dxy-plugins/replacedview/video/views/main.view", function(){var tpl = '<div>'+
+'<div class="form-group">'+
+'  <input type="text" class="form-control" id="video-id"  placeholder="请输入腾讯视频id或链接" value="<%=value%>">'+
+' </div>'+
+' <div class="form-group">'+
+' <div class="qq-upload-button" style="position: relative; overflow: hidden; direction: ltr;width: 100px;" >'+
+' 	<p>上传视频截图</p>'+
+' 	<input type="file" name="file" id="video-cover" style="position: absolute; right: 0px; top: 0px; font-family: Arial; font-size: 118px; margin: 0px; padding: 0px; cursor: pointer; opacity: 0;">'+
+' </div>'+
+'  <p class="help-block">手机上不自动播放视频，挑一张精彩的视频截图更能吸引用户点击播放。</p>'+
+' </div>'+
+' <div class="form-group">'+
+' <img src="<%=cover%>" style="width:100%;">'+
+' </div>'+
+'</div>';return tpl;});
+LocalModule.define("dxy-plugins/replacedview/vote/views/alert.view", function(){var tpl = '<div class="editor-alert-box <%if(cls){print(cls)}%>">'+
 '	<p><%=title%></p>'+
 '	<a href="javascript:;"><%=button_title%></a>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '<div>'+
 '  <div class="tab-content">'+
 '    <div role="tabpanel" class="tab-pane" id="add-vote">'+
 '    '+
@@ -100,7 +190,7 @@ define("dxy-plugins/replacedview/vote/views/dialog.view", function(){var tpl = '
 '    </div>'+
 '  </div>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-container">'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '<div class="editor-vote-container">'+
 '<p>'+
 '	<span class="tag">投票</span>'+
 '	<span class="tag"><%if(group.get(\'show_type\')==0){print(\'默认类型\')}else if(group.get(\'show_type\')==1){print(\'横排单选\')}%></span>'+
@@ -176,7 +266,7 @@ define("dxy-plugins/replacedview/vote/views/editor.view", function(){var tpl = '
 '<%})%>'+
 ''+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>" >'+
 '<%if(expired){%>'+
 '<a href="javascript:;" class="vote-expired-tip user-vote">'+
 '	投票已过期'+
@@ -265,7 +355,7 @@ define("dxy-plugins/replacedview/vote/views/h5.view", function(){var tpl = '<div
 '</div>'+
 '<%}%>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '<div class="editor-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> mobile-vote">'+
 '<%_.each(votes, function(vote, i){%>'+
 '	<div class="editor-vote-wraper <%if(+vote.attach.get(\'type\')===0){print(\'vote-single\')}else{print(\'vote-multiple\')}%> <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%>">'+
 '		<h4><span>投票</span><%=vote.attach.get(\'title\')%></h4>'+
@@ -313,42 +403,102 @@ define("dxy-plugins/replacedview/vote/views/mobile.view", function(){var tpl = '
 '<%}%>'+
 '</div>'+
 '</div>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl = '<%if(list && list.length>0){%>'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/searchList.view", function(){var tpl = '<%if(list && list.length>0){%>'+
 '<ul class="search-list">'+
 '	<%_.each(list, function(item,i){%>'+
 '	<li data-id="<%=i%>"><%=item.get(\'title\')%></li>'+
 '	<%})%>'+
 '</ul>'+
 '<%}%>';return tpl;});
-define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(){var tpl = '<div class="editor-button-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> <%if(!expired){print(\'not_expired\')}else{print(\'expired\')}%>">'+
+LocalModule.define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(){var tpl = '<div class="editor-button-vote-group <%if(!group.user_voted){print(\'user_not_voted\')}else{print(\'user_voted\')}%> <%if(!expired){print(\'not_expired\')}else{print(\'expired\')}%>">'+
 '<%if(group.user_voted){%>'+
 '<%if(expired){%>'+
 ''+
 '<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
+'	<div class="editor-vote-wraper clearfix">'+
+'	<table>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<span class="user-check">'+
+'					<%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%>'+
+'				</span>'+
+'				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	<tr style="height:10px;"></tr>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option-stat <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<div class="right-answer"><span class="arrow"></span>正确答案</div>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	</table>'+
+'	</div>'+
+'<%})%>'+
+''+
+'<%if(false){%>'+
+'<%_.each(votes, function(vote, i){%>'+
+'	<p><%=vote.attach.get(\'title\')%></p>'+
 '	<div class="editor-vote-wraper clearfix">'+
 '		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
 '			<div class="editor-vote-option <%if(opt.checked){print(\'checked\')}%>" style="<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
 '				<span class="user-check"><%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%></span>'+
 '				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
-'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%></i>%</span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
 '			</div>'+
 '		<%})%>'+
 '	</div>'+
 '<%})%>'+
+'<%}%>'+
 ''+
 '<%}else{%>'+
 ''+
 '<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
+'	<div class="editor-vote-wraper clearfix">'+
+'	<table>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<span class="user-check">'+
+'					<%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%>'+
+'				</span>'+
+'				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	<tr style="height:10px;"></tr>'+
+'	<tr>'+
+'		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
+'			<td class="editor-vote-option-stat <%if(opt.checked){print(\'checked\')}%> <%if(opt.attach.get(\'params\') && opt.attach.get(\'params\').isTruth){print(\'truth-opt\')}else{print(\'not-truth-opt\')}%> <%if(j==0){print(\'first\')}else if(j==vote.attach.attach.models.length-1){print(\'last\')}else{print(\'middle\')}%>" style="border:none;<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
+'				<div class="right-answer"><span class="arrow"></span>正确答案</div>'+
+'			</td>'+
+'		<%})%>'+
+'	</tr>'+
+'	</table>'+
+'	</div>'+
+'<%})%>'+
+''+
+'<%if(false){%>'+
+'<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
 '	<div class="editor-vote-wraper clearfix">'+
 '		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+
 '			<div class="editor-vote-option <%if(opt.checked){print(\'checked\')}%>" style="<%if(j==0){print(\'text-align:left;border-radius: 10px 0px 0px 10px;\')}else if(j==vote.attach.attach.models.length-1){print(\'text-align:right;border-radius: 0px 10px 10px 0px;\')}else{print(\'text-align:center;\')}%>width:<%=opt.width%>%">'+
 '				<span class="user-check"><%if(opt.checked){print(\'我的选择\')}else{print(\'&nbsp;\')}%></span>'+
 '				<span class="opt-value"><%=opt.attach.get(\'value\')%></span>'+
-'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print(\'0\')}%></i>%</span>'+
+'				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print(\'0\')}%></i>%</span>'+
 '			</div>'+
 '		<%})%>'+
 '	</div>'+
 '<%})%>'+
+'<%}%>'+
 ''+
 '<%}%>'+
 '<%}else{%>'+
@@ -361,6 +511,7 @@ define("dxy-plugins/replacedview/vote/views/singlebutton/mobile.view", function(
 '<%}else{%>'+
 ''+
 '<%_.each(votes, function(vote, i){%>'+
+'<p><%=vote.attach.get(\'title\')%></p>'+
 '	<table class="editor-vote-wraper clearfix">'+
 '		<tr>'+
 '		<%_.each(vote.attach.attach.models,function(opt,j){ %> '+

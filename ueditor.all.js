@@ -1540,10 +1540,14 @@ EventBase.prototype = {
      * ```
      * @see UE.EventBase:fireEvent(String)
      */
-    addListener:function (types, listener) {
+    addListener:function (types, listener, capture) {
         types = utils.trim(types).split(/\s+/);
         for (var i = 0, ti; ti = types[i++];) {
-            getListener(this, ti, true).push(listener);
+            if(capture){
+                getListener(this, ti, true).unshift(listener);
+            }else{
+                getListener(this, ti, true).push(listener);
+            }
         }
     },
 

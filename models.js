@@ -1,4 +1,83 @@
-var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
+(function(){
+	if(window.LocalModule){
+		return;
+	}
+
+	var modules = {};
+	var tasks = [];
+
+	function isAllLoaded(requires){
+		for(var i=0, len=requires.length; i<len; i++){
+			if(!modules[requires[i]]){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function getModules(requires){
+		var res = [];
+		for(var i=0, len=requires.length; i<len; i++){
+			if(modules[requires[i]]){
+				res.push(modules[requires[i]]);
+			}
+		}
+		return res;
+	}
+
+	function checkTask(){
+		var task;
+		for(var i=0,len=tasks.length;i<len; i++){
+			task = tasks[i];
+			if(!task){
+				continue;
+			}
+			if(isAllLoaded(task.requires)){
+				task.callback.apply(null,getModules(task.requires));
+				tasks[i] = null;
+			}
+		}
+	}
+
+	function _define(moduleName, requires, callback){
+		if(typeof requires === 'function'){
+			callback = requires;
+			requires = [];
+		}
+		if(!isAllLoaded(requires)){
+			for(var i=0,len=requires.length; i<len; i++){
+				for(var j=0,jlen = tasks.length; j<jlen; j++){
+					if(requires.indexOf(tasks[j].name)!==-1 && tasks[j].requires.indexOf(moduleName)!==-1){
+						throw new Error('module "'+moduleName+'" and "'+tasks[j].name+'" has circular references');
+					}
+				}
+			}
+		}
+		_require(requires, function(){
+			modules[moduleName] = callback.apply(null, arguments);
+		}, moduleName);
+	}
+
+	function _require(requires, callback, _moduleName){
+		if(isAllLoaded(requires)){
+			callback.apply(null, getModules(requires));
+		}else{
+			tasks.push({
+				requires : requires,
+				callback : callback,
+				name : _moduleName
+			});
+		}
+		checkTask();
+	}
+
+	window.LocalModule = {
+		define : _define,
+		require : _require
+	};
+
+})();
+var API_HOST = 'http://'+(window.location.host||'dxy.com')+'/';
 (function(){
 // 	window.DXYJSBridge = {};
 // window.DXYJSBridge.invoke = function(a, options, callback){
@@ -65,7 +144,7 @@ var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
 	};
 })();
 
-define('MarkModel', function(){
+LocalModule.define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var MarkModel = Backbone.Model.extend({
 		sync : function(method, model, options){
@@ -113,7 +192,7 @@ define('MarkModel', function(){
 	};
 });
 
-define('DxyModel', function(){
+LocalModule.define('DxyModel', function(){
 	var backbone = Backbone;
 	var Model = backbone.Model.extend({
 		initialize : function(attrs){
@@ -183,8 +262,8 @@ define('DxyModel', function(){
 				if(!opt){
 					opt = {};
 				}
-				opt.patch = true;
 			}
+			opt.data = attr;
 			return backbone.Model.prototype.save.call(this, attr, opt);
 		},
 		set : function(key, val, options){
@@ -230,7 +309,7 @@ define('DxyModel', function(){
 		Model : Model
 	}
 });
-define('DxyCollection', function(){
+LocalModule.define('DxyCollection', function(){
 	var backbone = Backbone;
 	var Collection = backbone.Collection.extend({
 		constructor : function(items, opt){
@@ -323,7 +402,7 @@ define('DxyCollection', function(){
 					_.extend(model, resp.data);
 				}
 			}
-			return Backbone.sync(method, model, options);
+			return Backbone.sync.apply(this, arguments);
 		},
 		goto : function(page){
 			page = parseInt(page);
@@ -344,9 +423,9 @@ define('DxyCollection', function(){
 					dtd.reject(res);
 					return;
 				}
-				dtd.resolve.apply(arguments);
+				dtd.resolve.call(null, res);
 			}, function(res){
-				dtd.reject.apply(arguments);
+				dtd.reject.call(null, res);
 			});
 			return dtd;
 		},
@@ -363,17 +442,21 @@ define('DxyCollection', function(){
 		Collection : Collection
 	}
 });
-define('AnnotationModel', ['DxyModel'], function(dxy){
-	var API_HOST = 'http://'+document.domain+'/';
+LocalModule.define('AnnotationModel', ['DxyModel'], function(dxy){
+	var API_HOST = 'http://'+(window.location.host||'dxy.com')+'/';
 	var AnnotationModel = dxy.Model.extend({
 		urlRoot : API_HOST + 'admin/i/card/annotation'
 	});
+	var AnnotationUserModel = dxy.Model.extend({
+		urlRoot : API_HOST + 'view/i/functionmarker'
+	});
 	window.M = AnnotationModel;
 	return {
-		AnnotationModel : AnnotationModel
+		AnnotationModel : AnnotationModel,
+		AnnotationUserModel : AnnotationUserModel
 	}
 });
-define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
+LocalModule.define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
 	Backbone.emulateJSON = true;
 	function fomat(date, fmt){
 		var o = {   
@@ -432,9 +515,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					dtd.reject(res);
 					return;
 				}
-				dtd.resolve.apply(arguments);
+				dtd.resolve.call(null, res);
 			}, function(res){
-				dtd.reject.apply(arguments);
+				dtd.reject.call(null, res);
 			});
 			return dtd;
 		},
@@ -488,6 +571,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		},
 		processInData : function(){
 			var value = this.get('value'),
+				params = this.get('params'),
 				list,
 				me = this;
 			if(value){
@@ -500,6 +584,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					}
 				});
 			}
+			if(params){
+				if(typeof params === 'string'){
+					params = JSON.parse(params);
+				}
+				me.attributes.params = params;
+			}
 			me._previousAttributes = _.clone(me.attributes);
 			me.changed = {};
 		},
@@ -508,6 +598,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			if(img){
 				delete data.img;
 				data.value = data.value + '$$img='+ img; 
+			}
+			if(data.params &&  !(typeof data.params === 'string')){
+				data.params = JSON.stringify(data.params);
 			}
 			return data;
 		},
@@ -648,10 +741,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		constructor : function(data){
 			var id = data.node_id,
 				value = data.node_value || '',
+				params = data.node_params || '{}',
 				me = this;
 			var node = {
 				id : id,
-				value : value
+				value : value,
+				params : params
 			};
 			this.total = 0;
 			this.attach = new NodeModel(node);
@@ -960,9 +1055,15 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			});
 			return xhr;
 		},
-		getVotesStat : function(){
+		getVotesStat : function(admin){
+			var url;
+			if(admin){
+				url = API_HOST+'admin/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100';
+			}else{
+				url = API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100';
+			}
 			var xhr = Backbone.ajax({
-				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
+				url : url,
 				type : 'GET'
 			});
 			return xhr;
@@ -1342,7 +1443,6 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					dtd.resolve();
 				},0);
 			}catch(e){
-				alert(e.message);
 				console.log(e);
 				setTimeout(function(){
 					dtd.reject();

@@ -12,6 +12,10 @@ module.exports = function (grunt) {
             },
             editorcss: {
                 src : ['dxy-plugins/**/editor.css'],
+                dest : 'themes/editor.css'
+            },
+            iframecss : {
+                src : ['themes/_iframe.css','dxy-plugins/**/editor.css'],
                 dest : 'themes/iframe.css'
             },
             wechatcss : {
@@ -19,7 +23,7 @@ module.exports = function (grunt) {
                 dest : 'themes/wechat.css'
             },
             extend : {
-                src : ['third-party/date/date.js','models.js','dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
+                src : ['third-party/module/module.js','third-party/date/date.js','models.js','dxy-extend/view.js','dxy-extend/template.js', 'dxy-plugins/**/extend.js'],
                 dest : 'ueditor.dxy.extend.js'
             },
             modal : {
@@ -27,7 +31,7 @@ module.exports = function (grunt) {
                 dest : 'dxy-plugins/modals/dxy-plugin-modals.tpl'
             },
             model : {
-                src : ['dxy-plugins/replacedview/model.js', 'dxy-plugins/**/model.js'],
+                src : ['third-party/module/module.js','dxy-plugins/replacedview/model.js', 'dxy-plugins/**/model.js'],
                 dest : 'models.js'
             },
             mobilecss : {
@@ -41,8 +45,8 @@ module.exports = function (grunt) {
                 tasks : ['jshint','concat:plugin', 'concat:model', 'concat:extend']
             },
             editorcss : {
-                files : ['dxy-plugins/**/editor.css'],
-                tasks : ['concat:editorcss', 'registerStyle']
+                files : ['dxy-plugins/**/editor.css', 'themes/_iframe.css'],
+                tasks : ['concat:editorcss', 'concat:iframecss', 'registerStyle']
             },
             wechatcss: {
                 files : ['dxy-plugins/**/wechat.css'],
@@ -73,7 +77,7 @@ module.exports = function (grunt) {
           }
     });
     grunt.registerTask('registerStyle','registerStyle', function(){
-        var file = require('fs').readFileSync('./themes/iframe.css', {
+        var file = require('fs').readFileSync('./themes/editor.css', {
             encoding : 'utf8'
         });
         var header = require('fs').readFileSync('./dxy-plugins/editorstyle/header.tpl', {

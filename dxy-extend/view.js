@@ -137,7 +137,7 @@
 	ReplacedView.prototype = {
 		createWrapNode : function(plain){
 			var me = this;
-			var ele = document.createElement('p');
+			var ele = document.createElement('section');
 			ele.style.display = 'block';
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
@@ -153,14 +153,62 @@
 			}
 			return ele;
 		},
+		// todo: 移除contenteditable, 测试删除bug
+		createEditorWraperNode : function(){
+			var me = this;
+			var ele = document.createElement('section');
+			var close = document.createElement('span');
+			close.innerHTML = 'X';
+			close.className = 'mark-close';
+			close.onclick = function(){
+				$(ele).remove();
+			};
+			ele.style.display = 'block';
+			ele.className = CLASS_NAME;
+			ele.setAttribute('data-type', this.type);
+			ele.setAttribute('data-params', this.serialize(this.data));
+			// ele.setAttribute('contenteditable', false);
+			ele.ondblclick = function(e){
+				e = e || window.event;
+				var editor = UE.getEditor('editor-box'),
+					range = editor.selection.getRange();
+				range.selectNode(e.target).select();
+				UE.getEditor('editor-box').execCommand('replacedview', me.type);
+			};
+			// ele.appendChild(close);
+			return ele;
+		},
 		createInlineWrapNode : function(plain){
 			var me = this;
 			var ele = document.createElement('span');
 			ele.className = CLASS_NAME;
 			ele.setAttribute('data-type', this.type);
 			ele.setAttribute('data-params', this.serialize(this.data));
-			if(!plain){
+			if(true){
 				ele.ondblclick = function(e){
+					if(!window.UE){
+						return;
+					}
+					e = e || window.event;
+					var editor = UE.getEditor('editor-box'),
+						range = editor.selection.getRange();
+					range.selectNode(e.target).select();
+					UE.getEditor('editor-box').execCommand('replacedview', me.type);
+				};
+			}
+			return ele;
+		},
+		createBlockWrapNode : function(){
+			var me = this;
+			var ele = document.createElement('section');
+			ele.className = CLASS_NAME;
+			ele.setAttribute('data-type', this.type);
+			ele.setAttribute('data-params', this.serialize(this.data));
+			if(true){
+				ele.ondblclick = function(e){
+					if(!window.UE){
+						return;
+					}
 					e = e || window.event;
 					var editor = UE.getEditor('editor-box'),
 						range = editor.selection.getRange();
@@ -202,6 +250,12 @@
 					ele.appendChild(UE.getEditor('editor-box').selection.getRange().cloneContents());
 				}
 				ele.style.display = 'inline';
+			}else if(this.isBlock){
+				ele = this.createBlockWrapNode();
+				if(e){
+					ele.innerHTML = typeof e.innerHTML === 'string' ? e.innerHTML : e.innerHTML();
+				}
+				ele.style.display = 'block';
 			}else{
 				ele = this.createWrapNode();
 				ele.style.display = 'none';
@@ -343,12 +397,14 @@
 	ReplacedView.renderAll = function(){
 		$('.'+CLASS_NAME).each(function(i, ele){
 			var view = ReplacedView.getInstance(ele);
-			view.toAppropriateView(ele).then(function(){
-				if(!view.isWraper){
-					view.ele.style.display = 'block';
-				}
-				view.mount(ele);
-			});
+			if(view){
+				view.toAppropriateView(ele).then(function(){
+					if(!view.isWraper){
+						view.ele.style.display = 'block';
+					}
+					view.mount(ele);
+				});
+			}
 		});
 	};
 	ReplacedView.custom = {};
@@ -410,6 +466,21 @@
 						modal.modal('hide');
 						me.toEditorView().then(function(){
 							me.mount(UE.getEditor('editor-box').selection.getRange());
+							var domUtils = baidu.editor.dom.domUtils;
+							var range = UE.getEditor('editor-box').selection.getRange(),
+								cur = range.getCommonAncestor(true),
+			                    target = domUtils.findParent(cur, function(node){
+			                    	if(node.className && node.className.indexOf('dxy-meta-replaced-view')!==-1){
+			                    		return true;
+			                    	}else{
+			                    		return false;
+			                    	}
+			                    }, true);
+		                	// if($(target).next()[0]){
+		                	// 	range.setStartBefore($(target).next()[0]);
+		                	// 	range.setCursor();
+		                	// 	UE.getEditor('editor-box').focus();
+		                	// }
 						});
 					}, function(){
 						me.saving = false;
@@ -432,4 +503,4 @@
 	};
 	g.ReplacedView = ReplacedView;
 	g.EditView = EditView;
-})(this);
+})(window);

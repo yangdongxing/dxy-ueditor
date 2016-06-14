@@ -1,0 +1,12 @@
+<div class="btn-group-vertical customview-dashboard-controll" role="group">
+	<%_.each(styles, function(style){%>
+	<button type="button" class="btn btn-default view-button" data-name="<%=style.viewname%>"><%=style.title%></button>
+	<%})%>
+</div>
+<div class="views-container" style="display:inline-block;">
+	
+</div>
+<div class="col-md-12 view-trash" style="margin-top:20px;text-align:center;">
+  <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+  拖动到这删除
+</div>

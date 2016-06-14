@@ -1,7 +1,6 @@
 UE.plugin.register('editorstyle', function(){
 var editor = this;
-var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Avenir", "Hiragino Sans GB", "Noto Sans S Chinese", "Microsoft Yahei", "Microsoft Sans Serif", "WenQuanYi Micro Hei", "sans-serif";padding: 20px;}'+
-'img{max-width: 100%;}'+
+var styles = 'img{max-width: 100%;}'+
 'h4, h5, h6, hr, dl, dt, dd, ul, ol, li, pre, form, fieldset, legend, button, input, textarea, th, td{'+
 '	margin: 0px;'+
 '	padding: 0px;'+
@@ -100,6 +99,66 @@ var styles = 'body{line-height: 1.7;font-size: 14px;color: #333;font-family: "Av
 '.editor-vote-wraper img{'+
 '    width: 50px!important;'+
 '    height: 50px!important;'+
+'}'+
+'.clear{'+
+'    clear : both;'+
+'    height: 0px;'+
+'}'+
+'.laiwen-user-question{'+
+'    clear: both;'+
+'    margin-bottom: 20px;'+
+'}'+
+'.laiwen-user-question .dialog{'+
+'   padding: 15px 20px;'+
+'    float: right;'+
+'    background-color: #4bc7ba;'+
+'    color: #fff;'+
+'    border-radius: 15px 0px 15px 15px;'+
+'    min-width: 10%;'+
+'    max-width: 80%;'+
+'    word-break: break-word;'+
+'    box-sizing: border-box;'+
+'}'+
+'.laiwen-user-question .avatar{'+
+'    float : right;'+
+'    margin-left: 16px;'+
+'}'+
+'.laiwen-user-question .avatar img{'+
+'    width : 40px;'+
+'    height: 40px;'+
+'    border-radius : 50%;'+
+'}'+
+'.laiwen-user-question p{'+
+'    color: #fff;'+
+'    margin-bottom: 0px;'+
+'}'+
+'.laiwen-doctor-answer p{'+
+'     color: #000;'+
+'    margin-bottom: 0px;'+
+'}'+
+'.laiwen-doctor-answer{'+
+'    margin-bottom: 20px;'+
+'}'+
+'.laiwen-doctor-answer .dialog{'+
+'    float : left;'+
+'    min-width: 10%;'+
+'    max-width: 80%;'+
+'    word-break: break-word;'+
+'    box-sizing: border-box;'+
+'    margin-left: 16px;'+
+'    background-color: rgb(184,221,234);'+
+'    color: #000;'+
+'    border-radius: 0px 15px 15px 15px;'+
+'    padding: 15px 20px;'+
+'    position: relative;'+
+'}'+
+'.laiwen-doctor-answer .avatar{'+
+'    float : left;'+
+'}'+
+'.laiwen-doctor-answer .avatar img{'+
+'    width : 40px;'+
+'    height: 40px;'+
+'    border-radius : 50%;'+
 '}';
 	if(this.wechatready){
 		this.registerWechatStyle(styles, true);

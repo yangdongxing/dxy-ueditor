@@ -1,0 +1,17 @@
+.mark-close{
+	position: absolute;
+	top : 0px;
+	right: 0px;
+	font-size: 24px;
+	color: #000;
+}
+
+.dxy-meta-replaced-view{
+	position: relative;
+}
+
+.dxy-custom-view{
+	border: 1px solid #ddd;
+    padding: 20px;
+    cursor: pointer;
+}

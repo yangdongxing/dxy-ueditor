@@ -1,0 +1,9 @@
+<section class="laiwen-doctor-answer clearfix">
+	<section class="avatar">
+		<img src="<%=img.value%>">
+	</section>
+	<section class="dialog">
+		<section class="view-wraper"><%=content.value%></section>
+	</section>
+	<section class="clear">&nbsp;</section>
+</section>

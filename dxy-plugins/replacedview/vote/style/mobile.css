@@ -39,8 +39,8 @@
   margin: 0px!important;
 }
 .editor-vote-group .vote-body ul li{
-  padding-top: 25px;
-  padding-bottom: 25px;
+  padding-top: 16px;
+  padding-bottom: 16px;
 }
 .editor-vote-group .vote-body ul li .vote-value{
   width: 80%;
@@ -79,7 +79,7 @@
   background-repeat: no-repeat;
   background-size: 30px;
 }
-.editor-vote-wraper.vote-single.user_not_voted .vote-body li .active .vote-option-sub{
+.editor-vote-wraper.vote-single.user_not_voted .vote-body li.checked .vote-option-sub{
   background-image: url('./img/mobile-single-checked.png');
 }
 .editor-vote-wraper.vote-multiple.user_not_voted .vote-body li .vote-option-sub{
@@ -87,8 +87,11 @@
   background-repeat: no-repeat;
   background-size: 30px;
 }
-.editor-vote-wraper.vote-multiple.user_not_voted .vote-body li .active .vote-option-sub{
+.editor-vote-wraper.vote-multiple.user_not_voted .vote-body li.checked .vote-option-sub{
   background-image: url('./img/mobile-muli-checked.png');
+}
+.editor-vote-wraper.vote-multiple.user_voted .vote-body li .vote-option-sub{
+  background-image: none!important;
 }
 .editor-vote-wraper .status-bar{
     height: 4px;
@@ -111,4 +114,148 @@
 }
 .editor-vote-group.user_voted .user-vote{
   background-color: rgb(206,206,206);
+}
+.mobile-drug-view-body p{
+  margin-bottom: 0px!important;
+}
+/*mobile 未投票*/
+.editor-button-vote-group.user_not_voted .editor-vote-wraper{
+  border: none;
+  margin-bottom: 20px;
+}
+.editor-button-vote-group.user_not_voted .editor-vote-option{
+  text-align: center;
+  border: none;
+  padding: 0px;
+  cursor: pointer;
+}
+.editor-button-vote-group.user_not_voted .editor-vote-option div{
+  display: table;
+  width: 100%;
+  margin-bottom: 0px;
+}
+.editor-button-vote-group.user_not_voted .editor-vote-option span{
+  height: 80px;
+  display: table-cell;
+  vertical-align: middle;
+  border-radius: 10px;
+  color: #fff;
+}
+/*mobile 已投票*/
+.editor-button-vote-group.user_voted{
+  border-radius: 10px;
+  margin-bottom: 75px!important;
+}
+.editor-button-vote-group.user_voted .editor-vote-wraper{
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: none;
+  background-color: rgb(247,247,247);
+}
+.editor-button-vote-group.user_voted .editor-vote-option{
+  display: inline-block;
+  background-color: rgb(237,237,237);
+  margin: 0px;
+  padding: 0px;
+  float: left;
+  color: rgb(65, 178, 166);
+  padding: 12px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.checked{
+  background-color: rgb(247,247,247);
+  color: rgb(220, 95, 66);
+}
+.editor-button-vote-group.user_voted .editor-vote-option .user-check{
+  color: rgb(123,123,123);
+  font-size: 14px;
+}
+.editor-button-vote-group.user_voted .editor-vote-option .opt-stat{
+  color: rgb(131,197,189);
+}
+.editor-button-vote-group.user_voted .editor-vote-option.checked .opt-stat{
+  color: rgb(228,150,135);
+}
+.editor-button-vote-group.user_voted .editor-vote-option span{
+  display: block;
+}
+.editor-button-vote-group.user_voted .editor-vote-option span i{
+  font-style: italic;
+  margin-right: 1px;
+}
+
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt{
+  background-color: rgb(254,150,126);
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt span{
+  color: #fff;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.not-truth-opt .right-answer{
+  display: none;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt .right-answer{
+    position: absolute;
+    background-color: rgb(255,114,94);
+    padding: 6px 14px;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    bottom: -55px;
+    left: 0px;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt.last .right-answer{
+  left: inherit;
+  right: 0px;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt .right-answer:after{
+      content: " ";
+    width: 0;
+    height: 0;
+    display: block;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 8px;
+    position: absolute;
+    top: -15px;
+    border-top-color: rgb(255,114,94);
+    left: 24px;
+    transform: rotate(180deg);
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt.last .right-answer:after{
+  left: 80px;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.not-truth-opt .opt-stat{
+ color: rgb(131,197,189);
+}
+.editor-button-vote-group.user_voted .editor-vote-option.not-truth-opt .opt-value{
+  color: rgb(65, 178, 166);
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt.checked .user-check{
+  color: #000;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt.checked .user-check:before{
+  content : '';
+  background-image : url('http://assets.dxycdn.com/app/dxydoctor/img/editor/truth-selected.png'); 
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  padding-left: 18px;
+  background-position-y: 1px;
+}
+.editor-button-vote-group.user_voted .editor-vote-option.not-truth-opt.checked .user-check:before{
+  content : '';
+  background-image : url('http://assets.dxycdn.com/app/dxydoctor/img/editor/truth-unselected.png'); 
+  background-repeat: no-repeat;
+  background-size: 16px 16px;
+  padding-left: 18px;
+  background-position-y: 1px;
+}
+
+.editor-button-vote-group.user_voted .editor-vote-option.truth-opt .opt-stat{
+  color: rgb(255,227,222);
+}
+
+.editor-button-vote-group.user_voted .editor-vote-option.not-truth-opt{
+  
 }

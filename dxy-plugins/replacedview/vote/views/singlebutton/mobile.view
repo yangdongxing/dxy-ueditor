@@ -3,30 +3,90 @@
 <%if(expired){%>
 
 <%_.each(votes, function(vote, i){%>
+<p><%=vote.attach.get('title')%></p>
+	<div class="editor-vote-wraper clearfix">
+	<table>
+	<tr>
+		<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+			<td class="editor-vote-option <%if(opt.checked){print('checked')}%> <%if(opt.attach.get('params') && opt.attach.get('params').isTruth){print('truth-opt')}else{print('not-truth-opt')}%> <%if(j==0){print('first')}else if(j==vote.attach.attach.models.length-1){print('last')}else{print('middle')}%>" style="border:none;<%if(j==0){print('text-align:left;border-radius: 10px 0px 0px 10px;')}else if(j==vote.attach.attach.models.length-1){print('text-align:right;border-radius: 0px 10px 10px 0px;')}else{print('text-align:center;')}%>width:<%=opt.width%>%">
+				<span class="user-check">
+					<%if(opt.checked){print('我的选择')}else{print('&nbsp;')}%>
+				</span>
+				<span class="opt-value"><%=opt.attach.get('value')%></span>
+				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%></i>%</span>
+			</td>
+		<%})%>
+	</tr>
+	<tr style="height:10px;"></tr>
+	<tr>
+		<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+			<td class="editor-vote-option-stat <%if(opt.checked){print('checked')}%> <%if(opt.attach.get('params') && opt.attach.get('params').isTruth){print('truth-opt')}else{print('not-truth-opt')}%> <%if(j==0){print('first')}else if(j==vote.attach.attach.models.length-1){print('last')}else{print('middle')}%>" style="border:none;<%if(j==0){print('text-align:left;border-radius: 10px 0px 0px 10px;')}else if(j==vote.attach.attach.models.length-1){print('text-align:right;border-radius: 0px 10px 10px 0px;')}else{print('text-align:center;')}%>width:<%=opt.width%>%">
+				<div class="right-answer"><span class="arrow"></span>正确答案</div>
+			</td>
+		<%})%>
+	</tr>
+	</table>
+	</div>
+<%})%>
+
+<%if(false){%>
+<%_.each(votes, function(vote, i){%>
+	<p><%=vote.attach.get('title')%></p>
 	<div class="editor-vote-wraper clearfix">
 		<%_.each(vote.attach.attach.models,function(opt,j){ %> 
 			<div class="editor-vote-option <%if(opt.checked){print('checked')}%>" style="<%if(j==0){print('text-align:left;border-radius: 10px 0px 0px 10px;')}else if(j==vote.attach.attach.models.length-1){print('text-align:right;border-radius: 0px 10px 10px 0px;')}else{print('text-align:center;')}%>width:<%=opt.width%>%">
 				<span class="user-check"><%if(opt.checked){print('我的选择')}else{print('&nbsp;')}%></span>
 				<span class="opt-value"><%=opt.attach.get('value')%></span>
-				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%></i>%</span>
+				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%></i>%</span>
 			</div>
 		<%})%>
 	</div>
 <%})%>
+<%}%>
 
 <%}else{%>
 
 <%_.each(votes, function(vote, i){%>
+<p><%=vote.attach.get('title')%></p>
+	<div class="editor-vote-wraper clearfix">
+	<table>
+	<tr>
+		<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+			<td class="editor-vote-option <%if(opt.checked){print('checked')}%> <%if(opt.attach.get('params') && opt.attach.get('params').isTruth){print('truth-opt')}else{print('not-truth-opt')}%> <%if(j==0){print('first')}else if(j==vote.attach.attach.models.length-1){print('last')}else{print('middle')}%>" style="border:none;<%if(j==0){print('text-align:left;border-radius: 10px 0px 0px 10px;')}else if(j==vote.attach.attach.models.length-1){print('text-align:right;border-radius: 0px 10px 10px 0px;')}else{print('text-align:center;')}%>width:<%=opt.width%>%">
+				<span class="user-check">
+					<%if(opt.checked){print('我的选择')}else{print('&nbsp;')}%>
+				</span>
+				<span class="opt-value"><%=opt.attach.get('value')%></span>
+				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%></i>%</span>
+			</td>
+		<%})%>
+	</tr>
+	<tr style="height:10px;"></tr>
+	<tr>
+		<%_.each(vote.attach.attach.models,function(opt,j){ %> 
+			<td class="editor-vote-option-stat <%if(opt.checked){print('checked')}%> <%if(opt.attach.get('params') && opt.attach.get('params').isTruth){print('truth-opt')}else{print('not-truth-opt')}%> <%if(j==0){print('first')}else if(j==vote.attach.attach.models.length-1){print('last')}else{print('middle')}%>" style="border:none;<%if(j==0){print('text-align:left;border-radius: 10px 0px 0px 10px;')}else if(j==vote.attach.attach.models.length-1){print('text-align:right;border-radius: 0px 10px 10px 0px;')}else{print('text-align:center;')}%>width:<%=opt.width%>%">
+				<div class="right-answer"><span class="arrow"></span>正确答案</div>
+			</td>
+		<%})%>
+	</tr>
+	</table>
+	</div>
+<%})%>
+
+<%if(false){%>
+<%_.each(votes, function(vote, i){%>
+<p><%=vote.attach.get('title')%></p>
 	<div class="editor-vote-wraper clearfix">
 		<%_.each(vote.attach.attach.models,function(opt,j){ %> 
 			<div class="editor-vote-option <%if(opt.checked){print('checked')}%>" style="<%if(j==0){print('text-align:left;border-radius: 10px 0px 0px 10px;')}else if(j==vote.attach.attach.models.length-1){print('text-align:right;border-radius: 0px 10px 10px 0px;')}else{print('text-align:center;')}%>width:<%=opt.width%>%">
 				<span class="user-check"><%if(opt.checked){print('我的选择')}else{print('&nbsp;')}%></span>
 				<span class="opt-value"><%=opt.attach.get('value')%></span>
-				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(opt.total/vote.vote_total*100)}else{print('0')}%></i>%</span>
+				<span class="opt-stat"><i><%=opt.total||0%></i>票 <i><%if(vote.vote_total){print(Math.round(opt.total/vote.vote_total*100))}else{print('0')}%></i>%</span>
 			</div>
 		<%})%>
 	</div>
 <%})%>
+<%}%>
 
 <%}%>
 <%}else{%>
@@ -39,6 +99,7 @@
 <%}else{%>
 
 <%_.each(votes, function(vote, i){%>
+<p><%=vote.attach.get('title')%></p>
 	<table class="editor-vote-wraper clearfix">
 		<tr>
 		<%_.each(vote.attach.attach.models,function(opt,j){ %> 

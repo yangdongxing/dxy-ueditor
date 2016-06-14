@@ -1,4 +1,4 @@
-var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
+var API_HOST = 'http://'+(window.location.host||'dxy.com')+'/';
 (function(){
 // 	window.DXYJSBridge = {};
 // window.DXYJSBridge.invoke = function(a, options, callback){
@@ -65,7 +65,7 @@ var API_HOST = 'http://'+(document.domain||'dxy.com')+'/';
 	};
 })();
 
-define('MarkModel', function(){
+LocalModule.define('MarkModel', function(){
 	Backbone.emulateJSON = true;
 	var MarkModel = Backbone.Model.extend({
 		sync : function(method, model, options){
@@ -113,7 +113,7 @@ define('MarkModel', function(){
 	};
 });
 
-define('DxyModel', function(){
+LocalModule.define('DxyModel', function(){
 	var backbone = Backbone;
 	var Model = backbone.Model.extend({
 		initialize : function(attrs){
@@ -183,8 +183,8 @@ define('DxyModel', function(){
 				if(!opt){
 					opt = {};
 				}
-				opt.patch = true;
 			}
+			opt.data = attr;
 			return backbone.Model.prototype.save.call(this, attr, opt);
 		},
 		set : function(key, val, options){
@@ -230,7 +230,7 @@ define('DxyModel', function(){
 		Model : Model
 	}
 });
-define('DxyCollection', function(){
+LocalModule.define('DxyCollection', function(){
 	var backbone = Backbone;
 	var Collection = backbone.Collection.extend({
 		constructor : function(items, opt){
@@ -323,7 +323,7 @@ define('DxyCollection', function(){
 					_.extend(model, resp.data);
 				}
 			}
-			return Backbone.sync(method, model, options);
+			return Backbone.sync.apply(this, arguments);
 		},
 		goto : function(page){
 			page = parseInt(page);
@@ -344,9 +344,9 @@ define('DxyCollection', function(){
 					dtd.reject(res);
 					return;
 				}
-				dtd.resolve.apply(arguments);
+				dtd.resolve.call(null, res);
 			}, function(res){
-				dtd.reject.apply(arguments);
+				dtd.reject.call(null, res);
 			});
 			return dtd;
 		},

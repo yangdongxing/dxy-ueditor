@@ -5,6 +5,15 @@
     var _Dialog = editorui.Dialog;
     UE.plugin.register('editview', function (){
         var me = this;
+
+        me.on('aftersetcontent', function(){
+            $(me.body).find('.dxy-custom-view').each(function(i,e){
+                $(e).on('dblclick',function(event){
+                    UE.getEditor('editor-box').execCommand('editview', 'customview');
+                });
+            });
+        });
+
         return {
             bindEvents:{
                 'ready': function(){
@@ -13,7 +22,7 @@
             },
             commands: {
                 'editview': {
-                    execCommand : function(cmd, opt){
+                    execCommand : function(cmd, opt, target){
                     	var type = opt, view;
                     	if(!type){
                     		throw new Error('exec editview command require 2 arguments');

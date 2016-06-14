@@ -9,7 +9,7 @@
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/views/app.view', 'MarkModel'], function(v, m){
+			LocalModule.require(['dxy-plugins/replacedview/drug/views/app.view', 'MarkModel'], function(v, m){
 				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
@@ -40,7 +40,7 @@
 		},
 		render: function() {
 			var me = this;
-			require(['dxy-plugins/replacedview/drug/views/mobile.view', 'MarkModel'], function(v, m){
+			LocalModule.require(['dxy-plugins/replacedview/drug/views/mobile.view', 'MarkModel'], function(v, m){
 				var mark = new m.UserMarkModel({obj_id: me.view.data.obj_id, type: me.view.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
@@ -92,11 +92,11 @@
 			return dtd;
 		},
 		toEditorView : function(callback){
-			var ele = this.createWrapNode(),
+			var ele = this.createEditorWraperNode(),
 				me = this,
 				dtd = $.Deferred();
 			ele.setAttribute('contenteditable', 'false');
-			require(['MarkModel'], function(m){
+			LocalModule.require(['MarkModel'], function(m){
 				var mark = new m.MarkModel({obj_id: me.data.obj_id, type: me.data.type_id});
 				mark.fetch().then(function(res){
 					if(res.error){
@@ -104,11 +104,11 @@
 						dtd.reject();
 						return;
 					}
-					var tpl = '';
+					var tpl = '<br>';
 					for(var prop in res.data.items[0]){
 						tpl += (res.data.items[0][prop]+'<br>');
 					}
-					ele.innerHTML = tpl;
+					$(ele).append($(tpl));
 					me.ele = ele;
 					dtd.resolve();
 				}, function(res){
@@ -128,7 +128,7 @@
 			var me = this,
 				dtd = $.Deferred();
 			if(this.verifyDrugId()){
-				require(['MarkModel'], function(m){
+				LocalModule.require(['MarkModel'], function(m){
 					var mark = new m.MarkModel({obj_id: me.modal.find('#drug-id').val(), type: 1});
 					mark.save({},{data : mark.attributes}).then(function(res){
 						if(res.error){

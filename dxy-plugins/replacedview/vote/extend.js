@@ -18,7 +18,14 @@
 	})();
 	window.setUserLogin = function(login){
 		isLogin = login;
-		ReplacedView.renderAll();
+		function process(){
+			if(ReplacedView){
+				ReplacedView.renderAll();
+			}else{
+				setTimeout(process, 100);
+			}
+		}
+		setTimeout(process, 100);
 	};
 	function fomat(date, fmt){
 		var o = {   
@@ -62,7 +69,7 @@
 			me.view = view;
 			console.log('init');
 			window.__hack = true;
-			require(['VoteModel'], function(m){
+			LocalModule.require(['VoteModel'], function(m){
 				me.model = new m.VoteMarkModel({});
 				me.searchModel = new m.VoteGroupsModel([]);
 				me.fetchVoteList();
@@ -70,7 +77,7 @@
 		},
 		render: function() {
 		  	var me = this;
-		  	require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(tpl){
+		  	LocalModule.require(['dxy-plugins/replacedview/vote/views/dialog.view'], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({mark: me.model, votelist : me.votelist, panel : me.currentPanel});
 		  		me.delegateEvents(me.events);
 				me.trigger('render');
@@ -89,7 +96,7 @@
 					$('#search-list-container').html('');
 					return;
 				}
-				require(['dxy-plugins/replacedview/vote/views/searchList.view'], function(tpl){
+				LocalModule.require(['dxy-plugins/replacedview/vote/views/searchList.view'], function(tpl){
 			  		$('#search-list-container')[0].innerHTML = _.template(tpl)({list: me.searchModel.models});
 			  	});
 			}, function(res){
@@ -98,7 +105,7 @@
 		},
 		fetchVoteList : function(){
 			var me =this;
-			require(['VoteModel'], function(m){
+			LocalModule.require(['VoteModel'], function(m){
 				var list = new m.VoteGroupsModel([],{items_per_page:8});
 				list.fetch().then(function(){
 					list.on('all', me.render, me);
@@ -107,7 +114,6 @@
 					me.render();
 				}, function(model, res){
 					console.log(res);
-					alert(res.error.message);
 				});
 			});
 		},
@@ -148,7 +154,6 @@
 			this.votelist.goto(-1).then(function(){
 				me.votelist.fetching = false;
 			}, function(model,res){
-				alert(res.error.message);
 				me.votelist.fetching = false;
 			});
 		},
@@ -161,7 +166,6 @@
 			this.votelist.goto(1).then(function(){
 				me.votelist.fetching = false;
 			}, function(model,res){
-				alert(res.error.message);
 				me.votelist.fetching = false;
 			});
 		},
@@ -182,7 +186,7 @@
 			}else{
 				view = 'dxy-plugins/replacedview/vote/views/h5.view';
 			}
-			require([view], function(tpl){
+			LocalModule.require([view], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({
 		  			votes: me.model.get('group').attach.models, 
 		  			group: me.model.get('group'),
@@ -199,16 +203,29 @@
 			'click .user_not_voted .J-user-vote' : 'userVote'
 		},
 		multipleCheck : function(e){
-			var target = $(e.currentTarget),
-				id = target.data('id'),
+			var target = $(e.currentTarget);
+			if(target[0].tagName!=='LI'){
+				target = target.parents('li');
+			}
+			var	id = target.data('id'),
 				options = this.model.find(target.data('model')).models;
 			options[+id].checked = !options[+id].checked;
-			this.model.trigger('change');
+			// if(options[+id].checked){
+			// 	target.addClass('checked');
+			// }else{
+			// 	target.removeClass('checked');
+			// }
+			this.render();
 		},
 		singleCheck : function(e){
-			var target = $(e.currentTarget),
-				id = target.data('id'),
+			var target = $(e.currentTarget);
+			if(target[0].tagName!=='LI'){
+				target = target.parents('li');
+			}
+			var	id = target.data('id'),
 				options = this.model.find(target.data('model')).models;
+			// target.parents('ul').find('li').removeClass('checked');
+			// target.addClass('checked');
 			_.each(options, function(opt, i){
 				if(i===+id){
 					opt.checked = true;
@@ -216,7 +233,7 @@
 					opt.checked = false;
 				}
 			});
-			this.model.trigger('change');
+			this.render();
 		},
 		userVote : function(e){
 			var tag = false,
@@ -283,21 +300,25 @@
 								me.model.get('group').user_voted = true;
 								me.render();
 							}else{
+								_.each(mark.get('group').attach.models, function(vote){
 								_.each(vote.attach.attach.models, function(opt){
 									if(opt.checked){
 										opt.total++;
 										vote.vote_total++;
 									}
 								});
+								});
 								me.model.get('group').user_voted = true;
 								me.render();
 							}
 						}, function(res){
+							_.each(mark.get('group').attach.models, function(vote){
 							_.each(vote.attach.attach.models, function(opt){
 								if(opt.checked){
 									opt.total++;
 									vote.vote_total++;
 								}
+							});
 							});
 							me.model.get('group').user_voted = true;
 							me.render();
@@ -338,7 +359,7 @@
 			var me = this;
 			this.removeAlertBox();
 			$('<div class="msg-mark"></div>').appendTo($('body'));
-			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
+			LocalModule.require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
 				$(_.template(tpl)(opt)).appendTo($('body'));
 				$('.editor-alert-box a').click(function(){
 					me.removeAlertBox();
@@ -350,7 +371,7 @@
 			this.removeAlertBox();
 			opt.index = opt.index || 0;
 			opt.container = opt.container || $($('.editor-vote-wraper',me.el)[opt.index]);
-			require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
+			LocalModule.require(['dxy-plugins/replacedview/vote/views/alert.view'],function(tpl){
 				$(_.template(tpl)(opt)).appendTo(opt.container);
 				$('.editor-alert-box a').click(function(){
 					me.removeAlertBox();
@@ -395,6 +416,7 @@
 	});
 
 	var SingleButtonVoteAppView =  VoteAppView.extend({
+		className : 'singlebutton-wraper',
 		render : function(){
 			var me = this,
 				view;
@@ -407,6 +429,7 @@
 				var vote_total = vote.vote_total;
 				var total = 0;
 				_.each(vote.attach.attach.models,function(opt,j, all){
+					console.log(opt);
 					var opt_total = opt.total;
 					var percent = opt_total/vote_total;
 					if(isNaN(percent)){
@@ -418,7 +441,7 @@
 				});
 				vote.attach.attach.models[0].width += (100-total);
 			});
-			require([view], function(tpl){
+			LocalModule.require([view], function(tpl){
 		  		me.el.innerHTML = _.template(tpl)({
 		  			votes: me.model.get('group').attach.models, 
 		  			group: me.model.get('group'),
@@ -461,15 +484,85 @@
 			}catch(e){
 				return;
 			}
+			if(!isLogin){
+				window.location.href = 'https://account.dxy.com/login?redirect_uri='+window.location.href;
+				return;
+			}
+			this.userVote();
+		}
+	});
+
+	var SingleButtonVoteMobileView = SingleButtonVoteAppView.extend({
+		checkLogin : function(){
+			var dtd = $.Deferred();
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id='+window.pid+'&type=0'
+			}).then(function(res){
+				if(res.success === false){
+					dtd.reject();
+				}else{
+					dtd.resolve();
+				}
+			}, function(){
+				dtd.reject();
+			});
+			return dtd;
+		},
+		showLoginBox : function(){
+			Backbone.ajax({
+				type : 'GET',
+				url : 'http://dxy.com/app/i/user/likes/single?obj_id='+window.pid+'&type=0',
+				data : {
+					need_login : 1
+				}
+			});
+		},
+		singleCheck : function(e){
+			var target = $(e.currentTarget),
+				id = target.data('id'),
+				options = this.model.find(target.data('model')).models,
+				tag = false,
+				me = this;
+			_.each(options, function(opt, i){
+				if(i===+id){
+					opt.checked = true;
+				}else{
+					opt.checked = false;
+				}
+			});
+			try{
+			_.each(me.model.get('group').attach.models, function(vote, i){
+				tag = false;
+				_.each(vote.attach.attach.models, function(opt){
+					if(opt.checked){
+						tag = true;
+					}
+				});
+				if(!tag){
+					throw new Error();
+				}
+			});
+			}catch(e){
+				return;
+			}
 			this.userVote();
 		},
+		userVote : function(){
+			var me = this;
+			this.checkLogin().then(function(){
+				VoteAppView.prototype.userVote.apply(me, arguments);
+			}, function(){
+				me.showLoginBox();
+			});
+		}
 	});
 
 	window.VoteReplacedView = ReplacedView.register('vote', {
 		genMark : function(){
 			var view = this,
 				dtd = $.Deferred();
-			require(['VoteModel'], function(m){
+			LocalModule.require(['VoteModel'], function(m){
 				var mark = new m.VoteUserMarkModel({obj_id:view.data.group_id,type:10});
 				mark.fetch({
 					success:function(model, res){
@@ -497,7 +590,7 @@
 										return;
 									}
 								}else{
-									votes = res.data.items;
+									votes = res.data && res.data.items;
 								}
 								_.each(votes, function(vote){
 									var vote_id = vote.vote_id,
@@ -523,6 +616,9 @@
 									_.each(res.data.items, function(item, i){
 										var vote = mark.get('group').attach.findByAttachId(item.vote_id),
 											opt = mark.get('group').attach.findByAttachId(item.vote_id).attach.attach.findByAttachId(item.node_id);
+										if(!opt){
+											return;
+										}
 										if(!vote.vote_total){
 											vote.vote_total = 0;
 										}
@@ -588,7 +684,7 @@
 				if(!show_type || show_type==0){
 					view = new VoteMobileView(me, mark);
 				}else if(show_type==1){
-					view = new SingleButtonVoteAppView(me, mark);
+					view = new SingleButtonVoteMobileView(me, mark);
 				}
 				ele.appendChild(view.el);
 				me.ele = ele;
@@ -599,25 +695,23 @@
 			return dtd;
 		},
 		toEditorView : function(){
-			var ele = this.createWrapNode(),
+			var ele = this.createEditorWraperNode(),
 				me = this,
 				dtd = $.Deferred();
-			ele.setAttribute('contenteditable', 'false');
-			require(['dxy-plugins/replacedview/vote/views/editor.view', 'VoteModel'], function(tpl, m){
+			// ele.setAttribute('contenteditable', 'false');
+			LocalModule.require(['dxy-plugins/replacedview/vote/views/editor.view', 'VoteModel'], function(tpl, m){
 				var mark = new m.VoteMarkModel({obj_id:me.data.group_id,type:10});
 				mark.fetch({
 					success:function(model, res){
 						if(res.error){
-							alert(res.error.message);
 							return;
 						}
-						ele.innerHTML = _.template(tpl)({group : mark.get('group'),votes: mark.get('group').attach.models});
+						$(ele).append($(_.template(tpl)({group : mark.get('group'),votes: mark.get('group').attach.models})));
 						me.ele = ele;
 						dtd.resolve(ele);
 					},
 					error : function(model,res){
 						console.log(res);
-						alert(res.error.message);
 					}
 				});
 				// var group = new m.VoteGroupModel({id: me.data.group_id});
@@ -648,7 +742,6 @@
 			var data, dtd = $.Deferred(),me =this;
 			me.vote.model.save({}, {data : {obj_id: window.group.get('id'), type: 10}}).then(function(res){
 				if(res.error){
-					alert(res.error.message);
 					dtd.reject();
 					return;
 				}

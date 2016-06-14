@@ -533,7 +533,6 @@
 		return res;
 	}
 
-	function getAttr(){}
 
 	function findElements(selector, element, type){
 		var res = [];

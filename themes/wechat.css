@@ -36,3 +36,62 @@ blockquote{
     padding-left: 10px;
     border-left: 3px solid #dbdbdb;
 }
+
+.clear{
+    clear : both;
+    height: 0px;
+}
+
+.laiwen-user-question{
+    clear: both;
+    margin-bottom: 20px;
+}
+
+.laiwen-user-question .dialog{
+   padding: 15px 20px;
+    float: right;
+    background-color: #4bc7ba;
+    color: #fff;
+    border-radius: 15px 0px 15px 15px;
+    min-width: 10%;
+    max-width: 80%;
+    word-break: break-word;
+    box-sizing: border-box;
+}
+
+.laiwen-user-question p{
+    color: #fff;
+    margin-bottom: 0px;
+}
+
+.laiwen-doctor-answer p{
+     color: #000;
+    margin-bottom: 0px;
+}
+
+.laiwen-doctor-answer{
+    margin-bottom: 20px;
+}
+
+.laiwen-doctor-answer .dialog{
+    float : left;
+    min-width: 10%;
+    max-width: 80%;
+    word-break: break-word;
+    box-sizing: border-box;
+    margin-left: 16px;
+    background-color: rgb(184,221,234);
+    color: #000;
+    border-radius: 0px 15px 15px 15px;
+    padding: 15px 20px;
+    position: relative;
+}
+
+.laiwen-doctor-answer .avatar{
+    float : left;
+}
+.laiwen-doctor-answer .avatar img{
+    width : 40px;
+    height: 40px;
+    border-radius : 50%;
+}

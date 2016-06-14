@@ -1,0 +1,58 @@
+.editor-mobile-pop-container{
+   position: absolute;
+   background-color: rgb(156,198,223);
+  color: #fff;
+  border-radius: 6px;
+  width: 200px;
+  filter:alpha(opacity=96);  
+   -moz-opacity:0.96;  
+   -khtml-opacity: 0.96;  
+   opacity: 0.96; 
+   font-size: 16px;
+}
+.editor-mobile-pop-container .annotation-content{
+  padding: 20px;
+  padding-top: 15px;
+}
+
+.editor-mobile-pop-container .annotation-header{
+  padding: 20px;
+  padding-bottom: 0px;
+  font-size: 20px;
+  display: block;
+  color: #fff;
+}
+
+.editor-mobile-pop-container .arrow{
+  position: absolute;
+  top : -16px;
+  width: 30px;
+  height: 30px;
+   background-image: url('/img/editor/arrow-top-blue.png');
+}
+
+.editor-mobile-pop-container .more{
+  background-image: url('/img/editor/arrow-right-white.png');
+  background-repeat: no-repeat;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    float: right;
+    background-size: 20px 20px;
+    margin-top: 3px;
+}
+.dxy-meta-replaced-view[data-type="annotation"]{
+  color: rgb(65, 178, 166)!important;
+}
+
+.dxy-meta-replaced-view[data-type="annotation"]:after{
+  content : ' ';
+  width: 20px;
+  height: 18px;
+   background-image: url('/img/editor/annotation-icon.png');
+  background-repeat: no-repeat;
+   background-size: 16px 16px;
+  display: inline-block;
+      background-position: 2px 2px;
+          margin-bottom: -2px;
+}

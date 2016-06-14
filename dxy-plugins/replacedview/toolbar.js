@@ -20,16 +20,24 @@
 						break;
 					case 'annotation':
 						item.name = '插入注释卡';
-						if(document.domain!=='dxy.us'){
-							continue;
-						}
+						break;
+					case 'video':
+						item.name = '插入视频卡';
 						break;
 					default:
 						continue;
 				}
 				ctx.marks.push(item);
 			}
-			require(['dxy-plugins/replacedview/mark.view'], function(tpl){
+			ctx.marks.push({
+				name : '插入视图卡',
+				id : 'customview'
+			});
+			// ctx.marks.push({
+			// 	name : '插入视频卡',
+			// 	id : 'videocard'
+			// });
+			LocalModule.require(['dxy-plugins/replacedview/mark.view'], function(tpl){
 				me.$el.html(_.template(tpl)(ctx));
 			});
 		},
@@ -39,7 +47,11 @@
 		run : function(e){
 			var id = $(e.currentTarget).data('id');
 			$('#dxy-mark-modal').modal('hide');
-			this.editor.execCommand('replacedview', id);
+			if(id==='customview'){
+				this.editor.execCommand('editview', 'customview');
+			}else{
+				this.editor.execCommand('replacedview', id);
+			}
 		}
 	});
 	baidu.editor.ui.mark = function(editor) {

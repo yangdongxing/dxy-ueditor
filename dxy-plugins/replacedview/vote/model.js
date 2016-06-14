@@ -1,4 +1,4 @@
-define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
+LocalModule.define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollection){
 	Backbone.emulateJSON = true;
 	function fomat(date, fmt){
 		var o = {   
@@ -57,9 +57,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					dtd.reject(res);
 					return;
 				}
-				dtd.resolve.apply(arguments);
+				dtd.resolve.call(null, res);
 			}, function(res){
-				dtd.reject.apply(arguments);
+				dtd.reject.call(null, res);
 			});
 			return dtd;
 		},
@@ -113,6 +113,7 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		},
 		processInData : function(){
 			var value = this.get('value'),
+				params = this.get('params'),
 				list,
 				me = this;
 			if(value){
@@ -125,6 +126,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					}
 				});
 			}
+			if(params){
+				if(typeof params === 'string'){
+					params = JSON.parse(params);
+				}
+				me.attributes.params = params;
+			}
 			me._previousAttributes = _.clone(me.attributes);
 			me.changed = {};
 		},
@@ -133,6 +140,9 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			if(img){
 				delete data.img;
 				data.value = data.value + '$$img='+ img; 
+			}
+			if(data.params &&  !(typeof data.params === 'string')){
+				data.params = JSON.stringify(data.params);
 			}
 			return data;
 		},
@@ -273,10 +283,12 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 		constructor : function(data){
 			var id = data.node_id,
 				value = data.node_value || '',
+				params = data.node_params || '{}',
 				me = this;
 			var node = {
 				id : id,
-				value : value
+				value : value,
+				params : params
 			};
 			this.total = 0;
 			this.attach = new NodeModel(node);
@@ -585,9 +597,15 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 			});
 			return xhr;
 		},
-		getVotesStat : function(){
+		getVotesStat : function(admin){
+			var url;
+			if(admin){
+				url = API_HOST+'admin/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100';
+			}else{
+				url = API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100';
+			}
 			var xhr = Backbone.ajax({
-				url : API_HOST+'user/i/vote/stat/list?group_id='+this.get('id')+'&items_per_page=100',
+				url : url,
 				type : 'GET'
 			});
 			return xhr;
@@ -967,7 +985,6 @@ define('VoteModel', ['DxyModel','DxyCollection'],function(DxyModel, DxyCollectio
 					dtd.resolve();
 				},0);
 			}catch(e){
-				alert(e.message);
 				console.log(e);
 				setTimeout(function(){
 					dtd.reject();

@@ -1,10 +1,10 @@
 /**
- * css parser   
+ * css parser
  * @author yanSun
  * @email 773655223@qq.com
  * @version 1.0.0
  */
-(function(){
+(function(env){
 	var reg = /([^{]*){([^}]*)}/ig;
 	var trimreg = /^\s+|\s+$/;
 	var stylereg = /^([^:]+):(.+);?\s?$/;
@@ -15,7 +15,7 @@
 		this.length = 0;
 	}
 	Styles.prototype = {
-		add : function(style){ 
+		add : function(style){
 			var styles,
 				priority = this.computePriority(style.selector);
 			styles = this.styles[priority];
@@ -90,7 +90,7 @@
 		},
 
 	};
-	this.CssParser = {
+	env.CssParser = {
 		/**
 		 * 简单的css解析器
 		 * 由于css不像html，结构复杂，形式多样，因此采用正则来捕获css模式
