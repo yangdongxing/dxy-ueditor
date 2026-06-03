@@ -1,9 +1,25 @@
-bower_components
-dialogs
-ueditor
-**/.DS_Store
-.idea/*
+# Dependencies
+node_modules/
+bower_components/
+
+# Build output
+dialogs/
+ueditor/
+dist/
+
+# OS files
 .DS_Store
+**/.DS_Store
 *.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temp files
 呵*.txt
 test.txt
+*.log

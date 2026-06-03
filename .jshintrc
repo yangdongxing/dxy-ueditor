@@ -17,4 +17,15 @@
   "strict": false,
   "trailing": true,
   "smarttabs": true,
+  "globals": {
+    "UE": true,
+    "baidu": true,
+    "$": true,
+    "jQuery": true,
+    "Backbone": true,
+    "_": true,
+    "define": true,
+    "require": true,
+    "module": true
+  }
 }
