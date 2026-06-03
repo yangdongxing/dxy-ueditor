@@ -1,3 +1,9 @@
+/**
+ * dxy-ueditor Gruntfile
+ * @description 丁香园编辑器构建配置
+ * @version 1.2.0
+ * @update 2026-06-03
+ */
 module.exports = function (grunt) {
     'use strict';
     require('load-grunt-tasks')(grunt);
@@ -137,5 +143,6 @@ module.exports = function (grunt) {
         });
     });
     grunt.registerTask('dev', ['watch']);
-    grunt.registerTask('build', ['jshint', 'concat','registerStyle']);
+    grunt.registerTask('build', ['jshint', 'concat', 'registerStyle', 'registerWechatStyle', 'registerModal']);
+    grunt.registerTask('default', ['build']);
 };
