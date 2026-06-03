@@ -1,11 +1,23 @@
 # dxy-ueditor
-丁香园文本编辑器
-## dxy-ueditor开发流程
-使用grunt对代码进行规范性检查，对插件进行打包
 
-	git clone https://github.com/yangdongxing/dxy-ueditor.git
-	npm install
-	grunt dev 
+[![npm version](https://img.shields.io/badge/npm-v1.2.0-blue.svg)](https://www.npmjs.com/)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
+
+丁香园文本编辑器，基于 UEditor 深度定制，支持丁香园各产品线（BBS、CMS、丁香医生等）的富文本编辑需求。
+
+## dxy-ueditor 开发流程
+
+使用 grunt 对代码进行规范性检查，对插件进行打包。
+
+```bash
+git clone https://github.com/yangdongxing/dxy-ueditor.git
+cd dxy-ueditor
+npm install
+grunt dev
+```
+
+> **注意**: 请确保本地 Node.js 版本 >= 14.0.0，推荐使用 LTS 版本。
 ## Toolbar UI 注册规范
 ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不相同。
 为了方便个性化定制toolbar，应该通过给`baidu.editor.ui`对象添加属性的方式注册。
@@ -228,3 +240,33 @@ ueditor使用两种方式注册ui，在渲染时，渲染的位置逻辑也不�
 调用
 
 	editor.execCommand('editview', type)
+
+## 浏览器兼容性
+
+| 浏览器 | 最低版本 |
+| --- | --- |
+| Chrome | 60+ |
+| Firefox | 55+ |
+| Safari | 12+ |
+| Edge | 79+ |
+
+## 更新日志
+
+### v1.2.0 (2026-06-03)
+- 优化图片上传插件，支持 WebP 格式
+- 修复微信导出样式在部分设备上的兼容性问题
+- 更新依赖版本，提升构建稳定性
+
+### v1.1.0 (2026-04-15)
+- 新增 Markdown 快捷键支持
+- 改进一键格式化功能，优化列表缩进逻辑
+- 修复 replacedview 组件在移动端的渲染异常
+
+### v1.0.0 (2026-01-20)
+- 重构插件加载机制，提升编辑器启动速度
+- 添加暗色主题支持
+- 统一各产品线配置文件结构
+
+## License
+
+MIT © [yangdongxing](https://github.com/yangdongxing)
