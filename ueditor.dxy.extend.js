@@ -1,3 +1,4 @@
+// DXY UEditor Extensions - module loader, models, and data bridge utilities
 (function(){
 	if(window.LocalModule){
 		return;

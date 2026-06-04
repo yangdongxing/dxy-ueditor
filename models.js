@@ -1,3 +1,4 @@
+// DXY UEditor Models - Backbone data models for editor components
 (function(){
 	if(window.LocalModule){
 		return;

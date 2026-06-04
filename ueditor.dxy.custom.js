@@ -1,3 +1,4 @@
+// DXY UEditor Custom Plugins - link, upload, and editor style extensions
 //link 插件
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;

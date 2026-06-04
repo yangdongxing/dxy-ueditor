@@ -1,7 +1,7 @@
 /*!
  * UEditor
- * version: ueditor
- * build: Thu May 29 2014 16:47:49 GMT+0800 (中国标准时间)
+ * version: ueditor-dxy-1.2.0
+ * build: Tue Jun 03 2026 16:00:00 GMT+0800 (中国标准时间)
  */
 
 (function(){
