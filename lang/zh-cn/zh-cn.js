@@ -1,3 +1,4 @@
+// zh-CN Language Pack v1.2.0
 /**
  * Created with JetBrains PhpStorm.
  * User: taoqili

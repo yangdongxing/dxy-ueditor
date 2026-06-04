@@ -1,3 +1,8 @@
+/**
+ * DXY Editor View Extensions
+ * @module dxy-extend
+ * @version 1.2.0
+ */
 (function(g){
 	var CLASS_NAME = 'dxy-meta-replaced-view';
 	function isPC(){  

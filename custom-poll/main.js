@@ -1,3 +1,4 @@
+// Custom Poll Module v1.2.0
 /**
  * Created by admin on 2015/12/29.
  */

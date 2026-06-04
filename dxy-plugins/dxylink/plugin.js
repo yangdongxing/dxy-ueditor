@@ -1,3 +1,4 @@
+// DXY Link Plugin v1.2.0
 //link 插件
 (function(){
 	var domUtils = baidu.editor.dom.domUtils;

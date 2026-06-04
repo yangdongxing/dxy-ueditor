@@ -1,3 +1,4 @@
+// Third-party dependency bundled for dxy-ueditor
 /*!
  * jQuery JavaScript Library v1.10.2
  * http://jquery.com/
