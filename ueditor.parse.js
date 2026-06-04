@@ -1,3 +1,4 @@
+// UEditor Parse Module - v1.2.0
 /*!
  * UEditor
  * version: ueditor

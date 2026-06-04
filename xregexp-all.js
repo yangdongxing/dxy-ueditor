@@ -1,3 +1,4 @@
+// XRegExp Library - bundled for dxy-ueditor
 /***** xregexp.js *****/
 
 /*!

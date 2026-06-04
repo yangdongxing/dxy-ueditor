@@ -1,3 +1,4 @@
+// Editor default styles configuration
 '/*可以在这里添加你自己的css*/'+
 'body{line-height: 1.8;font-size: 14px;color: #333;font-family: Avenir,"Hiragino Sans GB","Noto Sans S Chinese","Microsoft Yahei","Microsoft Sans Serif","WenQuanYi Micro Hei",sans-serif;}'+
 'img{max-width: 100%;}'+
